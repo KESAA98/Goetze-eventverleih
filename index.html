@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Index</title>
+
+  <style>
+    :root{
+      --cart-width: 360px; /* später anpassen */
+    }
+
+    html, body{
+      margin:0;
+      padding:0;
+      height:100%;
+      background:#fff;
+      overflow-x:hidden;
+    }
+
+    /* Platzhalter-Container: standardmäßig “unsichtbar” (keine Deko) */
+    .slot{
+      width:100%;
+      border:0;
+      outline:0;
+      background:transparent;
+    }
+
+    /* Cookie-Overlay (nur sichtbar, wenn nicht akzeptiert) */
+    #cookieOverlay{
+      position:fixed;
+      inset:0;
+      z-index:9999;
+      display:none;              /* wird per JS aktiviert */
+      background:transparent;    /* coki.html macht sein eigenes Design */
+    }
+    #cookieOverlay.is-visible{
+      display:block;
+    }
+
+    /* Head: volle Höhe/Breite, verschwindet beim Scrollen automatisch */
+    #head{
+      height:100vh;
+      min-height:100vh;
+    }
+
+    /* Cart: rechts fix, Shop nimmt Restbreite (Screen - Cart) */
+    #cart{
+      position:fixed;
+      top:0;
+      right:0;
+      height:100vh;
+      width:var(--cart-width);
+      z-index:50;
+      background:transparent;
+      pointer-events:none; /* cart.html kann das später selbst aktivieren */
+    }
+
+    #shop{
+      min-height:100vh;
+      width:calc(100% - var(--cart-width));
+      margin-right:var(--cart-width);
+    }
+
+    /* Mobile: cart “ausblenden” (kann später per Script ein-/ausfahren) */
+    @media (max-width: 900px){
+      :root{ --cart-width: 0px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 1) Cookies -->
+  <div id="cookieOverlay" class="slot" data-src="backend/coki.html"></div>
+
+  <!-- 2) Head -->
+  <section id="head" class="slot" data-src="backend/head.html"></section>
+
+  <!-- 3) Shop -->
+  <main id="shop" class="slot" data-src="backend/shop.html"></main>
+
+  <!-- 4) Cart -->
+  <aside id="cart" class="slot" data-src="backend/cart.html"></aside>
+
+  <script>
+    (function(){
+      const COOKIE_KEY = "cookiesAccepted_v1";
+
+      // Diese Funktion kann in coki.html aufgerufen werden:
+      window.acceptCookies = function(){
+        try { localStorage.setItem(COOKIE_KEY, "1"); } catch(e) {}
+        document.getElementById("cookieOverlay")?.classList.remove("is-visible");
+      };
+
+      // Diese Funktionen können später von euren Scripts genutzt werden:
+      window.openCart = function(){
+        const el = document.getElementById("cart");
+        if(!el) return;
+        el.style.pointerEvents = "auto";
+        el.style.transform = "translateX(0)";
+      };
+      window.closeCart = function(){
+        const el = document.getElementById("cart");
+        if(!el) return;
+        el.style.pointerEvents = "none";
+        el.style.transform = "translateX(100%)";
+      };
+
+      async function loadInto(el, url){
+        const res = await fetch(url, { cache: "no-store" });
+        if(!res.ok) throw new Error(url + " -> " + res.status);
+        const html = await res.text();
+
+        // HTML einfügen
+        el.innerHTML = html;
+
+        // Scripts aus geladenem HTML wirklich ausführen
+        const scripts = Array.from(el.querySelectorAll("script"));
+        for(const s of scripts){
+          const ns = document.createElement("script");
+          for(const attr of s.attributes) ns.setAttribute(attr.name, attr.value);
+          ns.text = s.text || "";
+          s.parentNode.replaceChild(ns, s);
+        }
+      }
+
+      async function boot(){
+        const slots = Array.from(document.querySelectorAll("[data-src]"));
+
+        // Cookie-Overlay Logik
+        let accepted = false;
+        try { accepted = localStorage.getItem(COOKIE_KEY) === "1"; } catch(e) {}
+
+        // Immer Head/Shop/Cart laden (Overlay liegt ggf. drüber)
+        const normalSlots = slots.filter(el => el.id !== "cookieOverlay");
+        await Promise.all(normalSlots.map(el => loadInto(el, el.dataset.src)));
+
+        // Cookie nur laden/anzeigen, wenn nicht akzeptiert
+        if(!accepted){
+          const overlay = document.getElementById("cookieOverlay");
+          overlay.classList.add("is-visible");
+          await loadInto(overlay, overlay.dataset.src);
+        }
+      }
+
+      boot().catch(err => console.error(err));
+    })();
+  </script>
+</body>
+</html>
