@@ -32,7 +32,7 @@
       inset:0;
       z-index:9999;
       display:none;              /* wird per JS aktiviert */
-      background:transparent;    /* coki.html macht sein eigenes Design */
+      background:transparent;    /* cookie.html macht sein eigenes Design */
     }
     #cookieOverlay.is-visible{
       display:block;
@@ -71,7 +71,7 @@
 
 <body>
   <!-- 1) Cookies -->
-  <div id="cookieOverlay" class="slot" data-src="backend/coki.html"></div>
+  <div id="cookieOverlay" class="slot" data-src="backend/cookie.html"></div>
 
   <!-- 2) Head -->
   <section id="head" class="slot" data-src="backend/head.html"></section>
@@ -86,7 +86,7 @@
     (function(){
       const COOKIE_KEY = "cookiesAccepted_v1";
 
-      // Diese Funktion kann in coki.html aufgerufen werden:
+      // Diese Funktion kann in cookie.html aufgerufen werden:
       window.acceptCookies = function(){
         try { localStorage.setItem(COOKIE_KEY, "1"); } catch(e) {}
         document.getElementById("cookieOverlay")?.classList.remove("is-visible");
