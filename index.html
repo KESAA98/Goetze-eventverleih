@@ -3,22 +3,51 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Index</title>
+
+  <!-- Titel & Tab-Icon -->
+  <title>Eventverleih</title>
+  <link rel="icon" type="image/png" href="image/Logo.png" />
 
   <style>
+    /* =========================
+       Globales Design (zentral)
+       ========================= */
     :root{
-      --cart-width: 360px; /* später anpassen */
+      /* Layout */
+      --cart-width: 360px;
+
+      /* Typografie */
+      --font-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+      /* Farben */
+      --bg: #ffffff;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --primary: #1f4fa3;
+
+      /* UI */
+      --card: #f8f9fb;
+      --radius: 14px;
+      --shadow: 0 12px 40px rgba(0,0,0,.18);
     }
 
     html, body{
       margin:0;
       padding:0;
       height:100%;
-      background:#fff;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-base);
       overflow-x:hidden;
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
     }
 
-    /* Platzhalter-Container: standardmäßig “unsichtbar” (keine Deko) */
+    *, *::before, *::after{
+      box-sizing: border-box;
+    }
+
+    /* Platzhalter-Container */
     .slot{
       width:100%;
       border:0;
@@ -26,25 +55,25 @@
       background:transparent;
     }
 
-    /* Cookie-Overlay (nur sichtbar, wenn nicht akzeptiert) */
+    /* Cookie-Overlay */
     #cookieOverlay{
       position:fixed;
       inset:0;
       z-index:9999;
-      display:none;              /* wird per JS aktiviert */
-      background:transparent;    /* cookie.html macht sein eigenes Design */
+      display:none;
+      background:transparent;
     }
     #cookieOverlay.is-visible{
       display:block;
     }
 
-    /* Head: volle Höhe/Breite, verschwindet beim Scrollen automatisch */
+    /* Head */
     #head{
       height:100vh;
       min-height:100vh;
     }
 
-    /* Cart: rechts fix, Shop nimmt Restbreite (Screen - Cart) */
+    /* Cart */
     #cart{
       position:fixed;
       top:0;
@@ -53,18 +82,30 @@
       width:var(--cart-width);
       z-index:50;
       background:transparent;
-      pointer-events:none; /* cart.html kann das später selbst aktivieren */
+      pointer-events:none;
+      transform: translateX(100%);
+      transition: transform .22s ease;
     }
 
+    /* Shop */
     #shop{
       min-height:100vh;
       width:calc(100% - var(--cart-width));
       margin-right:var(--cart-width);
     }
 
-    /* Mobile: cart “ausblenden” (kann später per Script ein-/ausfahren) */
+    /* Mobile */
     @media (max-width: 900px){
       :root{ --cart-width: 0px; }
+
+      #cart{
+        transform:none;
+      }
+
+      #shop{
+        width:100%;
+        margin-right:0;
+      }
     }
   </style>
 </head>
@@ -86,19 +127,20 @@
     (function(){
       const COOKIE_KEY = "cookiesAccepted_v1";
 
-      // Diese Funktion kann in cookie.html aufgerufen werden:
+      /* von cookie.html aufrufbar */
       window.acceptCookies = function(){
         try { localStorage.setItem(COOKIE_KEY, "1"); } catch(e) {}
         document.getElementById("cookieOverlay")?.classList.remove("is-visible");
       };
 
-      // Diese Funktionen können später von euren Scripts genutzt werden:
+      /* Cart-Steuerung */
       window.openCart = function(){
         const el = document.getElementById("cart");
         if(!el) return;
         el.style.pointerEvents = "auto";
         el.style.transform = "translateX(0)";
       };
+
       window.closeCart = function(){
         const el = document.getElementById("cart");
         if(!el) return;
@@ -111,14 +153,15 @@
         if(!res.ok) throw new Error(url + " -> " + res.status);
         const html = await res.text();
 
-        // HTML einfügen
         el.innerHTML = html;
 
-        // Scripts aus geladenem HTML wirklich ausführen
+        /* Scripts aus geladenem HTML ausführen */
         const scripts = Array.from(el.querySelectorAll("script"));
         for(const s of scripts){
           const ns = document.createElement("script");
-          for(const attr of s.attributes) ns.setAttribute(attr.name, attr.value);
+          for(const attr of s.attributes){
+            ns.setAttribute(attr.name, attr.value);
+          }
           ns.text = s.text || "";
           s.parentNode.replaceChild(ns, s);
         }
@@ -127,15 +170,16 @@
       async function boot(){
         const slots = Array.from(document.querySelectorAll("[data-src]"));
 
-        // Cookie-Overlay Logik
         let accepted = false;
-        try { accepted = localStorage.getItem(COOKIE_KEY) === "1"; } catch(e) {}
+        try {
+          accepted = localStorage.getItem(COOKIE_KEY) === "1";
+        } catch(e) {}
 
-        // Immer Head/Shop/Cart laden (Overlay liegt ggf. drüber)
+        /* Head / Shop / Cart immer laden */
         const normalSlots = slots.filter(el => el.id !== "cookieOverlay");
         await Promise.all(normalSlots.map(el => loadInto(el, el.dataset.src)));
 
-        // Cookie nur laden/anzeigen, wenn nicht akzeptiert
+        /* Cookie nur bei Bedarf */
         if(!accepted){
           const overlay = document.getElementById("cookieOverlay");
           overlay.classList.add("is-visible");
