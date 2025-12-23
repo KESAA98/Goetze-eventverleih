@@ -5,84 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    /* Overlay-Hintergrund */
     .cookie-backdrop{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.35);
+      background:rgba(0,0,0,.4);
       display:flex;
       align-items:center;
       justify-content:center;
       padding:20px;
     }
 
-    /* Dialog */
     .cookie-box{
       width:100%;
-      max-width:420px;
+      max-width:440px;
       background:var(--card);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding:22px 22px 18px;
+      padding:24px;
     }
 
     .cookie-box h2{
-      margin:0 0 10px 0;
-      font-size:1.1rem;
+      margin:0 0 12px;
+      font-size:1.15rem;
     }
 
     .cookie-box p{
-      margin:0 0 14px 0;
+      margin:0 0 14px;
       font-size:.95rem;
       color:var(--muted);
-      line-height:1.45;
+      line-height:1.5;
     }
 
     .cookie-info{
       background:#eef2f7;
-      border-radius:10px;
-      padding:10px 12px;
+      border-radius:12px;
+      padding:12px 14px;
       font-size:.85rem;
       color:#333;
-      margin-bottom:16px;
+      margin-bottom:18px;
     }
 
     .cookie-actions{
       display:flex;
-      gap:10px;
-      margin-top:8px;
+      justify-content:flex-end;
     }
 
     .cookie-btn{
-      flex:1;
       border:0;
       border-radius:999px;
-      padding:10px 14px;
+      padding:11px 20px;
       font-size:.95rem;
       cursor:pointer;
-    }
-
-    .cookie-btn.primary{
       background:var(--primary);
       color:#fff;
-    }
-
-    .cookie-btn.secondary{
-      background:#e5e7eb;
-      color:#111;
     }
 
     .cookie-footer{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      margin-top:14px;
+      margin-top:16px;
       font-size:.8rem;
+      color:var(--muted);
     }
 
     .cookie-footer a{
       color:var(--primary);
       text-decoration:none;
+    }
+
+    .cookie-footer a:hover{
+      text-decoration:underline;
     }
   </style>
 </head>
@@ -93,7 +86,7 @@
       <h2>Cookies & Datenschutz</h2>
 
       <p>
-        Wir verwenden Cookies, um den Betrieb dieser Website sicherzustellen.
+        Wir verwenden Cookies, um den sicheren Betrieb dieser Website zu gewährleisten.
       </p>
 
       <div class="cookie-info">
@@ -102,20 +95,17 @@
       </div>
 
       <div class="cookie-actions">
-        <button class="cookie-btn secondary" onclick="acceptCookies()">
-          Nur notwendige
-        </button>
-        <button class="cookie-btn primary" onclick="acceptCookies()">
-          Akzeptieren
+        <button class="cookie-btn" onclick="acceptCookies()">
+          Verstanden
         </button>
       </div>
 
       <div class="cookie-footer">
-        <span>Auswahl jederzeit änderbar</span>
+        <span>Hinweis geschlossen</span>
         <span>
-          <a href="datenschutz.html">Datenschutz</a>
+          <a href="/datenschutz/">Datenschutz</a>
           &nbsp;·&nbsp;
-          <a href="impressum.html">Impressum</a>
+          <a href="/impressum/">Impressum</a>
         </span>
       </div>
     </div>
