@@ -4,10 +4,10 @@
     --title-height: 70px;
     --title-shadow: 0 8px 24px rgba(0,0,0,.12);
 
-    /* NEU: Innenabstände */
-    --title-pad-x: 36px;   /* Abstand links/rechts gesamt */
-    --logo-pad-left: 16px;
-    --nav-pad-right: 16px;
+    /* Padding (verdoppelt) */
+    --title-pad-x: 72px;     /* vorher 36px */
+    --logo-pad-left: 32px;   /* vorher 16px */
+    --nav-pad-right: 32px;   /* vorher 16px */
   }
 
   .titlebar{
@@ -17,17 +17,16 @@
     align-items:center;
     justify-content:space-between;
 
-    /* Grund-Padding der Leiste */
     padding: 0 var(--title-pad-x);
 
-    /* oberster Zustand */
+    /* oberste Position */
     border-bottom: 1px solid rgba(0,0,0,.08);
     box-shadow: none;
 
     transition: box-shadow .2s ease, border-bottom-color .2s ease;
   }
 
-  /* nach Scroll */
+  /* nach Scroll (wird von index.html gesetzt) */
   #title.is-scrolled .titlebar{
     border-bottom-color: transparent;
     box-shadow: var(--title-shadow);
@@ -36,7 +35,7 @@
   .titlebar__left{
     display:flex;
     align-items:center;
-    padding-left: var(--logo-pad-left); /* Logo weiter nach innen */
+    padding-left: var(--logo-pad-left);
   }
 
   .titlebar__logo{
@@ -49,7 +48,7 @@
     display:flex;
     align-items:center;
     gap: 34px;
-    padding-right: var(--nav-pad-right); /* Buttons weiter nach innen */
+    padding-right: var(--nav-pad-right);
   }
 
   .titlebar__link{
@@ -65,9 +64,9 @@
 
   @media (max-width:700px){
     :root{
-      --title-pad-x: 20px;
-      --logo-pad-left: 8px;
-      --nav-pad-right: 8px;
+      --title-pad-x: 40px;
+      --logo-pad-left: 16px;
+      --nav-pad-right: 16px;
     }
   }
 </style>
@@ -103,57 +102,6 @@
 
     e.preventDefault();
     scrollToId(link.getAttribute("data-scroll"));
-  });
-})();
-</script>
-
-
-<div class="titlebar" role="banner">
-  <div class="titlebar__left">
-    <img
-      src="image/Titelbild.png"
-      alt="Eventverleih"
-      class="titlebar__logo"
-    >
-  </div>
-
-  <nav class="titlebar__nav" aria-label="Hauptnavigation">
-    <a class="titlebar__link" data-scroll="shop">Shop</a>
-    <a class="titlebar__link" data-scroll="kontakt">Kontakt</a>
-    <a class="titlebar__link" data-scroll="impressum">Impressum</a>
-  </nav>
-</div>
-
-<script>
-(function(){
-  function scrollToId(id){
-    const el = document.getElementById(id);
-    if(!el) return;
-    const y = el.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({ top: y, behavior: "smooth" });
-  }
-
-  document.addEventListener("click", function(e){
-    const link = e.target.closest("[data-scroll]");
-    if(!link) return;
-
-    e.preventDefault();
-    const target = link.getAttribute("data-scroll");
-
-    if(target === "shop"){
-      scrollToId("shop");
-      return;
-    }
-
-    if(target === "kontakt"){
-      scrollToId("kontakt");
-      return;
-    }
-
-    if(target === "impressum"){
-      scrollToId("impressum");
-      return;
-    }
   });
 })();
 </script>
