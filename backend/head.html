@@ -1,232 +1,166 @@
-<!-- backend/head.html -->
+<section class="head-wrap" aria-label="Header Bereich">
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero__bg" id="heroBg" aria-hidden="true"></div>
+    <!-- V9 Blaustich (genau wie dort) -->
+    <div class="hero__tint" aria-hidden="true"></div>
+  </section>
+
+  <!-- 6 Kacheln (kein Scroller, keine extra Innen-Wrapper) -->
+  <section class="tiles" aria-label="Zufalls-Artikelbilder">
+    <div class="tile"><img id="tile1" alt=""></div>
+    <div class="tile"><img id="tile2" alt=""></div>
+    <div class="tile"><img id="tile3" alt=""></div>
+    <div class="tile"><img id="tile4" alt=""></div>
+    <div class="tile"><img id="tile5" alt=""></div>
+    <div class="tile"><img id="tile6" alt=""></div>
+  </section>
+</section>
+
 <style>
+  /* nutzt das gleiche Padding wie im Titel (falls in index gesetzt), sonst fallback */
   :root{
-    --title-pad-x: 72px;
-    --logo-pad-left: 32px;
-    --nav-pad-right: 32px;
-
-    --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
-    --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
-
-    --head-gap: 34px;
-
-    --radius: 18px;
-    --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
+    --title-pad: var(--title-padding, 32px);
+    --radius-xl: 24px;
+    --radius-lg: 18px;
+    --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.12);
   }
 
   .head-wrap{
-    width:100%;
-    padding-left:  var(--edge-left);
-    padding-right: var(--edge-right);
-    padding-top:   var(--head-gap);
-    padding-bottom:var(--head-gap);
+    padding: 26px var(--title-pad) 32px;
   }
 
+  /* HERO Container (Größe/Position wie bisher) */
   .hero{
-    width:100%;
-    height:52vh;
-    min-height:360px;
-    max-height:620px;
-    border-radius: var(--radius);
+    border-radius: var(--radius-xl);
     overflow:hidden;
     position:relative;
-    background:#d9dde3;
+    height: 40vh;           /* wie V9 random/intro feeling */
+    min-height: 280px;
+    background:#0f172a;
     box-shadow: var(--shadow-soft);
   }
+
   .hero__bg{
     position:absolute; inset:0;
-    background-size:cover;
-    background-position:center;
+    background-size: cover;
+    background-position: center;
     transform: scale(1.02);
-    filter: saturate(.92) contrast(.95);
+    filter: saturate(1.02);
   }
+
+  /* V9 Blaustich: linear-gradient(135deg, rgba(15,23,42,0.78), rgba(15,23,42,0.6)) */
   .hero__tint{
     position:absolute; inset:0;
-    background: rgba(30, 60, 120, .18);
-    mix-blend-mode: multiply;
+    background: linear-gradient(
+      135deg,
+      rgba(15, 23, 42, 0.78),
+      rgba(15, 23, 42, 0.60)
+    );
   }
-  .hero__dim{
-    position:absolute; inset:0;
-    background: rgba(0,0,0,.22);
-  }
 
-  /* Strip: exakt voll, kein Restbild */
-  .items-strip{
-    margin-top: var(--head-gap);
-
-    height:25vh;
-    min-height:170px;
-    max-height:240px;
-
-    border-radius: var(--radius);
-    background:#fff;
+  /* Unterer weißer Bereich (wie bisher) */
+  .tiles{
+    margin-top: 24px;
+    border-radius: var(--radius-xl);
+    background: rgba(247, 249, 252, 1);
     box-shadow: var(--shadow-soft);
+    padding: 18px 22px;
 
-    display:flex;
-    align-items:center;
+    /* 6 gleichmäßige Kacheln */
+    display:grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 16px;
 
-    /* WICHTIG: kein gap, kein „Rest“ */
-    gap:0;
-    overflow:hidden;
+    /* Höhe/Look wie bisher „perfekt“ */
+    min-height: 22vh;
   }
 
-  /* Kachelbreite wird per JS gesetzt (CSS Variable) */
-  .item-thumb{
-    flex:0 0 var(--tileW, 220px);
-    height:100%;
-    border-radius:0;
+  /* einzelne Kachel */
+  .tile{
+    border-radius: var(--radius-lg);
+    background:#fff;
     overflow:hidden;
-    background:#eef1f6;
-    box-shadow:0 6px 18px rgba(0,0,0,.10);
+    height: 100%;
+    min-height: 160px;
   }
-  .item-thumb img{
+
+  /* Bilder ohne Radius (Radius sitzt am Container) */
+  .tile img{
     width:100%;
     height:100%;
-    object-fit:cover;
     display:block;
-    border-radius:0;
+    object-fit: cover;
+    border-radius: 0;
   }
 
-  @media (max-width:700px){
-    :root{
-      --title-pad-x: 40px;
-      --logo-pad-left: 16px;
-      --nav-pad-right: 16px;
-      --head-gap: 26px;
-    }
-    .hero{ height:46vh; min-height:300px; }
+  /* responsive: bricht sauber um, ohne abgeschnittene 1px Bilder */
+  @media (max-width: 1100px){
+    .tiles{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
-
-  @media (max-width:560px){
-    :root{
-      --title-pad-x: 22px;
-      --logo-pad-left: 10px;
-      --nav-pad-right: 10px;
-      --head-gap: 22px;
-    }
-    .items-strip{ min-height:150px; max-height:210px; }
-    .hero{ min-height:260px; }
+  @media (max-width: 700px){
+    .head-wrap{ padding-left: 18px; padding-right: 18px; }
+    .tiles{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
 </style>
 
-<section class="head-wrap" aria-label="Header-Bereich">
-  <div class="hero">
-    <div class="hero__bg" id="heroBg"></div>
-    <div class="hero__tint"></div>
-    <div class="hero__dim"></div>
-  </div>
-
-  <div class="items-strip" id="itemsStrip" aria-label="Zufällige Artikelbilder"></div>
-</section>
-
 <script>
-(async function(){
-  const BG_MANIFEST    = "image/hintergrund/manifest.json";
-  const ITEMS_MANIFEST = "Items/manifest.json";
+  (function(){
+    const BG_MANIFEST   = "image/hintergrund/manifest.json";
+    const ITEM_MANIFEST = "Items/manifest.json";
 
-  const load = async (p) => {
-    const r = await fetch(p, { cache: "no-store" });
-    if(!r.ok) throw new Error(p + " -> " + r.status);
-    return await r.json();
-  };
-
-  const pick = (a) => a[Math.floor(Math.random() * a.length)];
-
-  function shuffleUnique(arr){
-    // entfernen von Duplikaten (falls Manifest doppelte Pfade enthält)
-    const uniq = Array.from(new Set(arr));
-    // shuffle
-    for(let i = uniq.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      [uniq[i], uniq[j]] = [uniq[j], uniq[i]];
+    function uniqSample(arr, n){
+      const a = Array.isArray(arr) ? arr.slice() : [];
+      // Fisher-Yates shuffle (einmal), dann slice => garantiert keine Duplikate
+      for(let i=a.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a.slice(0, Math.min(n, a.length));
     }
-    return uniq;
-  }
 
-  function renderStrip(allImages){
-    const strip = document.getElementById("itemsStrip");
-    if(!strip) return;
+    async function readJson(url){
+      const r = await fetch(url, { cache: "no-store" });
+      if(!r.ok) throw new Error(url + " -> " + r.status);
+      return r.json();
+    }
 
-    const W = strip.clientWidth;
-
-    // Ziel: Kacheln sollen ähnlich wie vorher wirken, aber immer exakt aufgehen:
-    // min/max Kachelbreite
-    const minTile = 170;
-    const maxTile = 260;
-
-    // Erst grob schätzen: wie viele Kacheln könnten rein?
-    let n = Math.max(1, Math.floor(W / 220));
-
-    // Dann Kachelbreite so wählen, dass n Kacheln exakt passen
-    // und in min/max bleibt. Wenn nicht, n anpassen.
-    function tileWFor(n){ return Math.floor(W / n); }
-
-    // n erhöhen/verringern bis tileW im Bereich ist
-    while(n > 1 && tileWFor(n) > maxTile) n++;
-    while(n > 1 && tileWFor(n) < minTile) n--;
-
-    // finale Breite (integer), passt exakt: n * tileW <= W (Rest wird durch floor vermieden)
-    const tileW = tileWFor(n);
-
-    // Rest (W - n*tileW) verteilen wir NICHT als gap (sonst Restbild),
-    // sondern lassen ihn einfach „rechts“ im Container leer? -> Nein:
-    // wir setzen strip so, dass n*tileW = W, indem wir n neu berechnen wenn nötig:
-    const nExact = Math.max(1, Math.floor(W / tileW));
-    const used = nExact * tileW;
-
-    // Wenn 1–2px Rest bleibt (durch Rundung), kompensieren wir durch tileW+1 auf die ersten kacheln:
-    const remainder = W - used;
-
-    strip.style.setProperty("--tileW", tileW + "px");
-    strip.innerHTML = "";
-
-    const imgs = shuffleUnique(allImages).slice(0, nExact);
-
-    imgs.forEach((src, idx) => {
-      const d = document.createElement("div");
-      d.className = "item-thumb";
-
-      // Restpixel verteilen: erste `remainder` Kacheln bekommen +1px
-      if(idx < remainder){
-        d.style.flexBasis = (tileW + 1) + "px";
+    async function boot(){
+      // HERO Hintergrund
+      try{
+        const bg = await readJson(BG_MANIFEST);
+        const bgList = (bg && Array.isArray(bg.images)) ? bg.images : [];
+        const heroOne = uniqSample(bgList, 1)[0];
+        if(heroOne){
+          document.getElementById("heroBg").style.backgroundImage = `url("${heroOne}")`;
+        }
+      }catch(e){
+        console.error("BG manifest fail:", e);
       }
 
-      const img = document.createElement("img");
-      img.loading = "lazy";
-      img.alt = "";
-      img.src = src;
+      // 6 Item-Bilder
+      try{
+        const it = await readJson(ITEM_MANIFEST);
+        const itemList = (it && Array.isArray(it.images)) ? it.images : [];
+        const picks = uniqSample(itemList, 6);
 
-      d.appendChild(img);
-      strip.appendChild(d);
-    });
-  }
-
-  // Hero
-  try{
-    const bg = await load(BG_MANIFEST);
-    if(Array.isArray(bg) && bg.length){
-      document.getElementById("heroBg").style.backgroundImage =
-        "url('image/hintergrund/" + pick(bg) + "')";
+        for(let i=0; i<6; i++){
+          const imgEl = document.getElementById("tile"+(i+1));
+          const src = picks[i];
+          if(src){
+            imgEl.src = src;
+            imgEl.alt = "Artikelbild";
+          }else{
+            // falls weniger als 6 vorhanden: leere Kachel bleibt weiß
+            imgEl.removeAttribute("src");
+            imgEl.alt = "";
+          }
+        }
+      }catch(e){
+        console.error("ITEM manifest fail:", e);
+      }
     }
-  }catch(e){}
 
-  // Items
-  let items = [];
-  try{
-    const raw = await load(ITEMS_MANIFEST);
-    if(Array.isArray(raw)) items = raw;
-  }catch(e){}
-
-  if(items.length){
-    // initial render
-    renderStrip(items);
-
-    // bei Resize neu berechnen (damit jedes Format sauber ist)
-    let t;
-    window.addEventListener("resize", () => {
-      clearTimeout(t);
-      t = setTimeout(() => renderStrip(items), 120);
-    }, { passive:true });
-  }
-})();
+    boot();
+  })();
 </script>
