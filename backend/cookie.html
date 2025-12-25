@@ -8,29 +8,30 @@
     .cookie-backdrop{
       position:fixed;
       inset:0;
-      background:rgba(0,0,0,.4);
+      background:rgba(0,0,0,.38);
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:20px;
+      padding:22px;
     }
 
     .cookie-box{
       width:100%;
-      max-width:440px;
+      max-width:460px;
       background:var(--card);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding:24px;
+      padding:24px 24px 18px;
     }
 
-    .cookie-box h2{
-      margin:0 0 12px;
+    .cookie-title{
+      margin:0 0 10px 0;
       font-size:1.15rem;
+      line-height:1.2;
     }
 
-    .cookie-box p{
-      margin:0 0 14px;
+    .cookie-text{
+      margin:0 0 14px 0;
       font-size:.95rem;
       color:var(--muted);
       line-height:1.5;
@@ -40,73 +41,75 @@
       background:#eef2f7;
       border-radius:12px;
       padding:12px 14px;
-      font-size:.85rem;
-      color:#333;
-      margin-bottom:18px;
+      font-size:.86rem;
+      color:#1f2933;
+      line-height:1.45;
+      margin:0 0 16px 0;
     }
 
     .cookie-actions{
       display:flex;
-      justify-content:flex-end;
+      justify-content:center;
+      margin:10px 0 12px 0;
     }
 
     .cookie-btn{
       border:0;
       border-radius:999px;
-      padding:11px 20px;
+      padding:11px 22px;
       font-size:.95rem;
       cursor:pointer;
       background:var(--primary);
       color:#fff;
+      min-width:160px;
     }
 
     .cookie-footer{
       display:flex;
-      justify-content:space-between;
+      justify-content:center;
+      gap:12px;
       align-items:center;
-      margin-top:16px;
-      font-size:.8rem;
+      font-size:.82rem;
       color:var(--muted);
+      margin-top:6px;
     }
 
     .cookie-footer a{
       color:var(--primary);
       text-decoration:none;
+      white-space:nowrap;
     }
+    .cookie-footer a:hover{ text-decoration:underline; }
 
-    .cookie-footer a:hover{
-      text-decoration:underline;
+    .cookie-sep{
+      opacity:.55;
     }
   </style>
 </head>
 
 <body>
   <div class="cookie-backdrop">
-    <div class="cookie-box" role="dialog" aria-modal="true">
-      <h2>Cookies & Datenschutz</h2>
+    <div class="cookie-box" role="dialog" aria-modal="true" aria-labelledby="cookieTitle">
+      <h2 class="cookie-title" id="cookieTitle">Cookies für die Funktion der Website</h2>
 
-      <p>
-        Wir verwenden Cookies, um den sicheren Betrieb dieser Website zu gewährleisten.
+      <p class="cookie-text">
+        Wir verwenden ausschließlich technisch notwendige Cookies, damit unsere Website zuverlässig funktioniert
+        (z. B. für Warenkorb, Navigation und Sicherheit).
       </p>
 
       <div class="cookie-info">
-        Notwendige Cookies sind für grundlegende Funktionen wie Warenkorb
-        und Seitensteuerung erforderlich und immer aktiv.
+        Diese Cookies sind für den Betrieb erforderlich und können nicht deaktiviert werden.
+        Wenn du damit nicht einverstanden bist, kann die Website leider nicht korrekt genutzt werden.
       </div>
 
       <div class="cookie-actions">
-        <button class="cookie-btn" onclick="acceptCookies()">
-          Verstanden
-        </button>
+        <button class="cookie-btn" onclick="acceptCookies()">Verstanden</button>
       </div>
 
       <div class="cookie-footer">
-        <span>Hinweis geschlossen</span>
-        <span>
-          <a href="/datenschutz/">Datenschutz</a>
-          &nbsp;·&nbsp;
-          <a href="/impressum/">Impressum</a>
-        </span>
+        <a href="/datenschutz/">Datenschutz</a>
+        <span class="cookie-sep">·</span>
+        <a href="/impressum/">Impressum</a>
       </div>
     </div>
   </div>
