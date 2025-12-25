@@ -1,1 +1,108 @@
+<!-- backend/titel.html -->
+<style>
+  :root{
+    --title-height: 70px;
+  }
 
+  .titlebar{
+    position: relative;
+    height: var(--title-height);
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 0 28px;
+    border-bottom: 1px solid rgba(0,0,0,.08); /* leichter grauer Strich wie im Screenshot */
+  }
+
+  /* Der Schatten kommt erst, wenn index.html dem #title die Klasse .is-scrolled gibt */
+  #title.is-scrolled .titlebar{
+    border-bottom-color: transparent;
+  }
+
+  .titlebar__left{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+    min-width: 220px;
+  }
+
+  .titlebar__logo{
+    height: 42px;
+    width:auto;
+    display:block;
+    object-fit:contain;
+  }
+
+  .titlebar__nav{
+    display:flex;
+    align-items:center;
+    gap: 34px;
+  }
+
+  .titlebar__link{
+    color:#5b6472;
+    text-decoration:none;
+    font-size: 14px;
+    letter-spacing: .2px;
+  }
+  .titlebar__link:hover{
+    color:#1f2933;
+  }
+
+  @media (max-width: 700px){
+    .titlebar{ padding: 0 16px; }
+    .titlebar__nav{ gap: 18px; }
+    .titlebar__left{ min-width: auto; }
+  }
+</style>
+
+<div class="titlebar" role="banner">
+  <div class="titlebar__left">
+    <a href="#top" class="titlebar__brand" aria-label="Zur Startseite" data-scroll="top" style="display:flex;align-items:center;">
+      <img class="titlebar__logo" src="image/Logo.png" alt="LG Eventverleih Logo">
+    </a>
+  </div>
+
+  <nav class="titlebar__nav" aria-label="Hauptnavigation">
+    <a class="titlebar__link" href="#shop" data-scroll="shop">Shop</a>
+    <a class="titlebar__link" href="#kontakt" data-scroll="kontakt">Kontakt</a>
+    <a class="titlebar__link" href="#impressum" data-scroll="impressum">Impressum</a>
+  </nav>
+</div>
+
+<script>
+(function(){
+  function scrollToId(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+
+    const y = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+
+  function onNavClick(e){
+    const a = e.target.closest("a[data-scroll]");
+    if(!a) return;
+
+    e.preventDefault();
+    const target = a.getAttribute("data-scroll");
+
+    if(target === "shop"){
+      // exakt an Shop-Anfang (passt zu deinem "Scroll-Impuls" Verhalten)
+      scrollToId("shop");
+      return;
+    }
+
+    if(target === "top"){
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    // kontakt / impressum
+    scrollToId(target);
+  }
+
+  document.addEventListener("click", onNavClick);
+})();
+</script>
