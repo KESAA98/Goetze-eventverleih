@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"0,50€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		"Zum Verleih stehen elegante Gläser / Whiskygläser aus Glas mit 280ml Fassungsvermögen. Maße (Ø x H): ca. 8,2 x 9,8 cm",
+  "Reinigung_möglich": true
+}
+

@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"0,75€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		""Zum Verleih stehen weiße Kaffeetassen Inklusive passende Unterteller.",
+  "Reinigung_möglich": true
+}
+

@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"0,50€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		"Zum Verleih stehen weiße Dessertteller mit dem Durchmesser von 19cm.",
+  "Reinigung_möglich": true
+}
+

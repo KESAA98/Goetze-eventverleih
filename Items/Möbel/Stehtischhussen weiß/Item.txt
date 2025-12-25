@@ -1,0 +1,6 @@
+{
+  "preis_basis": 		"4,00€",        
+  "preis_weiterer_tag": 	"4,00 €",	
+  "beschreibung": 		"Zum Verleih stehen Stehtischhussen in weiß. Die passenden Stehtische sind ebenfalls verfügbar & empfehlenswert.",
+  "Reinigung_möglich": true
+}

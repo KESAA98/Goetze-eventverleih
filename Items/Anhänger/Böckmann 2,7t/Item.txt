@@ -1,0 +1,6 @@
+{
+  "preis_basis": 		"0,00€",        
+  "preis_weiterer_tag": 	"0,00 €",	
+  "beschreibung": 		"Beschreibung.",
+  "Reinigung_möglich": false
+}

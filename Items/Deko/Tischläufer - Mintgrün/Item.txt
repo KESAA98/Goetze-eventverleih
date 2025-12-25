@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"1,00€",        
+  "preis_weiterer_tag": 	"1,00 €",	
+  "beschreibung": 		"Zum Verleih stehen mintgrüne Tischläufer aus Tüll.",
+  "Reinigung_möglich": false
+}
+

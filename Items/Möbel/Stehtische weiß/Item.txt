@@ -1,0 +1,6 @@
+{
+  "preis_basis": 		"8,00€",        
+  "preis_weiterer_tag": 	"6,00 €",	
+  "beschreibung": 		"Zum Verleih stehen Stehtische in weiß. Sie sind klappbar, um den Transport einfach zu halten. Die passenden weißen Hussen sind ebenfalls verfügbar & empfehlenswert. 80cm Durchmesser & 110cm hoch.",
+  "Reinigung_möglich": false
+}

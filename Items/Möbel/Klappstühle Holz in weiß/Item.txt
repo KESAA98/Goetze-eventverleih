@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"3,75€",        
+  "preis_weiterer_tag": 	"2,00 €",	
+  "beschreibung": 		"Zum Verleih stehen Holz Klappstühle in weiß. Sie sind klappbar, um den Transport einfach zu halten.",
+  "Reinigung_möglich": false
+}
+

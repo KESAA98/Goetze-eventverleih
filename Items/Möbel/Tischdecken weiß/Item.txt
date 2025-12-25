@@ -1,0 +1,6 @@
+{
+  "preis_basis": 		"4,00€",        
+  "preis_weiterer_tag": 	"4,00 €",	
+  "beschreibung": 		"Zum Verleih stehen Tischedecken in weiß. Passend dazu, können Sie auch gern den passenden Tisch dazu leihen.",
+  "Reinigung_möglich": true
+}

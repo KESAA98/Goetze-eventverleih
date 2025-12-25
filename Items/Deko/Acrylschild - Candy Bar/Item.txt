@@ -1,0 +1,6 @@
+{
+  "preis_basis": 		"3,50€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		"Zum Verleih steht ein Acrylschild in weiß für Ihre Candy Bar.",
+  "Reinigung_möglich": false
+}

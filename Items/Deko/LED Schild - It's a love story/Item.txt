@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"8,00€",        
+  "preis_weiterer_tag": 	"5,00 €",	
+  "beschreibung": 		"Zum Verleih steht ein LED Schild. Es wird mit Kabel betrieben und ist dimmbar.",
+  "Reinigung_möglich": false
+}
+

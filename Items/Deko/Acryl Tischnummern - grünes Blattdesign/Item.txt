@@ -1,0 +1,6 @@
+{
+  "preis_basis": 		"0,50€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		"Zum Verleih stehen Acryl Tischnummern im grünem Blattdesign. Insgesamt gibt es die Nummern 1-20.",
+  "Reinigung_möglich": false
+}

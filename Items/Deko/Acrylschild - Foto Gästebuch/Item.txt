@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"3,50€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		"Zum Verleih steht ein Acrylschild in weiß für Ihr Foto Gästebuch.",
+  "Reinigung_möglich": false
+}
+

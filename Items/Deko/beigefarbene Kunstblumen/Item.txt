@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"0,50€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		"Zum Verleih stehen beigefarbene Kunstblumen. Diese können mit unseren Vasen perfekt kombiniert werden.",
+  "Reinigung_möglich": false
+}
+

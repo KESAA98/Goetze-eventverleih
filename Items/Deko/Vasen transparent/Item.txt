@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"0,75€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		"Zum Verleih stehen transparente Mini Vasen. Diese können perfekt mit unseren Kunstblumen oder individuell durch Sie kombiniert werden.",
+  "Reinigung_möglich": false
+}
+

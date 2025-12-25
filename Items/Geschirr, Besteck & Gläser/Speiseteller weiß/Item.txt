@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"0,50€",        
+  "preis_weiterer_tag": 	"0,50 €",	
+  "beschreibung": 		""Zum Verleih stehen weiße Speiseteller mit dem Durchmesser von 25cm.",
+  "Reinigung_möglich": true
+}
+

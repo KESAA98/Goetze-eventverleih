@@ -1,0 +1,7 @@
+{
+  "preis_basis": 		"3,00€",        
+  "preis_weiterer_tag": 	"1,00 €",	
+  "beschreibung": 		"Zum Verleih stehen elegante Kerzenständer in Silber. Sie haben 3 verschiedene Größen & werden im 3er Set verliehen.",
+  "Reinigung_möglich": false
+}
+

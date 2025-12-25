@@ -1,0 +1,6 @@
+{
+  "preis_basis": 		"8,00€",        
+  "preis_weiterer_tag": 	"6,00 €",	
+  "beschreibung": 		"Zum Verleih stehen Tische in weiß. Sie sind klappbar, um den Transport einfach zu halten. An einem Tisch passen ca. 6-8 Personen. Passend dazu, können Sie auch gern die passenden Bänke dazu leihen sowie die passenden Tischdecken.",
+  "Reinigung_möglich": false
+}
