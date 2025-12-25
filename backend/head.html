@@ -19,7 +19,7 @@
 
   .head-wrap{
     width:100%;
-    padding-left:  var(--edge-left);   /* ORANGE links/rechts wie Titel */
+    padding-left:  var(--edge-left);
     padding-right: var(--edge-right);
     padding-top:   var(--head-gap);
     padding-bottom:var(--head-gap);
@@ -44,15 +44,24 @@
     background-size:cover;
     background-position:center;
     transform: scale(1.02);
+    filter: saturate(.92) contrast(.95);
+  }
+
+  /* Blau angehauchter Look wie V9 */
+  .hero__tint{
+    position:absolute;
+    inset:0;
+    background: rgba(30, 60, 120, .18);   /* leichter Blaustich */
+    mix-blend-mode: multiply;
   }
 
   .hero__dim{
     position:absolute;
     inset:0;
-    background: rgba(0,0,0,.35);
+    background: rgba(0,0,0,.22);
   }
 
-  /* Unterer Container: KEIN Scroll, KEIN innerer Extra-Container */
+  /* Unterer Container: KEIN Scroll, KEINE Innenabstände */
   .items-strip{
     margin-top: var(--head-gap);
 
@@ -68,29 +77,27 @@
     align-items:center;
     gap:14px;
 
-    padding:0;           /* kein innerer Rand */
+    padding:0;           /* keine blauen Innenränder */
     overflow:hidden;     /* kein Scroll */
   }
 
+  /* Thumbs: KEIN Radius, KEINE extra Ränder links/rechts */
   .item-thumb{
     flex:0 0 auto;
-    height: calc(100% - (var(--head-gap) * 0)); /* volle Höhe (ohne inner padding) */
+    height:100%;
     aspect-ratio: 1 / 1;
-    border-radius:14px;
+    border-radius: 0;    /* <- kein Radius */
     overflow:hidden;
     background:#eef1f6;
     box-shadow:0 6px 18px rgba(0,0,0,.10);
   }
-
-  /* “Padding” links/rechts ohne extra Container */
-  .item-thumb:first-child{ margin-left: var(--head-gap); }
-  .item-thumb:last-child{  margin-right: var(--head-gap); }
 
   .item-thumb img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
+    border-radius:0;     /* <- sicher */
   }
 
   @media (max-width:700px){
@@ -118,6 +125,7 @@
 <section class="head-wrap" aria-label="Header-Bereich">
   <div class="hero">
     <div class="hero__bg" id="heroBg"></div>
+    <div class="hero__tint"></div>
     <div class="hero__dim"></div>
   </div>
 
@@ -145,16 +153,15 @@
       document.getElementById("heroBg").style.backgroundImage =
         "url('image/hintergrund/" + pick(bg) + "')";
     }
-  }catch(e){ /* still */ }
+  }catch(e){}
 
-  // Items (ohne Scroll: wir zeigen nur so viele wie reinpassen)
+  // Items (kein Scroll -> nur so viele wie reinpassen)
   try{
     const items = await load(ITEMS_MANIFEST);
     const strip = document.getElementById("itemsStrip");
     if(strip && Array.isArray(items) && items.length){
       strip.innerHTML = "";
 
-      // grob: 8-10 thumbs passen ohne Scroll, je nach Screen
       const maxThumbs = window.innerWidth < 700 ? 6 : 9;
 
       for(const src of shuffle(items).slice(0, maxThumbs)){
@@ -170,6 +177,6 @@
         strip.appendChild(d);
       }
     }
-  }catch(e){ /* still */ }
+  }catch(e){}
 })();
 </script>
