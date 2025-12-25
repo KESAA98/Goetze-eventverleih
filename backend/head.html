@@ -1,29 +1,30 @@
 <!-- backend/head.html -->
 <style>
   :root{
-    /* MUSS zu titel.html passen */
+    /* muss zu titel.html passen (für links/rechts) */
     --title-pad-x: 72px;
-    --logo-pad-left: 32px;
-    --nav-pad-right: 32px;
 
-    --edge-left: calc(var(--title-pad-x) + var(--logo-pad-left));
-    --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
+    /* NEU: einheitlicher Abstand (kleiner als vorher 72, größer als vorher 18/14) */
+    --head-gap: 34px;
 
     --radius: 18px;
     --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
   }
 
   .head-wrap{
-    padding-top: var(--edge-left);
-    padding-left: var(--edge-left);
-    padding-right: var(--edge-right);
-    padding-bottom: var(--edge-left);
+    padding-left: var(--title-pad-x);
+    padding-right: var(--title-pad-x);
+    padding-top: var(--head-gap);     /* ROT */
+    padding-bottom: var(--head-gap);
     width:100%;
   }
 
   .hero{
     width:100%;
-    min-height:55vh;
+    height: 52vh;
+    min-height: 360px;
+    max-height: 620px;
+
     border-radius: var(--radius);
     overflow:hidden;
     position:relative;
@@ -46,37 +47,34 @@
   }
 
   .items-strip{
-    width:100%;
-    margin-top:18px;
-    height:25vh;
-    min-height:180px;
+    margin-top: var(--head-gap);      /* ORANGE */
+
+    height: 25vh;
+    min-height: 170px;
+    max-height: 240px;
+
     border-radius: var(--radius);
-    overflow:hidden;
+    overflow-x:auto;
+    overflow-y:hidden;
     background:#fff;
     box-shadow: var(--shadow-soft);
-  }
 
-  .items-strip__inner{
-    height:100%;
     display:flex;
     align-items:center;
     gap:14px;
-    padding:14px;
-    overflow-x:auto;
-    overflow-y:hidden;
+
+    padding: var(--head-gap);         /* BLAU (Innenabstand oben/unten/links/rechts) */
     scroll-behavior:smooth;
   }
 
   .item-thumb{
     flex:0 0 auto;
-    height: calc(25vh - 28px);
-    max-height:180px;
+    height: 100%;
     aspect-ratio: 1/1;
     border-radius:14px;
     overflow:hidden;
     background:#eef1f6;
     box-shadow:0 6px 18px rgba(0,0,0,.10);
-    position:relative;
   }
 
   .item-thumb img{
@@ -86,131 +84,62 @@
     display:block;
   }
 
-  .item-ph::after{
-    content:"";
-    position:absolute; inset:0;
-    background: linear-gradient(135deg, rgba(0,0,0,.06), rgba(0,0,0,.02));
-  }
-
   @media (max-width:700px){
     :root{
-      --title-pad-x:40px;
-      --logo-pad-left:16px;
-      --nav-pad-right:16px;
+      --title-pad-x: 40px;
+      --head-gap: 26px;
     }
+    .hero{ height: 46vh; min-height: 300px; }
   }
   @media (max-width:560px){
     :root{
-      --title-pad-x:22px;
-      --logo-pad-left:10px;
-      --nav-pad-right:10px;
+      --title-pad-x: 22px;
+      --head-gap: 22px;
     }
-    .items-strip{ min-height:160px; }
-    .item-thumb{ max-height:160px; }
+    .items-strip{ min-height: 150px; max-height: 210px; }
   }
 </style>
 
-<section class="head-wrap" aria-label="Header-Bereich">
-  <div class="hero" id="hero">
+<section class="head-wrap">
+  <div class="hero">
     <div class="hero__bg" id="heroBg"></div>
     <div class="hero__dim"></div>
   </div>
 
-  <div class="items-strip">
-    <div class="items-strip__inner" id="itemsRow"></div>
-  </div>
+  <div class="items-strip" id="itemsStrip"></div>
 </section>
 
 <script>
-(function(){
+(async function(){
   const BG_MANIFEST    = "image/hintergrund/manifest.json";
   const ITEMS_MANIFEST = "Items/manifest.json";
 
-  async function loadManifest(path){
-    const res = await fetch(path, { cache: "no-store" });
-    if(!res.ok) throw new Error(path + " -> " + res.status);
-    const data = await res.json();
-    if(!Array.isArray(data)) throw new Error(path + " ist kein Array");
-    return data;
-  }
+  const load = async (p) => (await (await fetch(p,{cache:"no-store"})).json());
+  const pick = (a) => a[Math.floor(Math.random()*a.length)];
+  const shuffle = (a) => a.slice().sort(()=>Math.random()-0.5);
 
-  function pickRandom(arr){
-    return arr[Math.floor(Math.random() * arr.length)];
-  }
-
-  function shuffle(arr){
-    const a = arr.slice();
-    for(let i=a.length-1;i>0;i--){
-      const j = Math.floor(Math.random() * (i+1));
-      [a[i], a[j]] = [a[j], a[i]];
+  try{
+    const bg = await load(BG_MANIFEST);
+    if(bg?.length){
+      document.getElementById("heroBg").style.backgroundImage =
+        "url('image/hintergrund/" + pick(bg) + "')";
     }
-    return a;
-  }
+  }catch(e){ console.warn("BG manifest fehlt/fehlerhaft"); }
 
-  function renderPlaceholders(count){
-    const row = document.getElementById("itemsRow");
-    if(!row) return;
-    row.innerHTML = "";
-    for(let i=0;i<count;i++){
-      const d = document.createElement("div");
-      d.className = "item-thumb item-ph";
-      row.appendChild(d);
-    }
-  }
-
-  async function setRandomHero(){
-    const bgEl = document.getElementById("heroBg");
-    if(!bgEl) return;
-
-    try{
-      const files = await loadManifest(BG_MANIFEST);
-      if(!files.length) return;
-
-      const file = pickRandom(files);
-      // manifest enthält nur Dateinamen
-      bgEl.style.backgroundImage = "url('image/hintergrund/" + file + "')";
-    }catch(e){
-      console.warn("Hintergrund-Manifest fehlt/fehlerhaft:", e);
-    }
-  }
-
-  async function renderItemRow(){
-    const row = document.getElementById("itemsRow");
-    if(!row) return;
-
-    try{
-      const files = await loadManifest(ITEMS_MANIFEST);
-      if(!files.length) { renderPlaceholders(10); return; }
-
-      const picks = shuffle(files).slice(0, 12);
-      row.innerHTML = "";
-
-      for(const src of picks){
-        const wrap = document.createElement("div");
-        wrap.className = "item-thumb";
-
+  try{
+    const items = await load(ITEMS_MANIFEST);
+    const strip = document.getElementById("itemsStrip");
+    if(items?.length && strip){
+      strip.innerHTML = "";
+      for(const src of shuffle(items).slice(0,12)){
+        const d = document.createElement("div");
+        d.className = "item-thumb";
         const img = document.createElement("img");
-        img.loading = "lazy";
-        img.alt = "";
-        img.src = src;
-
-        // falls ein Bild fehlt -> placeholder statt kaputtem Icon
-        img.onerror = () => {
-          wrap.classList.add("item-ph");
-          img.remove();
-        };
-
-        wrap.appendChild(img);
-        row.appendChild(wrap);
+        img.loading="lazy"; img.alt=""; img.src=src;
+        d.appendChild(img);
+        strip.appendChild(d);
       }
-    }catch(e){
-      console.warn("Items-Manifest fehlt/fehlerhaft:", e);
-      renderPlaceholders(10);
     }
-  }
-
-  (async function(){
-    await Promise.all([setRandomHero(), renderItemRow()]);
-  })();
+  }catch(e){ console.warn("Items manifest fehlt/fehlerhaft"); }
 })();
 </script>
