@@ -1,3 +1,4 @@
+<!-- backend/titel.html -->
 <style>
   :root{
     --title-height: 70px;
@@ -12,17 +13,22 @@
     justify-content:space-between;
     padding: 0 28px;
 
-    /* Startzustand: grauer Strich */
+    /* oberster Zustand */
     border-bottom: 1px solid rgba(0,0,0,.08);
     box-shadow: none;
 
     transition: box-shadow .2s ease, border-bottom-color .2s ease;
   }
 
-  /* Sobald gescrollt */
+  /* nach Scroll */
   #title.is-scrolled .titlebar{
     border-bottom-color: transparent;
     box-shadow: var(--title-shadow);
+  }
+
+  .titlebar__left{
+    display:flex;
+    align-items:center;
   }
 
   .titlebar__logo{
@@ -33,6 +39,7 @@
 
   .titlebar__nav{
     display:flex;
+    align-items:center;
     gap: 34px;
   }
 
@@ -40,8 +47,65 @@
     color:#5b6472;
     text-decoration:none;
     font-size:14px;
+    letter-spacing:.2px;
+    cursor:pointer;
   }
   .titlebar__link:hover{
     color:#1f2933;
   }
+
+  @media (max-width:700px){
+    .titlebar{ padding: 0 16px; }
+    .titlebar__nav{ gap: 18px; }
+  }
 </style>
+
+<div class="titlebar" role="banner">
+  <div class="titlebar__left">
+    <img
+      src="image/Titelbild.png"
+      alt="Eventverleih"
+      class="titlebar__logo"
+    >
+  </div>
+
+  <nav class="titlebar__nav" aria-label="Hauptnavigation">
+    <a class="titlebar__link" data-scroll="shop">Shop</a>
+    <a class="titlebar__link" data-scroll="kontakt">Kontakt</a>
+    <a class="titlebar__link" data-scroll="impressum">Impressum</a>
+  </nav>
+</div>
+
+<script>
+(function(){
+  function scrollToId(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+
+  document.addEventListener("click", function(e){
+    const link = e.target.closest("[data-scroll]");
+    if(!link) return;
+
+    e.preventDefault();
+    const target = link.getAttribute("data-scroll");
+
+    if(target === "shop"){
+      scrollToId("shop");
+      return;
+    }
+
+    if(target === "kontakt"){
+      scrollToId("kontakt");
+      return;
+    }
+
+    if(target === "impressum"){
+      scrollToId("impressum");
+      return;
+    }
+  });
+})();
+</script>
