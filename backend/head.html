@@ -1,7 +1,6 @@
 <!-- backend/head.html -->
 <style>
   :root{
-    /* MUSS zu titel.html passen */
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
     --nav-pad-right: 32px;
@@ -9,10 +8,8 @@
     --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
     --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
 
-    /* Abstände */
     --head-gap: 34px;
 
-    /* Style */
     --radius: 18px;
     --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
   }
@@ -30,38 +27,30 @@
     height:52vh;
     min-height:360px;
     max-height:620px;
-
     border-radius: var(--radius);
     overflow:hidden;
     position:relative;
     background:#d9dde3;
     box-shadow: var(--shadow-soft);
   }
-
   .hero__bg{
-    position:absolute;
-    inset:0;
+    position:absolute; inset:0;
     background-size:cover;
     background-position:center;
     transform: scale(1.02);
     filter: saturate(.92) contrast(.95);
   }
-
-  /* Blau angehauchter Look wie V9 */
   .hero__tint{
-    position:absolute;
-    inset:0;
-    background: rgba(30, 60, 120, .18);   /* leichter Blaustich */
+    position:absolute; inset:0;
+    background: rgba(30, 60, 120, .18);
     mix-blend-mode: multiply;
   }
-
   .hero__dim{
-    position:absolute;
-    inset:0;
+    position:absolute; inset:0;
     background: rgba(0,0,0,.22);
   }
 
-  /* Unterer Container: KEIN Scroll, KEINE Innenabstände */
+  /* Strip: exakt voll, kein Restbild */
   .items-strip{
     margin-top: var(--head-gap);
 
@@ -75,29 +64,27 @@
 
     display:flex;
     align-items:center;
-    gap:14px;
 
-    padding:0;           /* keine blauen Innenränder */
-    overflow:hidden;     /* kein Scroll */
+    /* WICHTIG: kein gap, kein „Rest“ */
+    gap:0;
+    overflow:hidden;
   }
 
-  /* Thumbs: KEIN Radius, KEINE extra Ränder links/rechts */
+  /* Kachelbreite wird per JS gesetzt (CSS Variable) */
   .item-thumb{
-    flex:0 0 auto;
+    flex:0 0 var(--tileW, 220px);
     height:100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 0;    /* <- kein Radius */
+    border-radius:0;
     overflow:hidden;
     background:#eef1f6;
     box-shadow:0 6px 18px rgba(0,0,0,.10);
   }
-
   .item-thumb img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
-    border-radius:0;     /* <- sicher */
+    border-radius:0;
   }
 
   @media (max-width:700px){
@@ -144,7 +131,75 @@
   };
 
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
-  const shuffle = (a) => a.slice().sort(() => Math.random() - 0.5);
+
+  function shuffleUnique(arr){
+    // entfernen von Duplikaten (falls Manifest doppelte Pfade enthält)
+    const uniq = Array.from(new Set(arr));
+    // shuffle
+    for(let i = uniq.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [uniq[i], uniq[j]] = [uniq[j], uniq[i]];
+    }
+    return uniq;
+  }
+
+  function renderStrip(allImages){
+    const strip = document.getElementById("itemsStrip");
+    if(!strip) return;
+
+    const W = strip.clientWidth;
+
+    // Ziel: Kacheln sollen ähnlich wie vorher wirken, aber immer exakt aufgehen:
+    // min/max Kachelbreite
+    const minTile = 170;
+    const maxTile = 260;
+
+    // Erst grob schätzen: wie viele Kacheln könnten rein?
+    let n = Math.max(1, Math.floor(W / 220));
+
+    // Dann Kachelbreite so wählen, dass n Kacheln exakt passen
+    // und in min/max bleibt. Wenn nicht, n anpassen.
+    function tileWFor(n){ return Math.floor(W / n); }
+
+    // n erhöhen/verringern bis tileW im Bereich ist
+    while(n > 1 && tileWFor(n) > maxTile) n++;
+    while(n > 1 && tileWFor(n) < minTile) n--;
+
+    // finale Breite (integer), passt exakt: n * tileW <= W (Rest wird durch floor vermieden)
+    const tileW = tileWFor(n);
+
+    // Rest (W - n*tileW) verteilen wir NICHT als gap (sonst Restbild),
+    // sondern lassen ihn einfach „rechts“ im Container leer? -> Nein:
+    // wir setzen strip so, dass n*tileW = W, indem wir n neu berechnen wenn nötig:
+    const nExact = Math.max(1, Math.floor(W / tileW));
+    const used = nExact * tileW;
+
+    // Wenn 1–2px Rest bleibt (durch Rundung), kompensieren wir durch tileW+1 auf die ersten kacheln:
+    const remainder = W - used;
+
+    strip.style.setProperty("--tileW", tileW + "px");
+    strip.innerHTML = "";
+
+    const imgs = shuffleUnique(allImages).slice(0, nExact);
+
+    imgs.forEach((src, idx) => {
+      const d = document.createElement("div");
+      d.className = "item-thumb";
+
+      // Restpixel verteilen: erste `remainder` Kacheln bekommen +1px
+      if(idx < remainder){
+        d.style.flexBasis = (tileW + 1) + "px";
+      }
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = "";
+      img.src = src;
+
+      d.appendChild(img);
+      strip.appendChild(d);
+    });
+  }
 
   // Hero
   try{
@@ -155,28 +210,23 @@
     }
   }catch(e){}
 
-  // Items (kein Scroll -> nur so viele wie reinpassen)
+  // Items
+  let items = [];
   try{
-    const items = await load(ITEMS_MANIFEST);
-    const strip = document.getElementById("itemsStrip");
-    if(strip && Array.isArray(items) && items.length){
-      strip.innerHTML = "";
-
-      const maxThumbs = window.innerWidth < 700 ? 6 : 9;
-
-      for(const src of shuffle(items).slice(0, maxThumbs)){
-        const d = document.createElement("div");
-        d.className = "item-thumb";
-
-        const img = document.createElement("img");
-        img.loading = "lazy";
-        img.alt = "";
-        img.src = src;
-
-        d.appendChild(img);
-        strip.appendChild(d);
-      }
-    }
+    const raw = await load(ITEMS_MANIFEST);
+    if(Array.isArray(raw)) items = raw;
   }catch(e){}
+
+  if(items.length){
+    // initial render
+    renderStrip(items);
+
+    // bei Resize neu berechnen (damit jedes Format sauber ist)
+    let t;
+    window.addEventListener("resize", () => {
+      clearTimeout(t);
+      t = setTimeout(() => renderStrip(items), 120);
+    }, { passive:true });
+  }
 })();
 </script>
