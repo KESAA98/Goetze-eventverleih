@@ -3,6 +3,11 @@
   :root{
     --title-height: 70px;
     --title-shadow: 0 8px 24px rgba(0,0,0,.12);
+
+    /* NEU: Innenabstände */
+    --title-pad-x: 36px;   /* Abstand links/rechts gesamt */
+    --logo-pad-left: 16px;
+    --nav-pad-right: 16px;
   }
 
   .titlebar{
@@ -11,7 +16,9 @@
     display:flex;
     align-items:center;
     justify-content:space-between;
-    padding: 0 28px;
+
+    /* Grund-Padding der Leiste */
+    padding: 0 var(--title-pad-x);
 
     /* oberster Zustand */
     border-bottom: 1px solid rgba(0,0,0,.08);
@@ -29,6 +36,7 @@
   .titlebar__left{
     display:flex;
     align-items:center;
+    padding-left: var(--logo-pad-left); /* Logo weiter nach innen */
   }
 
   .titlebar__logo{
@@ -41,6 +49,7 @@
     display:flex;
     align-items:center;
     gap: 34px;
+    padding-right: var(--nav-pad-right); /* Buttons weiter nach innen */
   }
 
   .titlebar__link{
@@ -55,10 +64,49 @@
   }
 
   @media (max-width:700px){
-    .titlebar{ padding: 0 16px; }
-    .titlebar__nav{ gap: 18px; }
+    :root{
+      --title-pad-x: 20px;
+      --logo-pad-left: 8px;
+      --nav-pad-right: 8px;
+    }
   }
 </style>
+
+<div class="titlebar" role="banner">
+  <div class="titlebar__left">
+    <img
+      src="image/Titelbild.png"
+      alt="Eventverleih"
+      class="titlebar__logo"
+    >
+  </div>
+
+  <nav class="titlebar__nav" aria-label="Hauptnavigation">
+    <a class="titlebar__link" data-scroll="shop">Shop</a>
+    <a class="titlebar__link" data-scroll="kontakt">Kontakt</a>
+    <a class="titlebar__link" data-scroll="impressum">Impressum</a>
+  </nav>
+</div>
+
+<script>
+(function(){
+  function scrollToId(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    const y = el.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: y, behavior: "smooth" });
+  }
+
+  document.addEventListener("click", function(e){
+    const link = e.target.closest("[data-scroll]");
+    if(!link) return;
+
+    e.preventDefault();
+    scrollToId(link.getAttribute("data-scroll"));
+  });
+})();
+</script>
+
 
 <div class="titlebar" role="banner">
   <div class="titlebar__left">
