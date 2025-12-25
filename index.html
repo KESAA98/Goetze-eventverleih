@@ -4,31 +4,27 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Titel & Tab-Icon -->
   <title>Eventverleih</title>
   <link rel="icon" type="image/png" href="image/Logo.png" />
 
   <style>
-    /* =========================
-       Globales Design (zentral)
-       ========================= */
     :root{
-      /* Layout */
       --cart-width: 360px;
+      --title-height: 70px;
 
-      /* Typografie */
       --font-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-      /* Farben */
       --bg: #ffffff;
       --text: #1f2933;
       --muted: #6b7280;
       --primary: #1f4fa3;
 
-      /* UI */
       --card: #f8f9fb;
       --radius: 14px;
       --shadow: 0 12px 40px rgba(0,0,0,.18);
+
+      /* Shadow für Titel-Leiste (nur nach Scroll) */
+      --title-shadow: 0 8px 24px rgba(0,0,0,.12);
     }
 
     html, body{
@@ -43,11 +39,8 @@
       text-rendering: optimizeLegibility;
     }
 
-    *, *::before, *::after{
-      box-sizing: border-box;
-    }
+    *, *::before, *::after{ box-sizing: border-box; }
 
-    /* Platzhalter-Container */
     .slot{
       width:100%;
       border:0;
@@ -63,14 +56,25 @@
       display:none;
       background:transparent;
     }
-    #cookieOverlay.is-visible{
-      display:block;
+    #cookieOverlay.is-visible{ display:block; }
+
+    /* TITEL (neu) */
+    #title{
+      position: sticky;
+      top: 0;
+      z-index: 2000;
+      height: var(--title-height);
+      background: #fff;
+      display: block;
+      box-shadow: none;              /* oben auf Head: kein Schatten */
+    }
+    #title.is-scrolled{
+      box-shadow: var(--title-shadow); /* sobald gescrollt: Schatten */
     }
 
-    /* Head */
+    /* Head: unter der Titel-Leiste, nimmt den Rest der Viewporthöhe */
     #head{
-      height:100vh;
-      min-height:100vh;
+      min-height: calc(100vh - var(--title-height));
     }
 
     /* Cart */
@@ -94,13 +98,10 @@
       margin-right:var(--cart-width);
     }
 
-    /* Mobile */
     @media (max-width: 900px){
       :root{ --cart-width: 0px; }
 
-      #cart{
-        transform:none;
-      }
+      #cart{ transform:none; }
 
       #shop{
         width:100%;
@@ -114,13 +115,16 @@
   <!-- 1) Cookies -->
   <div id="cookieOverlay" class="slot" data-src="backend/cookie.html"></div>
 
-  <!-- 2) Head -->
+  <!-- 2) Titel (neu) -->
+  <header id="title" class="slot" data-src="backend/titel.html"></header>
+
+  <!-- 3) Head -->
   <section id="head" class="slot" data-src="backend/head.html"></section>
 
-  <!-- 3) Shop -->
+  <!-- 4) Shop -->
   <main id="shop" class="slot" data-src="backend/shop.html"></main>
 
-  <!-- 4) Cart -->
+  <!-- 5) Cart -->
   <aside id="cart" class="slot" data-src="backend/cart.html"></aside>
 
   <script>
@@ -167,15 +171,72 @@
         }
       }
 
+      function setupTitleShadow(){
+        const title = document.getElementById("title");
+        if(!title) return;
+
+        const update = () => {
+          if(window.scrollY > 0) title.classList.add("is-scrolled");
+          else title.classList.remove("is-scrolled");
+        };
+
+        update();
+        window.addEventListener("scroll", update, { passive:true });
+      }
+
+      function setupFirstScrollJump(){
+        let jumped = false;
+
+        const cookieVisible = () => {
+          const ov = document.getElementById("cookieOverlay");
+          return !!(ov && ov.classList.contains("is-visible"));
+        };
+
+        const jumpToShop = () => {
+          if(jumped) return;
+          if(cookieVisible()) return;
+
+          const shop = document.getElementById("shop");
+          if(!shop) return;
+
+          jumped = true;
+          const y = shop.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: y, behavior: "smooth" });
+        };
+
+        // Maus / Trackpad
+        window.addEventListener("wheel", (e) => {
+          if(jumped) return;
+          if(cookieVisible()) return;
+          if(window.scrollY !== 0) return;
+
+          if(e.deltaY > 0){
+            e.preventDefault();
+            jumpToShop();
+          }
+        }, { passive:false });
+
+        // Tastatur (Down / PageDown / Space)
+        window.addEventListener("keydown", (e) => {
+          if(jumped) return;
+          if(cookieVisible()) return;
+          if(window.scrollY !== 0) return;
+
+          const keys = ["ArrowDown","PageDown"," "];
+          if(keys.includes(e.key)){
+            e.preventDefault();
+            jumpToShop();
+          }
+        }, { passive:false });
+      }
+
       async function boot(){
         const slots = Array.from(document.querySelectorAll("[data-src]"));
 
         let accepted = false;
-        try {
-          accepted = localStorage.getItem(COOKIE_KEY) === "1";
-        } catch(e) {}
+        try { accepted = localStorage.getItem(COOKIE_KEY) === "1"; } catch(e) {}
 
-        /* Head / Shop / Cart immer laden */
+        /* Titel / Head / Shop / Cart immer laden */
         const normalSlots = slots.filter(el => el.id !== "cookieOverlay");
         await Promise.all(normalSlots.map(el => loadInto(el, el.dataset.src)));
 
@@ -185,6 +246,9 @@
           overlay.classList.add("is-visible");
           await loadInto(overlay, overlay.dataset.src);
         }
+
+        setupTitleShadow();
+        setupFirstScrollJump();
       }
 
       boot().catch(err => console.error(err));
