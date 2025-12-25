@@ -1,166 +1,196 @@
-<section class="head-wrap" aria-label="Header Bereich">
-  <!-- HERO -->
-  <section class="hero" id="hero">
-    <div class="hero__bg" id="heroBg" aria-hidden="true"></div>
-    <!-- V9 Blaustich (genau wie dort) -->
-    <div class="hero__tint" aria-hidden="true"></div>
-  </section>
-
-  <!-- 6 Kacheln (kein Scroller, keine extra Innen-Wrapper) -->
-  <section class="tiles" aria-label="Zufalls-Artikelbilder">
-    <div class="tile"><img id="tile1" alt=""></div>
-    <div class="tile"><img id="tile2" alt=""></div>
-    <div class="tile"><img id="tile3" alt=""></div>
-    <div class="tile"><img id="tile4" alt=""></div>
-    <div class="tile"><img id="tile5" alt=""></div>
-    <div class="tile"><img id="tile6" alt=""></div>
-  </section>
-</section>
-
+<!-- backend/head.html -->
 <style>
-  /* nutzt das gleiche Padding wie im Titel (falls in index gesetzt), sonst fallback */
   :root{
-    --title-pad: var(--title-padding, 32px);
-    --radius-xl: 24px;
-    --radius-lg: 18px;
-    --shadow-soft: 0 18px 40px rgba(15, 23, 42, 0.12);
+    --title-pad-x: 72px;
+    --logo-pad-left: 32px;
+    --nav-pad-right: 32px;
+
+    --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
+    --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
+
+    --head-gap: 34px;
+
+    --radius: 18px;
+    --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
+
+    /* Blau-Tint */
+    --hero-blue: #0F172A;      /* sehr dunkles Blau */
+    --hero-blue-a1: .75;       /* 60–75% Deckkraft */
+    --hero-blue-a2: .62;
+    --hero-blue-a3: .45;
   }
 
   .head-wrap{
-    padding: 26px var(--title-pad) 32px;
+    width:100%;
+    padding-left:  var(--edge-left);
+    padding-right: var(--edge-right);
+    padding-top:   var(--head-gap);
+    padding-bottom:var(--head-gap);
   }
 
-  /* HERO Container (Größe/Position wie bisher) */
   .hero{
-    border-radius: var(--radius-xl);
+    width:100%;
+    height:52vh;
+    min-height:360px;
+    max-height:620px;
+    border-radius: var(--radius);
     overflow:hidden;
     position:relative;
-    height: 40vh;           /* wie V9 random/intro feeling */
-    min-height: 280px;
-    background:#0f172a;
+    background:#d9dde3;
     box-shadow: var(--shadow-soft);
   }
-
   .hero__bg{
     position:absolute; inset:0;
-    background-size: cover;
-    background-position: center;
+    background-size:cover;
+    background-position:center;
     transform: scale(1.02);
-    filter: saturate(1.02);
+    filter: saturate(.92) contrast(.95);
   }
 
-  /* V9 Blaustich: linear-gradient(135deg, rgba(15,23,42,0.78), rgba(15,23,42,0.6)) */
+  /* Gradient-Overlay in #0F172A (ca. 60–75% Deckkraft) */
   .hero__tint{
     position:absolute; inset:0;
     background: linear-gradient(
       135deg,
-      rgba(15, 23, 42, 0.78),
-      rgba(15, 23, 42, 0.60)
+      rgba(15, 23, 42, var(--hero-blue-a1)) 0%,
+      rgba(15, 23, 42, var(--hero-blue-a2)) 52%,
+      rgba(15, 23, 42, var(--hero-blue-a3)) 100%
     );
+    mix-blend-mode: multiply;
   }
 
-  /* Unterer weißer Bereich (wie bisher) */
-  .tiles{
-    margin-top: 24px;
-    border-radius: var(--radius-xl);
-    background: rgba(247, 249, 252, 1);
-    box-shadow: var(--shadow-soft);
-    padding: 18px 22px;
-
-    /* 6 gleichmäßige Kacheln */
-    display:grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 16px;
-
-    /* Höhe/Look wie bisher „perfekt“ */
-    min-height: 22vh;
+  /* optionaler, sanfter Dim für Lesbarkeit – sehr dezent */
+  .hero__dim{
+    position:absolute; inset:0;
+    background: rgba(0,0,0,.12);
   }
 
-  /* einzelne Kachel */
-  .tile{
-    border-radius: var(--radius-lg);
+  /* Strip: 5 Kacheln nebeneinander, gleichmäßige Abstände */
+  .items-strip{
+    margin-top: var(--head-gap);
+
+    height:25vh;
+    min-height:170px;
+    max-height:240px;
+
+    border-radius: var(--radius);
     background:#fff;
+    box-shadow: var(--shadow-soft);
+
+    display:grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap:14px;
+    padding:14px;
+
     overflow:hidden;
-    height: 100%;
-    min-height: 160px;
   }
 
-  /* Bilder ohne Radius (Radius sitzt am Container) */
-  .tile img{
+  .item-thumb{
     width:100%;
     height:100%;
+    border-radius:14px;
+    overflow:hidden;
+    background:#eef1f6;
+    box-shadow:0 6px 18px rgba(0,0,0,.10);
+  }
+  .item-thumb img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
     display:block;
-    object-fit: cover;
-    border-radius: 0;
   }
 
-  /* responsive: bricht sauber um, ohne abgeschnittene 1px Bilder */
-  @media (max-width: 1100px){
-    .tiles{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width:700px){
+    :root{
+      --title-pad-x: 40px;
+      --logo-pad-left: 16px;
+      --nav-pad-right: 16px;
+      --head-gap: 26px;
+    }
+    .hero{ height:46vh; min-height:300px; }
+    .items-strip{ gap:12px; padding:12px; }
   }
-  @media (max-width: 700px){
-    .head-wrap{ padding-left: 18px; padding-right: 18px; }
-    .tiles{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  @media (max-width:560px){
+    :root{
+      --title-pad-x: 22px;
+      --logo-pad-left: 10px;
+      --nav-pad-right: 10px;
+      --head-gap: 22px;
+    }
+    .items-strip{ min-height:150px; max-height:210px; gap:10px; padding:10px; }
+    .hero{ min-height:260px; }
   }
 </style>
 
+<section class="head-wrap" aria-label="Header-Bereich">
+  <div class="hero">
+    <div class="hero__bg" id="heroBg"></div>
+    <div class="hero__tint"></div>
+    <div class="hero__dim"></div>
+  </div>
+
+  <div class="items-strip" id="itemsStrip" aria-label="Zufällige Artikelbilder"></div>
+</section>
+
 <script>
-  (function(){
-    const BG_MANIFEST   = "image/hintergrund/manifest.json";
-    const ITEM_MANIFEST = "Items/manifest.json";
+(async function(){
+  const BG_MANIFEST    = "image/hintergrund/manifest.json";
+  const ITEMS_MANIFEST = "Items/manifest.json";
 
-    function uniqSample(arr, n){
-      const a = Array.isArray(arr) ? arr.slice() : [];
-      // Fisher-Yates shuffle (einmal), dann slice => garantiert keine Duplikate
-      for(let i=a.length-1; i>0; i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a.slice(0, Math.min(n, a.length));
+  const load = async (p) => {
+    const r = await fetch(p, { cache: "no-store" });
+    if(!r.ok) throw new Error(p + " -> " + r.status);
+    return await r.json();
+  };
+
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+
+  function shuffleUnique(arr){
+    const uniq = Array.from(new Set(arr));
+    for(let i = uniq.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [uniq[i], uniq[j]] = [uniq[j], uniq[i]];
     }
+    return uniq;
+  }
 
-    async function readJson(url){
-      const r = await fetch(url, { cache: "no-store" });
-      if(!r.ok) throw new Error(url + " -> " + r.status);
-      return r.json();
+  function renderStrip(allImages){
+    const strip = document.getElementById("itemsStrip");
+    if(!strip) return;
+
+    strip.innerHTML = "";
+    const imgs = shuffleUnique(allImages).slice(0, 5); // immer 5 Kacheln
+
+    imgs.forEach((src) => {
+      const d = document.createElement("div");
+      d.className = "item-thumb";
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.alt = "";
+      img.src = src;
+
+      d.appendChild(img);
+      strip.appendChild(d);
+    });
+  }
+
+  // Hero
+  try{
+    const bg = await load(BG_MANIFEST);
+    if(Array.isArray(bg) && bg.length){
+      document.getElementById("heroBg").style.backgroundImage =
+        "url('image/hintergrund/" + pick(bg) + "')";
     }
+  }catch(e){}
 
-    async function boot(){
-      // HERO Hintergrund
-      try{
-        const bg = await readJson(BG_MANIFEST);
-        const bgList = (bg && Array.isArray(bg.images)) ? bg.images : [];
-        const heroOne = uniqSample(bgList, 1)[0];
-        if(heroOne){
-          document.getElementById("heroBg").style.backgroundImage = `url("${heroOne}")`;
-        }
-      }catch(e){
-        console.error("BG manifest fail:", e);
-      }
-
-      // 6 Item-Bilder
-      try{
-        const it = await readJson(ITEM_MANIFEST);
-        const itemList = (it && Array.isArray(it.images)) ? it.images : [];
-        const picks = uniqSample(itemList, 6);
-
-        for(let i=0; i<6; i++){
-          const imgEl = document.getElementById("tile"+(i+1));
-          const src = picks[i];
-          if(src){
-            imgEl.src = src;
-            imgEl.alt = "Artikelbild";
-          }else{
-            // falls weniger als 6 vorhanden: leere Kachel bleibt weiß
-            imgEl.removeAttribute("src");
-            imgEl.alt = "";
-          }
-        }
-      }catch(e){
-        console.error("ITEM manifest fail:", e);
-      }
+  // Items
+  try{
+    const raw = await load(ITEMS_MANIFEST);
+    if(Array.isArray(raw) && raw.length){
+      renderStrip(raw);
     }
-
-    boot();
-  })();
+  }catch(e){}
+})();
 </script>
