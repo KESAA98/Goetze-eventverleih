@@ -1,29 +1,35 @@
 <!-- backend/head.html -->
 <style>
   :root{
-    /* muss zu titel.html passen (für links/rechts) */
+    /* MUSS zu titel.html passen */
     --title-pad-x: 72px;
+    --logo-pad-left: 32px;
+    --nav-pad-right: 32px;
 
-    /* NEU: einheitlicher Abstand (kleiner als vorher 72, größer als vorher 18/14) */
+    --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
+    --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
+
+    /* Abstände */
     --head-gap: 34px;
 
+    /* Style */
     --radius: 18px;
     --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
   }
 
   .head-wrap{
-    padding-left: var(--title-pad-x);
-    padding-right: var(--title-pad-x);
-    padding-top: var(--head-gap);     /* ROT */
-    padding-bottom: var(--head-gap);
     width:100%;
+    padding-left:  var(--edge-left);   /* ORANGE links/rechts wie Titel */
+    padding-right: var(--edge-right);
+    padding-top:   var(--head-gap);
+    padding-bottom:var(--head-gap);
   }
 
   .hero{
     width:100%;
-    height: 52vh;
-    min-height: 360px;
-    max-height: 620px;
+    height:52vh;
+    min-height:360px;
+    max-height:620px;
 
     border-radius: var(--radius);
     overflow:hidden;
@@ -46,16 +52,15 @@
     background: rgba(0,0,0,.35);
   }
 
+  /* Unterer Container: KEIN Scroll, KEIN innerer Extra-Container */
   .items-strip{
-    margin-top: var(--head-gap);      /* ORANGE */
+    margin-top: var(--head-gap);
 
-    height: 25vh;
-    min-height: 170px;
-    max-height: 240px;
+    height:25vh;
+    min-height:170px;
+    max-height:240px;
 
     border-radius: var(--radius);
-    overflow-x:auto;
-    overflow-y:hidden;
     background:#fff;
     box-shadow: var(--shadow-soft);
 
@@ -63,19 +68,23 @@
     align-items:center;
     gap:14px;
 
-    padding: var(--head-gap);         /* BLAU (Innenabstand oben/unten/links/rechts) */
-    scroll-behavior:smooth;
+    padding:0;           /* kein innerer Rand */
+    overflow:hidden;     /* kein Scroll */
   }
 
   .item-thumb{
     flex:0 0 auto;
-    height: 100%;
-    aspect-ratio: 1/1;
+    height: calc(100% - (var(--head-gap) * 0)); /* volle Höhe (ohne inner padding) */
+    aspect-ratio: 1 / 1;
     border-radius:14px;
     overflow:hidden;
     background:#eef1f6;
     box-shadow:0 6px 18px rgba(0,0,0,.10);
   }
+
+  /* “Padding” links/rechts ohne extra Container */
+  .item-thumb:first-child{ margin-left: var(--head-gap); }
+  .item-thumb:last-child{  margin-right: var(--head-gap); }
 
   .item-thumb img{
     width:100%;
@@ -87,26 +96,32 @@
   @media (max-width:700px){
     :root{
       --title-pad-x: 40px;
+      --logo-pad-left: 16px;
+      --nav-pad-right: 16px;
       --head-gap: 26px;
     }
-    .hero{ height: 46vh; min-height: 300px; }
+    .hero{ height:46vh; min-height:300px; }
   }
+
   @media (max-width:560px){
     :root{
       --title-pad-x: 22px;
+      --logo-pad-left: 10px;
+      --nav-pad-right: 10px;
       --head-gap: 22px;
     }
-    .items-strip{ min-height: 150px; max-height: 210px; }
+    .items-strip{ min-height:150px; max-height:210px; }
+    .hero{ min-height:260px; }
   }
 </style>
 
-<section class="head-wrap">
+<section class="head-wrap" aria-label="Header-Bereich">
   <div class="hero">
     <div class="hero__bg" id="heroBg"></div>
     <div class="hero__dim"></div>
   </div>
 
-  <div class="items-strip" id="itemsStrip"></div>
+  <div class="items-strip" id="itemsStrip" aria-label="Zufällige Artikelbilder"></div>
 </section>
 
 <script>
@@ -114,32 +129,47 @@
   const BG_MANIFEST    = "image/hintergrund/manifest.json";
   const ITEMS_MANIFEST = "Items/manifest.json";
 
-  const load = async (p) => (await (await fetch(p,{cache:"no-store"})).json());
-  const pick = (a) => a[Math.floor(Math.random()*a.length)];
-  const shuffle = (a) => a.slice().sort(()=>Math.random()-0.5);
+  const load = async (p) => {
+    const r = await fetch(p, { cache: "no-store" });
+    if(!r.ok) throw new Error(p + " -> " + r.status);
+    return await r.json();
+  };
 
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const shuffle = (a) => a.slice().sort(() => Math.random() - 0.5);
+
+  // Hero
   try{
     const bg = await load(BG_MANIFEST);
-    if(bg?.length){
+    if(Array.isArray(bg) && bg.length){
       document.getElementById("heroBg").style.backgroundImage =
         "url('image/hintergrund/" + pick(bg) + "')";
     }
-  }catch(e){ console.warn("BG manifest fehlt/fehlerhaft"); }
+  }catch(e){ /* still */ }
 
+  // Items (ohne Scroll: wir zeigen nur so viele wie reinpassen)
   try{
     const items = await load(ITEMS_MANIFEST);
     const strip = document.getElementById("itemsStrip");
-    if(items?.length && strip){
+    if(strip && Array.isArray(items) && items.length){
       strip.innerHTML = "";
-      for(const src of shuffle(items).slice(0,12)){
+
+      // grob: 8-10 thumbs passen ohne Scroll, je nach Screen
+      const maxThumbs = window.innerWidth < 700 ? 6 : 9;
+
+      for(const src of shuffle(items).slice(0, maxThumbs)){
         const d = document.createElement("div");
         d.className = "item-thumb";
+
         const img = document.createElement("img");
-        img.loading="lazy"; img.alt=""; img.src=src;
+        img.loading = "lazy";
+        img.alt = "";
+        img.src = src;
+
         d.appendChild(img);
         strip.appendChild(d);
       }
     }
-  }catch(e){ console.warn("Items manifest fehlt/fehlerhaft"); }
+  }catch(e){ /* still */ }
 })();
 </script>
