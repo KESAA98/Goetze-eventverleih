@@ -17,7 +17,7 @@
     }
 
     *{ box-sizing:border-box; }
-    html,body{ height:100%; }
+    html,body{ height:100%; width:100%; }
 
     body{
       margin:0;
@@ -26,59 +26,79 @@
       overflow:hidden; /* Stage-Prinzip */
     }
 
-    /* Header / Titel */
+    /* ===== Titel ===== */
     #title{
       position:fixed;
       top:0; left:0; right:0;
       height:var(--title-height);
       z-index:1000;
+
       background:rgba(255,255,255,.92);
       backdrop-filter:saturate(140%) blur(10px);
       -webkit-backdrop-filter:saturate(140%) blur(10px);
+
       border-bottom:1px solid rgba(0,0,0,.06);
       box-shadow:none;
       transition: box-shadow .18s ease;
     }
     #title.is-scrolled{ box-shadow: var(--shadow-header); }
 
-    /* Layout (OHNE CART) */
+    /* ===== Layout: FULLSCREEN, KEIN FLEX, KEIN WRAPPER ===== */
     #layout{
       position:fixed;
       top: var(--title-height);
-      left:0; right:0;
+      left:0;
+      width:100vw;
       height: calc(100vh - var(--title-height));
-      width:100%;
+      display:block !important;        /* <<< erzwingt 1 Spalte */
+      margin:0 !important;
+      padding:0 !important;
+      border:0 !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      max-width:none !important;
     }
 
-    /* STAGE – volle Breite & Höhe */
     #stage{
-      width:100%;
-      height:100%;
-      padding:0;
-      margin:0;
+      position:relative;
+      width:100vw !important;
+      height:100% !important;
+      margin:0 !important;
+      padding:0 !important;
       overflow:hidden;
+      border:0 !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      max-width:none !important;
     }
 
-    /* Panels */
     #panels{
-      width:100%;
+      width:100vw !important;
       height:200%;
       transform: translateY(0%);
       transition: transform .38s ease;
       will-change: transform;
+      margin:0 !important;
+      padding:0 !important;
+      border:0 !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      max-width:none !important;
     }
     #panels.is-shop{ transform: translateY(-50%); }
 
     .panel{
+      width:100vw !important;
       height:50%;
-      width:100%;
-      margin:0;
-      padding:0;
+      margin:0 !important;
+      padding:0 !important;
       overflow:hidden;
-      background: transparent; /* Head zeichnet selbst */
-      border-radius:0;        /* Index setzt KEINEN Radius */
-      box-shadow:none;
-      border:none;
+
+      background: transparent;
+      border:0 !important;
+      border-radius:0 !important;
+      box-shadow:none !important;
+      max-width:none !important;
     }
   </style>
 </head>
@@ -97,10 +117,11 @@
 
   <script>
     (function(){
-      const panels = document.getElementById("panels");
-      const headEl = document.getElementById("head");
-      const shopEl = document.getElementById("shop");
+      const panels  = document.getElementById("panels");
+      const headEl  = document.getElementById("head");
+      const shopEl  = document.getElementById("shop");
       const titleEl = document.getElementById("title");
+      const stageEl = document.getElementById("stage");
 
       let active = "head";
       let switching = false;
@@ -109,7 +130,6 @@
         const res = await fetch(el.dataset.src, { cache:"no-store" });
         el.innerHTML = await res.text();
 
-        /* inline scripts ausführen */
         el.querySelectorAll("script").forEach(old=>{
           const s = document.createElement("script");
           s.text = old.text;
@@ -147,12 +167,8 @@
       window.goShop = goShop;
       window.goHead = goHead;
 
-      function atBottom(el){
-        return el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
-      }
-      function atTop(el){
-        return el.scrollTop <= 0;
-      }
+      function atBottom(el){ return el.scrollTop + el.clientHeight >= el.scrollHeight - 2; }
+      function atTop(el){ return el.scrollTop <= 0; }
 
       function onWheel(e){
         if(switching) return;
@@ -185,11 +201,10 @@
           loadInto(shopEl),
         ]);
 
-        const stage = document.getElementById("stage");
-        stage.addEventListener("wheel", onWheel, {passive:false});
-        stage.addEventListener("touchstart", onTouchStart, {passive:true});
-        stage.addEventListener("touchmove", onTouchMove, {passive:false});
-        stage.addEventListener("touchend", onTouchEnd, {passive:true});
+        stageEl.addEventListener("wheel", onWheel, {passive:false});
+        stageEl.addEventListener("touchstart", onTouchStart, {passive:true});
+        stageEl.addEventListener("touchmove", onTouchMove, {passive:false});
+        stageEl.addEventListener("touchend", onTouchEnd, {passive:true});
 
         const hs = headEl.querySelector(".team-scroll");
         const ss = shopEl.querySelector(".shop-scroll");
