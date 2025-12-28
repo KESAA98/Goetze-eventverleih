@@ -1,42 +1,23 @@
-name: Generate image manifests
-
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Generate manifests
         run: |
           python3 - << 'PY'
           import os, json
 
-          def list_images(root, relative_prefix=None):
+          def list_images(root, full_paths=True):
             exts = {".jpg",".jpeg",".png",".webp"}
-            files = []
+            out = []
             for dirpath, _, filenames in os.walk(root):
               for fn in filenames:
-                ext = os.path.splitext(fn)[1].lower()
-                if ext in exts:
-                  full = os.path.join(dirpath, fn).replace("\\","/")
-                  if relative_prefix:
-                    # return path relative to repo root
-                    files.append(full)
-                  else:
-                    files.append(fn)
-            return sorted(files)
+                if os.path.splitext(fn)[1].lower() in exts:
+                  p = os.path.join(dirpath, fn).replace("\\","/")
+                  out.append(p if full_paths else os.path.basename(p))
+            return sorted(out)
 
           # 1) backgrounds: only filenames
           bg_root = "image/hintergrund"
           bg = []
           if os.path.isdir(bg_root):
-            bg = [os.path.basename(p) for p in list_images(bg_root, relative_prefix=True)]
-
+            bg = [os.path.basename(p) for p in list_images(bg_root, full_paths=True)]
           os.makedirs(bg_root, exist_ok=True)
           with open(os.path.join(bg_root, "manifest.json"), "w", encoding="utf-8") as f:
             json.dump(bg, f, ensure_ascii=False, indent=2)
@@ -45,17 +26,27 @@ jobs:
           items_root = "Items"
           items = []
           if os.path.isdir(items_root):
-            items = list_images(items_root, relative_prefix=True)
-
+            items = list_images(items_root, full_paths=True)
+          os.makedirs(items_root, exist_ok=True)
           with open(os.path.join(items_root, "manifest.json"), "w", encoding="utf-8") as f:
             json.dump(items, f, ensure_ascii=False, indent=2)
 
-          print("Generated manifests:", len(bg), "backgrounds,", len(items), "item images")
-          PY
+          # 3) team: list folders -> Team/manifest.json
+          team_root = "Team"
+          members = []
+          if os.path.isdir(team_root):
+            # only direct subfolders (Name_1, Name_2, ...)
+            for name in sorted(os.listdir(team_root)):
+              p = os.path.join(team_root, name)
+              if os.path.isdir(p) and not name.startswith("."):
+                members.append({"folder": name})
 
-      - name: Commit manifests if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add image/hintergrund/manifest.json Items/manifest.json
-          git diff --cached --quiet || (git commit -m "Auto-update manifests" && git push)
+          os.makedirs(team_root, exist_ok=True)
+          with open(os.path.join(team_root, "manifest.json"), "w", encoding="utf-8") as f:
+            json.dump({"members": members}, f, ensure_ascii=False, indent=2)
+
+          print("Generated manifests:",
+                len(bg), "backgrounds,",
+                len(items), "item images,",
+                len(members), "team folders")
+          PY
