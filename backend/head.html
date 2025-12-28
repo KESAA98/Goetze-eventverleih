@@ -1,605 +1,426 @@
-<!-- backend/head.html (modern V1) -->
+<!-- backend/head.html -->
 <style>
   :root{
     --edge-left:  calc(var(--title-pad-x,72px) + var(--logo-pad-left,32px));
     --edge-right: calc(var(--title-pad-x,72px) + var(--nav-pad-right,32px));
-    --radius: 20px;
-    --radius-lg: 28px;
-    --shadow-soft: 0 14px 42px rgba(0,0,0,.14);
+    --radius: 18px;
+    --shadow-soft: 0 14px 44px rgba(0,0,0,.14);
     --shadow-card: 0 10px 26px rgba(0,0,0,.10);
-    --text: #0f172a;
+    --ink: #0f172a;
     --muted: #475569;
-    --muted-2: #64748b;
-    --line: rgba(15, 23, 42, .10);
-    --glass: rgba(255,255,255,.82);
-    --glass-strong: rgba(255,255,255,.90);
+    --line: rgba(15,23,42,.10);
+    --glass: rgba(255,255,255,.78);
+    --glass-2: rgba(255,255,255,.86);
   }
 
-  /* Wrapper inside the already-fullscreen #head container */
   .head-wrap{
     width:100%;
     padding-left:  var(--edge-left);
     padding-right: var(--edge-right);
-    padding-top:   clamp(14px, 2.3vh, 26px);
-    padding-bottom:clamp(18px, 3vh, 32px);
-    display:flex;
-    flex-direction:column;
-    gap: clamp(14px, 2.2vh, 24px);
+    padding-top:  22px;
+    padding-bottom: 22px;
   }
 
   .hero{
     width:100%;
-    height: min(56vh, 620px);
-    min-height: 380px;
-    border-radius: var(--radius-lg);
+    height: min(62vh, 640px);
+    min-height: 420px;
+    border-radius: var(--radius);
     overflow:hidden;
     position:relative;
     background:#d9dde3;
     box-shadow: var(--shadow-soft);
-    isolation:isolate;
   }
 
   .hero-bg{
     position:absolute; inset:0;
-    background-size: cover;
-    background-position: center;
+    background-position:center;
+    background-size:cover;
+    filter:saturate(1.05);
     transform: scale(1.02);
-    filter: saturate(1.02) contrast(1.02);
   }
-
-  .hero-shade{
+  .hero-overlay{
     position:absolute; inset:0;
     background:
-      radial-gradient(1100px 680px at 18% 30%, rgba(255,255,255,.55) 0%, rgba(255,255,255,.12) 50%, rgba(255,255,255,0) 70%),
-      radial-gradient(900px 520px at 70% 28%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 62%),
-      linear-gradient(180deg, rgba(15,23,42,.08) 0%, rgba(15,23,42,.18) 55%, rgba(15,23,42,.30) 100%);
-    z-index:1;
+      radial-gradient(1200px 600px at 20% 70%, rgba(255,255,255,.85), rgba(255,255,255,.15) 55%, rgba(0,0,0,.16) 100%),
+      linear-gradient(90deg, rgba(255,255,255,.65), rgba(255,255,255,.08) 60%, rgba(0,0,0,.10));
+    pointer-events:none;
   }
 
   .hero-inner{
     position:absolute; inset:0;
-    padding: clamp(16px, 3.2vw, 34px);
     display:grid;
-    grid-template-columns: 1.2fr .8fr;
-    gap: clamp(14px, 2.4vw, 26px);
-    align-items:end;
-    z-index:2;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 22px;
+    padding: 26px;
+    align-items: stretch;
   }
 
   .hero-copy{
-    align-self:stretch;
     display:flex;
     flex-direction:column;
     justify-content:flex-end;
-    gap: 12px;
-    max-width: 760px;
+    padding: 14px 6px 6px 6px;
+    max-width: 680px;
   }
-
-  .hero-kicker{
+  .badge{
     display:inline-flex;
     align-items:center;
-    gap: 10px;
-    padding: 9px 12px;
+    gap:10px;
+    padding: 10px 14px;
     border-radius: 999px;
-    background: rgba(255,255,255,.70);
-    border: 1px solid rgba(255,255,255,.65);
-    color: var(--text);
-    font-weight: 650;
-    letter-spacing: .2px;
+    background: var(--glass);
+    border: 1px solid var(--line);
     width: fit-content;
+    color: var(--ink);
+    font-weight: 650;
+    box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    margin-bottom: 14px;
     backdrop-filter: blur(10px);
   }
-  .hero-kicker .dot{
-    width: 9px; height: 9px; border-radius: 999px;
-    background: rgba(16,185,129,.95);
-    box-shadow: 0 0 0 6px rgba(16,185,129,.18);
+  .dot{
+    width:10px; height:10px; border-radius:999px;
+    background:#22c55e;
+    box-shadow: 0 0 0 5px rgba(34,197,94,.18);
   }
-
-  .hero-title{
+  h1.hero-title{
     margin:0;
-    font-size: clamp(28px, 4.1vw, 52px);
+    color: var(--ink);
+    font-size: clamp(34px, 4vw, 54px);
     line-height: 1.02;
-    letter-spacing: -0.8px;
-    color: var(--text);
-    text-wrap: balance;
+    letter-spacing: -0.02em;
   }
-
   .hero-sub{
-    margin:0;
-    font-size: clamp(14px, 1.35vw, 18px);
-    line-height: 1.5;
-    color: rgba(15,23,42,.80);
-    max-width: 62ch;
+    margin: 12px 0 18px 0;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.45;
+    max-width: 56ch;
   }
 
   .hero-cta{
     display:flex;
     gap: 10px;
-    flex-wrap:wrap;
-    margin-top: 6px;
+    flex-wrap: wrap;
   }
-
   .btn{
     appearance:none;
     border:0;
-    border-radius: 999px;
-    padding: 11px 14px;
-    font-weight: 650;
     cursor:pointer;
+    padding: 12px 16px;
+    border-radius: 999px;
+    font-weight: 650;
+    font-size: 14px;
     display:inline-flex;
     align-items:center;
-    gap: 10px;
-    transition: transform .12s ease, filter .12s ease, background .12s ease;
-    user-select:none;
+    gap:10px;
+    transition: transform .12s ease, filter .12s ease;
   }
   .btn:active{ transform: translateY(1px); }
-
   .btn-primary{
-    background: rgba(15,23,42,.92);
-    color: #fff;
-    box-shadow: 0 12px 22px rgba(15,23,42,.20);
+    background: #0b1220;
+    color: white;
+    box-shadow: 0 16px 30px rgba(0,0,0,.16);
   }
-  .btn-primary:hover{ filter: brightness(1.06); }
-
   .btn-ghost{
-    background: rgba(255,255,255,.72);
-    color: var(--text);
-    border: 1px solid rgba(255,255,255,.65);
+    background: var(--glass);
+    color: var(--ink);
+    border: 1px solid var(--line);
     backdrop-filter: blur(10px);
   }
-  .btn-ghost:hover{ background: rgba(255,255,255,.82); }
 
-  .btn .icon{
-    width: 18px; height: 18px;
-    display:inline-block;
-  }
-
-  .hero-panel{
-    align-self:stretch;
+  .hero-right{
     display:flex;
     flex-direction:column;
-    justify-content:flex-end;
+    gap: 12px;
   }
 
-  .glass{
-    background: var(--glass);
-    border: 1px solid rgba(255,255,255,.65);
-    backdrop-filter: blur(12px);
+  .panel{
+    background: var(--glass-2);
+    border: 1px solid var(--line);
     border-radius: 18px;
     box-shadow: var(--shadow-card);
-  }
-
-  .spotlight{
-    padding: 14px;
-    display:flex;
-    flex-direction:column;
-    gap: 10px;
-  }
-
-  .spotlight h3{
-    margin:0;
-    font-size: 14px;
-    color: rgba(15,23,42,.82);
-    letter-spacing: .2px;
-    display:flex;
-    align-items:center;
-    gap: 8px;
-  }
-
-  .spot-grid{
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-  }
-
-  .spot{
-    position:relative;
-    aspect-ratio: 1 / 1;
-    border-radius: 14px;
     overflow:hidden;
-    background: rgba(148,163,184,.24);
-    border: 1px solid rgba(15,23,42,.10);
+    backdrop-filter: blur(10px);
   }
-  .spot img{
-    width:100%; height:100%;
-    object-fit:cover;
-    display:block;
-    transform: scale(1.02);
-  }
-  .spot::after{
-    content:"";
-    position:absolute; inset:0;
-    background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,.26) 100%);
-    opacity:.65;
-  }
-
-  /* Sections below hero */
-  .row{
-    display:grid;
-    grid-template-columns: 1fr;
-    gap: clamp(12px, 2.2vh, 18px);
-  }
-
-  .section{
-    border-radius: var(--radius-lg);
-    overflow:hidden;
-    background: var(--glass-strong);
-    border: 1px solid rgba(15,23,42,.10);
-    box-shadow: var(--shadow-card);
-  }
-
-  .section-head{
-    padding: 16px 18px;
+  .panel-h{
+    padding: 12px 14px;
     display:flex;
     align-items:center;
     justify-content:space-between;
-    gap: 12px;
     border-bottom: 1px solid rgba(15,23,42,.08);
-  }
-
-  .section-title{
-    margin:0;
-    font-size: 15px;
-    letter-spacing: .2px;
-    color: rgba(15,23,42,.88);
-    display:flex;
-    align-items:center;
-    gap: 10px;
+    color: var(--ink);
     font-weight: 750;
   }
-
-  .section-sub{
-    margin:0;
-    font-size: 13px;
-    color: rgba(71,85,105,.95);
+  .panel-h small{
+    font-weight:600;
+    color: var(--muted);
   }
 
-  .section-body{ padding: 16px 18px 18px; }
-
-  .team-grid{
+  .grid6{
+    padding: 12px;
     display:grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .member{
-    border-radius: 18px;
-    overflow:hidden;
-    border: 1px solid rgba(15,23,42,.10);
-    background: rgba(255,255,255,.70);
-    transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
-    min-height: 188px;
-    position:relative;
-  }
-  .member:hover{
-    transform: translateY(-2px);
-    box-shadow: 0 16px 30px rgba(15,23,42,.14);
-    background: rgba(255,255,255,.84);
-  }
-
-  .member .pic{
-    height: 124px;
-    background: rgba(148,163,184,.22);
-    position:relative;
-  }
-  .member .pic img{
-    width:100%; height:100%;
-    object-fit:cover;
-    display:block;
-  }
-  .member .pic::after{
-    content:"";
-    position:absolute; inset:0;
-    background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,.22) 100%);
-    opacity:.7;
-  }
-
-  .member .meta{
-    padding: 12px 12px 14px;
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
-
-  .member .name{
-    margin:0;
-    font-weight: 850;
-    color: var(--text);
-    font-size: 16px;
-    letter-spacing: .2px;
-  }
-  .member .hint{
-    margin: 3px 0 0;
-    color: rgba(71,85,105,.92);
-    font-size: 12px;
-  }
-  .badge{
-    flex:0 0 auto;
-    padding: 8px 10px;
-    border-radius: 999px;
-    background: rgba(15,23,42,.08);
+  .tile{
+    aspect-ratio: 1/1;
+    border-radius: 14px;
+    overflow:hidden;
+    background: #e9edf3;
     border: 1px solid rgba(15,23,42,.10);
-    color: rgba(15,23,42,.85);
+    position:relative;
+  }
+  .tile img{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit: cover;
+  }
+
+  /* TEAM inside hero */
+  .team-strip{
+    position:absolute;
+    left: 26px;
+    right: 26px;
+    bottom: 26px;
+    display:flex;
+    gap: 12px;
+    align-items: stretch;
+    pointer-events:none; /* keep hero scroll behavior clean */
+  }
+  .team-card{
+    pointer-events:auto;
+    flex: 1 1 0;
+    min-width: 0;
+    background: rgba(255,255,255,.86);
+    border: 1px solid rgba(15,23,42,.10);
+    border-radius: 18px;
+    box-shadow: var(--shadow-card);
+    overflow:hidden;
+    backdrop-filter: blur(10px);
+    display:grid;
+    grid-template-columns: 92px 1fr;
+    gap: 12px;
+    padding: 12px;
+    align-items:center;
+  }
+  .team-img{
+    width: 92px;
+    height: 92px;
+    border-radius: 14px;
+    overflow:hidden;
+    background:#e9edf3;
+    border: 1px solid rgba(15,23,42,.10);
+  }
+  .team-img img{
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    display:block;
+  }
+  .team-meta{
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap: 6px;
+  }
+  .team-title{
     font-weight: 800;
-    font-size: 12px;
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.1;
+  }
+  .team-text{
+    color: var(--muted);
+    font-size: 12.5px;
+    line-height: 1.35;
+    display:-webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow:hidden;
   }
 
-  .skeleton{
-    background: linear-gradient(90deg, rgba(148,163,184,.20) 0%, rgba(148,163,184,.34) 50%, rgba(148,163,184,.20) 100%);
-    background-size: 220% 100%;
-    animation: shimmer 1.4s ease infinite;
-  }
-  @keyframes shimmer{
-    0%{ background-position: 200% 0; }
-    100%{ background-position: -200% 0; }
-  }
+  .hero.is-loading .hero-inner,
+  .hero.is-loading .team-strip{ opacity: 0; transform: translateY(6px); }
+  .hero-inner, .team-strip{ transition: opacity .25s ease, transform .25s ease; }
 
-  /* Responsive */
-  @media (max-width: 1100px){
-    .hero-inner{ grid-template-columns: 1fr; }
-    .hero-panel{ align-self:end; }
-    .spot-grid{ grid-template-columns: repeat(6, 1fr); }
-    .team-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  }
-  @media (max-width: 820px){
-    .head-wrap{ padding-left: 16px; padding-right: 16px; }
-    .spot-grid{ grid-template-columns: repeat(3, 1fr); }
-    .team-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  }
-  @media (max-width: 460px){
-    .team-grid{ grid-template-columns: 1fr; }
+  @media (max-width: 980px){
+    .hero-inner{
+      grid-template-columns: 1fr;
+      padding: 18px;
+    }
+    .hero-right{ display:none; }
+    .team-strip{
+      left: 18px; right: 18px; bottom: 18px;
+      flex-direction: column;
+    }
+    .team-card{ grid-template-columns: 76px 1fr; }
+    .team-img{ width:76px; height:76px; }
   }
 </style>
 
-<div class="head-wrap" id="headModern">
-  <!-- HERO -->
-  <section class="hero" aria-label="Hero">
+<div class="head-wrap">
+  <section class="hero is-loading" id="hero">
     <div class="hero-bg" id="heroBg"></div>
-    <div class="hero-shade"></div>
+    <div class="hero-overlay"></div>
 
     <div class="hero-inner">
       <div class="hero-copy">
-        <div class="hero-kicker">
-          <span class="dot" aria-hidden="true"></span>
-          <span>LG Eventverleih</span>
-        </div>
-
+        <div class="badge"><span class="dot"></span> LG Eventverleih</div>
         <h1 class="hero-title">Feiern leicht gemacht.</h1>
         <p class="hero-sub">
           Moderne Ausstattung, saubere Abwicklung, zuverlässiger Aufbau – damit du dich um das Wichtigste kümmern kannst.
         </p>
 
         <div class="hero-cta">
-          <button class="btn btn-primary" type="button" data-scroll="shop">
-            <span class="icon" aria-hidden="true">🛒</span>
-            <span>Zum Shop</span>
-          </button>
-          <button class="btn btn-ghost" type="button" data-scroll="kontakt">
-            <span class="icon" aria-hidden="true">✉️</span>
-            <span>Kontakt</span>
-          </button>
+          <button class="btn btn-primary" type="button" data-scroll="shop">🛒 Zum Shop</button>
+          <button class="btn btn-ghost" type="button" data-scroll="kontakt">✉️ Kontakt</button>
         </div>
       </div>
 
-      <div class="hero-panel">
-        <div class="glass spotlight" aria-label="Highlights">
-          <h3><span aria-hidden="true">✨</span> Beliebte Artikel</h3>
-          <div class="spot-grid" id="spotGrid">
-            <!-- images injected -->
+      <aside class="hero-right">
+        <div class="panel">
+          <div class="panel-h">✨ Beliebte Artikel <small id="popularHint">Zufallsauswahl</small></div>
+          <div class="grid6" id="popularGrid">
+            <!-- tiles -->
           </div>
         </div>
-      </div>
+      </aside>
+    </div>
+
+    <div class="team-strip" id="teamStrip">
+      <!-- team cards -->
     </div>
   </section>
-
-  <!-- TEAM -->
-  <div class="row">
-    <section class="section" aria-label="Team">
-      <div class="section-head">
-        <div>
-          <p class="section-title"><span aria-hidden="true">👥</span> Unser Team</p>
-          <p class="section-sub">Die Gesichter hinter Planung, Aufbau und Service.</p>
-        </div>
-      </div>
-      <div class="section-body">
-        <div class="team-grid" id="teamGrid">
-          <!-- team cards injected -->
-        </div>
-      </div>
-    </section>
-  </div>
 </div>
 
 <script>
 (() => {
+  const hero = document.getElementById('hero');
   const heroBg = document.getElementById('heroBg');
-  const spotGrid = document.getElementById('spotGrid');
-  const teamGrid = document.getElementById('teamGrid');
+  const popularGrid = document.getElementById('popularGrid');
+  const teamStrip = document.getElementById('teamStrip');
 
   const pickRandom = (arr, n) => {
-    const copy = [...arr];
-    for (let i = copy.length - 1; i > 0; i--) {
+    const a = (arr || []).slice();
+    for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [copy[i], copy[j]] = [copy[j], copy[i]];
+      [a[i], a[j]] = [a[j], a[i]];
     }
-    return copy.slice(0, n);
+    return a.slice(0, n);
   };
 
-  async function fetchJson(url){
-    const res = await fetch(url, { cache: "no-store" });
-    if(!res.ok) throw new Error(url + " (" + res.status + ")");
-    return await res.json();
-  }
+  const fetchJson = async (url) => {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(url + ' -> ' + res.status);
+    return res.json();
+  };
 
-  function safeSetBg(url){
-    heroBg.style.backgroundImage = `url("${url}")`;
-  }
+  const preloadImage = (src) => new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = src;
+  });
 
-  // Try a list of filenames in a folder, resolve with the first that exists.
-  function probeImage(url){
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(url);
-      img.onerror = reject;
-      img.src = url;
-    });
-  }
-
-  async function firstExistingImage(folder, candidates){
-    for (const fn of candidates){
-      const url = `${folder}/${fn}`;
-      try {
-        const ok = await probeImage(url);
-        return ok;
-      } catch(_){}
+  const firstExistingImage = async (candidates) => {
+    for (const src of candidates) {
+      const ok = await preloadImage(src);
+      if (ok) return src;
     }
     return null;
-  }
+  };
 
-  function makeSpot(url){
-    const el = document.createElement('div');
-    el.className = 'spot';
-    const img = document.createElement('img');
-    img.loading = 'lazy';
-    img.alt = '';
-    img.src = url;
-    el.appendChild(img);
-    return el;
-  }
+  const basePath = (p) => {
+    // works for repo pages too: use relative paths
+    return p.replace(/^\//,'');
+  };
 
-  function memberCard({index, imgUrl}){
-    const card = document.createElement('div');
-    card.className = 'member';
-    const pic = document.createElement('div');
-    pic.className = 'pic' + (imgUrl ? '' : ' skeleton');
-
-    if(imgUrl){
-      const img = document.createElement('img');
-      img.loading = 'lazy';
-      img.alt = '';
-      img.src = imgUrl;
-      pic.appendChild(img);
-    }
-
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-
-    const left = document.createElement('div');
-    const name = document.createElement('p');
-    name.className = 'name';
-    name.textContent = `Teammitglied ${index}`;
-    const hint = document.createElement('p');
-    hint.className = 'hint';
-    hint.textContent = '—';
-
-    left.appendChild(name);
-    left.appendChild(hint);
-
-    const badge = document.createElement('div');
-    badge.className = 'badge';
-    badge.textContent = `#${index}`;
-
-    meta.appendChild(left);
-    meta.appendChild(badge);
-
-    card.appendChild(pic);
-    card.appendChild(meta);
-    return card;
-  }
-
-  async function initHeroBackground(){
+  const init = async () => {
     try{
+      // Background
       const bgList = await fetchJson('image/hintergrund/manifest.json');
-      if(Array.isArray(bgList) && bgList.length){
-        const file = bgList[Math.floor(Math.random() * bgList.length)];
-        safeSetBg(`image/hintergrund/${file}`);
+      const bg = (bgList && bgList.length) ? bgList[Math.floor(Math.random()*bgList.length)] : null;
+      if (bg){
+        const bgUrl = 'image/hintergrund/' + bg;
+        await preloadImage(bgUrl);
+        heroBg.style.backgroundImage = `url("${bgUrl}")`;
+      } else {
+        heroBg.style.background = '#d9dde3';
       }
-    } catch(e){
-      // keep default background
-    }
-  }
 
-  async function initSpotlightItems(){
-    // use random product images in the hero panel
-    try{
-      const items = await fetchJson('Items/manifest.json');
-      if(Array.isArray(items) && items.length){
+      // Popular items (6 random)
+      try{
+        const items = await fetchJson('Items/manifest.json');
         const picks = pickRandom(items, 6);
-        spotGrid.innerHTML = '';
-        picks.forEach(p => spotGrid.appendChild(makeSpot(p)));
+        popularGrid.innerHTML = picks.map(p => `
+          <div class="tile">
+            <img loading="lazy" alt="" src="${basePath(p)}">
+          </div>
+        `).join('');
+      }catch(e){
+        // keep empty quietly
+        popularGrid.innerHTML = '';
       }
-    } catch(e){
-      // fallback: show empty placeholders
-      spotGrid.innerHTML = '';
-      for(let i=0;i<6;i++){
-        const el = document.createElement('div');
-        el.className = 'spot skeleton';
-        spotGrid.appendChild(el);
-      }
-    }
-  }
 
-  async function initTeam(){
-    // Team/manifest.json contains folders (Name_1, Name_2, ...)
-    try{
+      // Team strip (max 3)
       const team = await fetchJson('Team/manifest.json');
-      const members = team?.members || [];
-      teamGrid.innerHTML = '';
+      const members = (team && team.members) ? team.members : [];
+      const top = members.slice(0, 3);
 
-      const candidates = [
-        'profil.jpg','profil.png',
-        'profile.jpg','profile.png',
-        'portrait.jpg','portrait.png',
-        'main.jpg','main.png',
-        '1.jpg','1.jpeg','1.png','1.webp',
-        '0.jpg','0.jpeg','0.png','0.webp'
-      ];
+      if (!top.length){
+        teamStrip.innerHTML = '';
+      } else {
+        const cards = [];
+        for (let i=0; i<top.length; i++){
+          const folder = top[i].folder;
+          const idx = i + 1;
 
-      // Render cards in manifest order (1..n)
-      for(let i=0; i<members.length; i++){
-        const idx = i + 1;
-        const folder = members[i]?.folder;
-        let imgUrl = null;
-        if(folder){
-          imgUrl = await firstExistingImage(`Team/${folder}`, candidates);
+          const imgCandidates = [
+            `Team/${folder}/image.jpg`,
+            `Team/${folder}/image.jpeg`,
+            `Team/${folder}/image.png`,
+            `Team/${folder}/profil.jpg`,
+            `Team/${folder}/profil.png`,
+            `Team/${folder}/profile.jpg`,
+            `Team/${folder}/profile.png`,
+            `Team/${folder}/portrait.jpg`,
+            `Team/${folder}/portrait.png`,
+            `Team/${folder}/1.jpg`,
+            `Team/${folder}/1.png`,
+          ];
+
+          const imgSrc = await firstExistingImage(imgCandidates);
+
+          let text = '';
+          try{
+            const r = await fetch(`Team/${folder}/team.txt`, { cache: 'no-store' });
+            if (r.ok) text = (await r.text()).trim();
+          }catch(e){}
+
+          cards.push(`
+            <article class="team-card" title="${folder}">
+              <div class="team-img">
+                ${imgSrc ? `<img loading="lazy" alt="" src="${imgSrc}">` : ''}
+              </div>
+              <div class="team-meta">
+                <div class="team-title">Teammitglied ${idx}</div>
+                <div class="team-text">${(text || '—').replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]))}</div>
+              </div>
+            </article>
+          `);
         }
-        teamGrid.appendChild(memberCard({ index: idx, imgUrl }));
+        teamStrip.innerHTML = cards.join('');
       }
 
-      // If no members: show a calm placeholder
-      if(!members.length){
-        const empty = document.createElement('div');
-        empty.style.color = 'rgba(71,85,105,.9)';
-        empty.style.fontSize = '14px';
-        empty.textContent = 'Noch keine Teammitglieder hinterlegt.';
-        teamGrid.appendChild(empty);
-      }
-    } catch(e){
-      // On error, show a tiny hint and keep layout clean
-      teamGrid.innerHTML = '';
-      const empty = document.createElement('div');
-      empty.style.color = 'rgba(71,85,105,.9)';
-      empty.style.fontSize = '14px';
-      empty.textContent = 'Team konnte nicht geladen werden.';
-      teamGrid.appendChild(empty);
+      hero.classList.remove('is-loading');
+    }catch(err){
+      // If something fails, still show hero copy
+      hero.classList.remove('is-loading');
+      console.warn('Head init failed:', err);
     }
-  }
+  };
 
-  // Bind scroll buttons (works with your existing global smooth-scroller too)
-  function bindScrollButtons(){
-    document.querySelectorAll('#headModern [data-scroll]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.getAttribute('data-scroll');
-        const el = document.getElementById(target);
-        if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      });
-    });
-  }
-
-  bindScrollButtons();
-  initHeroBackground();
-  initSpotlightItems();
-  initTeam();
+  init();
 })();
 </script>
