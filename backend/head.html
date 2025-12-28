@@ -1,4 +1,4 @@
-<!-- backend/head.html | Neu: 3 Bereiche (Bild / Auswahl / Text) + Slider-Effekt (translateX) für Bild & Text getrennt -->
+<!-- backend/head.html -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
@@ -6,24 +6,314 @@
   <div class="team-head__inner">
     <div class="team-shell">
 
-      <!-- BILD (Desktop: oben 75% | Mobile: ganz oben) -->
-      <div class="team-stage team-stage--img" aria-label="Team Bild">
-        <div class="team-viewport team-viewport--img" aria-label="Team Bild Slider">
+      <!-- Bild-Ebene (75%) -->
+      <div class="team-stage team-stage--img">
+        <div class="team-viewport">
           <div class="team-track" id="teamImgTrack"></div>
         </div>
       </div>
 
-      <!-- AUSWAHL (Desktop: unten 25% | Mobile: mittig zwischen Bild & Text) -->
-      <div class="team-choice" aria-label="Team Auswahl">
+      <!-- Text-Ebene (liegt über Bild, gleiche Grid-Zeile) -->
+      <div class="team-stage team-stage--text">
+        <div class="team-viewport">
+          <div class="team-track" id="teamTextTrack"></div>
+        </div>
+      </div>
+
+      <!-- Auswahl (25%) -->
+      <div class="team-choice">
         <div class="team-tabsWrap">
           <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
 
-      <!-- TEXT (Desktop: oben 75% “über” Bild | Mobile: unten, nutzt Rest) -->
+    </div>
+  </div>
+</section>
+
+<style>
+:root{
+  --stage-h: 75%;
+  --choice-h: 25%;
+  --radius: 18px;
+}
+
+/* ===== Grundcontainer ===== */
+.team-head{
+  position:relative;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#d9dde3;
+}
+
+.team-head__bg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  transform:scale(1.05);
+  filter:saturate(.98) contrast(.98);
+}
+
+.team-head__veil{
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(1200px 700px at 18% 40%,
+      rgba(255,255,255,.86),
+      rgba(255,255,255,.18) 58%,
+      rgba(255,255,255,0) 74%),
+    linear-gradient(90deg,
+      rgba(255,255,255,.92),
+      rgba(255,255,255,.70) 40%,
+      rgba(255,255,255,.22) 70%,
+      rgba(255,255,255,.10));
+  backdrop-filter: blur(10px);
+}
+
+.team-head__inner{
+  position:relative;
+  z-index:1;
+  height:100%;
+  padding: 20px 32px 18px;
+}
+
+/* ===== Grid-Aufteilung ===== */
+.team-shell{
+  height:100%;
+  display:grid;
+  grid-template-rows: var(--stage-h) var(--choice-h);
+  gap: 14px;
+}
+
+/* ===== Bild + Text liegen in derselben Grid-Zeile ===== */
+.team-stage{
+  grid-row: 1;
+  position:relative;
+  overflow:hidden;
+  border-radius: var(--radius);
+}
+
+.team-stage--img{ z-index:1; }
+.team-stage--text{
+  z-index:2;
+  pointer-events:none; /* Tabs bleiben klickbar */
+}
+
+/* ===== Slider ===== */
+.team-viewport{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+}
+
+.team-track{
+  height:100%;
+  display:flex;
+  transform: translateX(0%);
+  transition: transform .55s cubic-bezier(.22,.9,.18,1);
+}
+
+.team-slide{
+  flex:0 0 100%;
+  height:100%;
+  position:relative;
+}
+
+/* ===== Bild ===== */
+.team-portrait{
+  position:absolute;
+  left:20%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(420px,40vw);
+  aspect-ratio:1/1;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.55);
+  box-shadow:0 22px 60px rgba(0,0,0,.18);
+}
+
+.team-portrait img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+/* ===== Text ===== */
+.team-panelWrap{
+  position:absolute;
+  left:30%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(780px,70vw);
+}
+
+.team-panel{
+  background:rgba(255,255,255,.84);
+  border-radius:var(--radius);
+  box-shadow:0 18px 50px rgba(0,0,0,.12);
+  padding:22px;
+}
+
+.team-title{
+  margin:0 0 10px;
+  font-size:clamp(24px,2.2vw,40px);
+}
+
+.team-text{
+  line-height:1.6;
+  color:#1f2933;
+}
+
+/* ===== Auswahl ===== */
+.team-choice{
+  grid-row:2;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+  padding-top:6px;
+}
+
+.team-tabs{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.team-tab{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(255,255,255,.7);
+  cursor:pointer;
+}
+
+.team-tab.is-active{
+  background:rgba(255,255,255,.95);
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 900px){
+  .team-shell{
+    grid-template-rows: auto auto auto;
+  }
+
+  .team-stage{
+    grid-row:auto;
+    height:auto;
+  }
+
+  .team-portrait{
+    left:50%;
+    width:min(280px,70vw);
+  }
+
+  .team-panelWrap{
+    left:50%;
+    width:100%;
+  }
+
+  .team-choice{
+    order:2;
+    align-items:center;
+  }
+}
+</style>
+
+<script>
+(function(){
+  const TEAM_MANIFEST_URL = "Team/manifest.json";
+
+  const imgTrack = document.getElementById("teamImgTrack");
+  const txtTrack = document.getElementById("teamTextTrack");
+  const tabs     = document.getElementById("teamTabs");
+
+  let members = [];
+  let active = 0;
+
+  const setActive = (i) => {
+    active = i;
+    const x = `translateX(${-i*100}%)`;
+    imgTrack.style.transform = x;
+    txtTrack.style.transform = x;
+    tabs.querySelectorAll(".team-tab").forEach(t=>t.classList.remove("is-active"));
+    tabs.children[i]?.classList.add("is-active");
+  };
+
+  const makeImg = (m) => {
+    const s = document.createElement("div");
+    s.className="team-slide";
+    s.innerHTML = `
+      <div class="team-portrait">
+        <img src="${m.img}" alt="${m.name}">
+      </div>`;
+    return s;
+  };
+
+  const makeTxt = (m) => {
+    const s = document.createElement("div");
+    s.className="team-slide";
+    s.innerHTML = `
+      <div class="team-panelWrap">
+        <div class="team-panel">
+          <h1 class="team-title">${m.name}</h1>
+          <div class="team-text">${m.text || ""}</div>
+        </div>
+      </div>`;
+    return s;
+  };
+
+  const makeTab = (m,i) => {
+    const b = document.createElement("div");
+    b.className="team-tab";
+    b.textContent=m.name;
+    b.onclick=()=>setActive(i);
+    return b;
+  };
+
+  fetch(TEAM_MANIFEST_URL)
+    .then(r=>r.json())
+    .then(data=>{
+      members = data.members || [];
+      members.forEach((m,i)=>{
+        imgTrack.appendChild(makeImg(m));
+        txtTrack.appendChild(makeTxt(m));
+        tabs.appendChild(makeTab(m,i));
+      });
+      if(members.length) setActive(0);
+    });
+})();
+</script>
+<!-- backend/head.html | 3 Bereiche (Bild / Auswahl / Text) + Slider-Effekt (translateX) | Desktop: Bild+Text gelayert (Grid), Auswahl unten | Mobile: Bild -> Auswahl -> Text -->
+<section class="team-head" aria-label="Team">
+  <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
+  <div class="team-head__veil" aria-hidden="true"></div>
+
+  <div class="team-head__inner">
+    <div class="team-shell">
+
+      <!-- BILD (Grid-Zeile 1) -->
+      <div class="team-stage team-stage--img" aria-label="Team Bild">
+        <div class="team-viewport" aria-label="Team Bild Slider">
+          <div class="team-track" id="teamImgTrack"></div>
+        </div>
+      </div>
+
+      <!-- TEXT (Grid-Zeile 1, über Bild) -->
       <div class="team-stage team-stage--text" aria-label="Team Text">
-        <div class="team-viewport team-viewport--text" aria-label="Team Text Slider">
+        <div class="team-viewport" aria-label="Team Text Slider">
           <div class="team-track" id="teamTextTrack"></div>
+        </div>
+      </div>
+
+      <!-- AUSWAHL (Grid-Zeile 2) -->
+      <div class="team-choice" aria-label="Team Auswahl">
+        <div class="team-tabsWrap">
+          <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
 
@@ -51,8 +341,8 @@
   .team-head{
     position:relative;
     width:100%;
-    height: 100%;
-    min-height: 100%;
+    height:100%;
+    min-height:100%;
     overflow:hidden;
     background:#d9dde3;
   }
@@ -83,30 +373,28 @@
     padding-bottom: 18px;
   }
 
+  /* ===== Desktop: Grid (oben 75% gelayert: Bild + Text | unten 25% Auswahl) ===== */
   .team-shell{
     height:100%;
-    display:flex;
-    flex-direction:column;
+    display:grid;
+    grid-template-rows: var(--stage-h) var(--choice-h);
     gap: 14px;
   }
 
-  /* Desktop-Aufteilung: Bild+Text teilen sich denselben 75%-Bereich (Layer), Auswahl unten 25% */
   .team-stage{
+    grid-row: 1;
     position:relative;
-    flex: 0 0 var(--stage-h);
     min-height:0;
     border-radius: var(--radius);
     overflow:hidden;
   }
 
-  /* Text liegt “über” Bild: */
+  .team-stage--img{ z-index: 1; }
   .team-stage--text{
-    margin-top: calc(-1 * var(--stage-h)); /* schiebt den Text-Bereich über den Bild-Bereich */
-    pointer-events:none;                   /* Klicks gehen durch (Tabs bleiben klickbar) */
+    z-index: 2;
+    pointer-events:none; /* Tabs bleiben klickbar */
     background: transparent;
   }
-
-  /* Damit der Text trotzdem interaktiv sein könnte (falls später): */
   .team-stage--text .team-panel,
   .team-stage--text a,
   .team-stage--text button{
@@ -114,15 +402,15 @@
   }
 
   .team-choice{
-    flex: 0 0 var(--choice-h);
+    grid-row: 2;
     min-height:0;
     display:flex;
     justify-content:center;
-    align-items:flex-start; /* Buttons eher oben in Auswahl */
+    align-items:flex-start; /* Buttons eher oben */
     padding-top: 6px;
   }
 
-  /* ===== Slider / Track ===== */
+  /* ===== Slider ===== */
   .team-viewport{
     height:100%;
     width:100%;
@@ -145,8 +433,8 @@
     position:relative;
   }
 
-  /* ===== Bild-Slide: Mittelpunkt bei ~20% (Desktop) ===== */
-  .team-portraitWrap{
+  /* ===== Bild-Slide (Desktop: Mittelpunkt bei ~20%) ===== */
+  .team-portrait{
     position:absolute;
     left: 20%;
     top: 50%;
@@ -162,7 +450,7 @@
     box-shadow: 0 22px 60px rgba(0,0,0,0.18);
     backdrop-filter: blur(8px);
   }
-  .team-portraitWrap img{
+  .team-portrait img{
     width:100%;
     height:100%;
     object-fit:cover;
@@ -170,7 +458,7 @@
     transform: scale(1.02);
   }
 
-  /* ===== Text-Slide: Panel-Mittelpunkt bei ~30% (Desktop) ===== */
+  /* ===== Text-Slide (Desktop: Panel-Mittelpunkt bei ~30%) ===== */
   .team-panelWrap{
     position:absolute;
     left: 30%;
@@ -181,7 +469,7 @@
   }
 
   .team-panel{
-    width:100%;
+    width: 100%;
     background: rgba(255,255,255,0.84);
     border: 1px solid rgba(15,23,42,0.10);
     border-radius: var(--radius);
@@ -210,7 +498,7 @@
     overflow: hidden;
   }
 
-  /* ===== Tabs ===== */
+  /* ===== Tabs unten ===== */
   .team-tabsWrap{
     width:100%;
     display:flex;
@@ -272,7 +560,7 @@
     letter-spacing:-0.01em;
   }
 
-  /* ===== Mobile: Reihenfolge Bild -> Auswahl -> Text, ohne “Overlay”-Trick ===== */
+  /* ===== Mobile: Bild -> Auswahl -> Text, kein Overlay ===== */
   @media (max-width: 980px){
     .team-head__inner{
       padding-left: 22px;
@@ -282,35 +570,41 @@
     }
 
     .team-shell{
+      display:flex;
+      flex-direction:column;
       gap: 12px;
+      height:100%;
     }
 
+    /* Bild oben mit fester “sinnvoller” Höhe */
     .team-stage{
-      flex: 0 0 auto;
-      height: auto;
-      min-height: 0;
+      border-radius: var(--radius);
+      overflow:hidden;
     }
-
     .team-stage--img{
-      height: 38%;
+      order: 1;
+      flex: 0 0 38%;
       min-height: 220px;
+      z-index: 1;
     }
-
+    /* Auswahl mittig, Höhe nach Inhalt */
     .team-choice{
+      order: 2;
       flex: 0 0 auto;
       padding-top: 0;
-      align-items:center; /* mittig im Auswahl-Block */
+      align-items:center;
     }
-
+    /* Text unten, nimmt Rest */
     .team-stage--text{
-      margin-top: 0;        /* kein Overlay */
+      order: 3;
       flex: 1 1 auto;
       min-height: 0;
+      z-index: 1;
       pointer-events:auto;
     }
+    .team-stage--text .team-viewport{ border-radius: var(--radius); }
 
-    /* Bild & Text: zentriert auf volle Breite */
-    .team-portraitWrap{
+    .team-portrait{
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
@@ -324,10 +618,9 @@
       transform: translate(-50%, -50%);
       width: 100%;
       max-width: 100%;
-      padding: 0 0;
     }
-
     .team-panel{
+      max-width: 100%;
       border-radius: 16px;
       padding: 18px 18px 14px;
     }
@@ -428,7 +721,7 @@
       slide.className = "team-slide";
 
       const portrait = document.createElement("div");
-      portrait.className = "team-portraitWrap";
+      portrait.className = "team-portrait";
 
       const img = document.createElement("img");
       img.loading = "lazy";
@@ -517,7 +810,7 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
-      // “von rechts rein” (stagger)
+      /* “von rechts rein” (stagger) */
       btn.style.opacity = "0";
       btn.style.transform = "translateX(18px)";
       requestAnimationFrame(() => {
