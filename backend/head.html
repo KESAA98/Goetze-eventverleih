@@ -1,35 +1,34 @@
-<!-- backend/head.html  | Team Head: links Text + rechts großes rundes Bild + unten Tabs -->
+<!-- backend/head.html | Full-height Head (from index #head), connected text-panel + tabs, big round portrait, random BG -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
   <div class="team-head__inner">
-    <div class="team-head__main">
-      <!-- Links: Text -->
-      <div class="team-head__left">
-        <h1 class="team-head__title" id="teamTitle">Wir sind das Team.</h1>
-        <p class="team-head__lead" id="teamLead">
-          Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
-        </p>
+    <div class="team-head__layout">
+      <!-- LEFT: Connected text panel + tabs dock -->
+      <div class="team-left">
+        <div class="team-panel" id="teamPanel">
+          <h1 class="team-title" id="teamTitle">Wir sind das Team.</h1>
+          <p class="team-text" id="teamText">
+            Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
+          </p>
+        </div>
+
+        <div class="team-tabs" id="teamTabs" aria-label="Team Auswahl"></div>
       </div>
 
-      <!-- Rechts: großes rundes Bild -->
-      <div class="team-head__right" aria-hidden="true">
-        <div class="team-head__portrait">
+      <!-- RIGHT: big round portrait -->
+      <div class="team-right">
+        <div class="team-portrait">
           <img id="teamPortrait" alt="" />
         </div>
       </div>
-    </div>
-
-    <!-- Unten: Tabs -->
-    <div class="team-tabs" id="teamTabs" aria-label="Team Auswahl">
-      <!-- wird per JS befüllt -->
     </div>
   </div>
 </section>
 
 <style>
-  /* nutzt die "edge" Abstände aus deinem Head/Titel-Konzept */
+  /* Edges align to title/logo spacing (fallbacks included) */
   :root{
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
@@ -37,34 +36,33 @@
 
     --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
     --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
-
-    --radius: 18px;
-    --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
   }
 
+  /* OUTER: full-bleed, NO radius */
   .team-head{
     position:relative;
     width:100%;
     height:100%;
     min-height:100%;
-    border-radius: var(--radius);
+    border-radius: 0;
     overflow:hidden;
-    box-shadow: var(--shadow-soft);
     background:#d9dde3;
   }
 
+  /* Background */
   .team-head__bg{
     position:absolute; inset:0;
     background-size: cover;
     background-position: center;
-    transform: scale(1.04);
-    filter: saturate(0.95) contrast(0.98);
+    transform: scale(1.05);
+    filter: saturate(.98) contrast(.98);
   }
+
   .team-head__veil{
     position:absolute; inset:0;
     background:
-      radial-gradient(1200px 600px at 16% 42%, rgba(255,255,255,0.82), rgba(255,255,255,0.10) 60%, rgba(255,255,255,0.0) 74%),
-      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.72) 38%, rgba(255,255,255,0.22) 66%, rgba(255,255,255,0.10) 100%);
+      radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
+      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 40%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.10) 100%);
     backdrop-filter: blur(10px);
   }
 
@@ -72,84 +70,68 @@
     position:relative;
     z-index:1;
     height:100%;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-
-    /* gleiches Padding links/rechts wie Titel/Logo-Edges */
     padding-left:  var(--edge-left);
     padding-right: var(--edge-right);
-
-    /* oben/unten gleichmäßig */
     padding-top: 34px;
     padding-bottom: 34px;
-    gap: 18px;
+    display:flex;
+    align-items:stretch;
   }
 
-  .team-head__main{
+  .team-head__layout{
+    width:100%;
+    height:100%;
     display:grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: clamp(18px, 3vw, 44px);
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: clamp(18px, 3vw, 48px);
     align-items:center;
-    min-height: 0;
   }
 
-  .team-head__left{
+  /* LEFT column */
+  .team-left{
+    height:100%;
     display:flex;
     flex-direction:column;
-    gap: 14px;
+    justify-content:flex-end; /* tabs sit at bottom visually */
+    gap: 12px;
     min-width:0;
   }
 
-  .team-head__title{
-    margin:0;
-    font-size: clamp(28px, 3.3vw, 54px);
+  /* Connected panel (looks like it "comes from" the active tab) */
+  .team-panel{
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(15,23,42,0.10);
+    border-radius: 18px;
+    padding: 26px 26px 22px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+    backdrop-filter: blur(10px);
+    min-width:0;
+  }
+
+  .team-title{
+    margin:0 0 10px 0;
+    font-size: clamp(28px, 3.4vw, 54px);
     line-height: 1.02;
     letter-spacing: -0.02em;
     color: #0f172a;
   }
 
-  .team-head__lead{
+  .team-text{
     margin:0;
-    max-width: 62ch;
-    font-size: clamp(14px, 1.15vw, 17px);
-    line-height: 1.6;
+    font-size: clamp(14px, 1.1vw, 16px);
+    line-height: 1.65;
     color: rgba(15,23,42,0.78);
+    max-width: 72ch;
+    white-space: pre-wrap;
   }
 
-  .team-head__right{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-width:0;
-  }
-
-  .team-head__portrait{
-    width: min(360px, 34vw);
-    aspect-ratio: 1 / 1;
-    border-radius: 999px;
-    overflow:hidden;
-    background: rgba(255,255,255,0.55);
-    border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
-    backdrop-filter: blur(8px);
-  }
-
-  .team-head__portrait img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    transform: scale(1.02);
-  }
-
-  /* Tabs */
+  /* TABS */
   .team-tabs{
     display:flex;
     gap: 12px;
     overflow:auto;
-    padding: 10px 0 2px;
-    align-items:stretch;
+    padding: 2px 0 0;
+    align-items:flex-end;
   }
 
   .team-tabs::-webkit-scrollbar{ height: 10px; }
@@ -161,31 +143,55 @@
     background-clip: padding-box;
   }
 
+  /* Rect with radius (NOT pill), no min-width */
   .team-tab{
     display:flex;
     align-items:center;
     gap: 10px;
     padding: 10px 14px;
-    border-radius: 999px;
+    border-radius: 14px; /* rectangle with radius */
     background: rgba(255,255,255,0.70);
     border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08); /* cleaner, smaller */
     cursor:pointer;
     user-select:none;
-    transition: transform .14s ease, background .14s ease, border-color .14s ease;
-    flex: 0 0 auto;
-    min-width: 180px;
+    transition: transform .14s ease, background .14s ease, border-color .14s ease, box-shadow .14s ease;
+    flex: 0 0 auto; /* content width */
   }
 
   .team-tab:hover{
     transform: translateY(-1px);
     background: rgba(255,255,255,0.82);
     border-color: rgba(31,79,163,0.22);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.10);
   }
 
+  /* Active tab visually connects to panel */
   .team-tab.is-active{
     background: rgba(255,255,255,0.92);
-    border-color: rgba(31,79,163,0.30);
+    border-color: rgba(15,23,42,0.16);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    transform: translateY(-6px); /* lifts into the panel */
+  }
+
+  /* "Bridge" between active tab and panel */
+  .team-tab.is-active::after{
+    content:"";
+    position:absolute;
+    left: 14px;
+    right: 14px;
+    top: -10px;
+    height: 12px;
+    border-radius: 12px 12px 0 0;
+    background: rgba(255,255,255,0.92);
+    border-left: 1px solid rgba(15,23,42,0.10);
+    border-right: 1px solid rgba(15,23,42,0.10);
+    border-top: 1px solid rgba(15,23,42,0.10);
+    /* no bottom border -> seamless */
+  }
+
+  .team-tab{
+    position:relative; /* needed for ::after */
   }
 
   .team-tab__avatar{
@@ -197,24 +203,49 @@
     border: 1px solid rgba(15,23,42,0.10);
     flex: 0 0 auto;
   }
-
   .team-tab__avatar img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
   }
-
   .team-tab__name{
-    font-weight: 750;
+    font-weight: 760;
     color:#0f172a;
-    letter-spacing: -0.01em;
+    letter-spacing:-0.01em;
     white-space: nowrap;
     overflow:hidden;
     text-overflow: ellipsis;
   }
 
-  /* Responsive */
+  /* RIGHT column */
+  .team-right{
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+  }
+
+  .team-portrait{
+    width: min(420px, 34vw);
+    aspect-ratio: 1 / 1;
+    border-radius: 999px;
+    overflow:hidden;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(15,23,42,0.10);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
+    backdrop-filter: blur(8px);
+  }
+  .team-portrait img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    transform: scale(1.02);
+  }
+
+  /* ===== Mobile / Tablet ===== */
   @media (max-width: 980px){
     .team-head__inner{
       padding-left: 24px;
@@ -222,28 +253,49 @@
       padding-top: 22px;
       padding-bottom: 22px;
     }
-    .team-head__main{
+
+    .team-head__layout{
       grid-template-columns: 1fr;
-      gap: 18px;
+      gap: 16px;
+      align-items:start;
     }
-    .team-head__right{
+
+    /* Portrait on top, smaller */
+    .team-right{
+      order: -1;
       justify-content:flex-start;
     }
-    .team-head__portrait{
-      width: min(300px, 62vw);
+    .team-portrait{
+      width: min(280px, 62vw);
     }
+
+    /* Keep tabs visible, avoid big lift */
+    .team-tab.is-active{ transform: translateY(-3px); }
+    .team-tab.is-active::after{ top: -8px; height: 10px; }
+
+    .team-panel{
+      padding: 18px 18px 16px;
+      border-radius: 16px;
+    }
+  }
+
+  @media (max-width: 560px){
+    .team-title{ font-size: 30px; }
+    .team-tabs{ gap: 10px; }
+    .team-tab{ padding: 9px 12px; border-radius: 12px; }
+    .team-tab__name{ max-width: 34vw; }
   }
 </style>
 
 <script>
   (function(){
-    const BG_MANIFEST_URL   = "image/hintergrund/manifest.json"; // Dateinamen
+    const BG_MANIFEST_URL   = "image/hintergrund/manifest.json"; // array of filenames
     const TEAM_MANIFEST_URL = "Team/manifest.json";              // {members:[{folder:"Lisa_2"}]}
 
     const bgEl = document.getElementById("teamBg");
 
     const titleEl = document.getElementById("teamTitle");
-    const leadEl  = document.getElementById("teamLead");
+    const textEl  = document.getElementById("teamText");
     const portraitEl = document.getElementById("teamPortrait");
     const tabsEl = document.getElementById("teamTabs");
 
@@ -264,21 +316,19 @@
       const t = (text || "").trim();
       if (!t) return { first: "Wir sind das Team.", rest: "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt." };
 
-      // erster Satz bis zum ersten Zeilenumbruch ODER bis zur ersten Satz-Endung
       const nl = t.indexOf("\n");
-      const cutNl = nl > 0 ? nl : -1;
-
-      let cut = cutNl;
-
-      if (cut === -1) {
-        const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
-        cut = m ? m[0].length : -1;
+      if (nl > 0){
+        const first = t.slice(0, nl).trim();
+        const rest = t.slice(nl + 1).trim();
+        return { first: first || "Wir sind das Team.", rest };
       }
 
-      if (cut > 0) {
+      const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
+      if (m && m[0]){
+        const cut = m[0].length;
         const first = t.slice(0, cut).trim();
-        const rest  = t.slice(cut).trim();
-        return { first: first || "Wir sind das Team.", rest: rest || "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt." };
+        const rest = t.slice(cut).trim();
+        return { first: first || "Wir sind das Team.", rest };
       }
 
       return { first: t, rest: "" };
@@ -308,20 +358,17 @@
       portraitEl.onerror = () => {
         portraitEl.removeAttribute("src");
         portraitEl.alt = "";
-        portraitEl.style.display = "none";
       };
-      portraitEl.style.display = "block";
     }
 
     function setActive(member){
-      // active state
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
       const btn = tabsEl.querySelector('[data-folder="' + CSS.escape(member.folder) + '"]');
       if (btn) btn.classList.add("is-active");
 
       const { first, rest } = splitFirstSentence(member.text);
       titleEl.textContent = first || "Wir sind das Team.";
-      leadEl.textContent  = rest || "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+      textEl.textContent  = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
       setPortrait(member.img, member.name);
     }
 
@@ -394,7 +441,7 @@
         return { folder, name: meta.name, pos: meta.pos, img, text };
       }));
 
-      // sort by pos ascending (Position 1 zuerst)
+      // sort by pos ascending (Position 1 first)
       members.sort((a,b) => {
         const ap = (a.pos == null) ? 9999 : a.pos;
         const bp = (b.pos == null) ? 9999 : b.pos;
@@ -402,18 +449,15 @@
         return a.name.localeCompare(b.name, "de");
       });
 
-      // tabs render
       tabsEl.innerHTML = "";
       members.forEach(m => tabsEl.appendChild(makeTab(m)));
 
-      // default active: Position 1 (first in sort)
       if (members.length) setActive(members[0]);
     }
 
     load().catch(() => {
-      // minimal fallback if manifests missing
       titleEl.textContent = "Wir sind das Team.";
-      leadEl.textContent  = "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+      textEl.textContent  = "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
     });
   })();
 </script>
