@@ -26,10 +26,9 @@
       margin:0;
       font-family:var(--font-base);
       background:var(--bg);
-      overflow:hidden; /* WICHTIG: Stage-Prinzip */
+      overflow:hidden; /* Stage-Prinzip */
     }
 
-    /* Cookie overlay */
     #cookieOverlay{
       position:fixed;
       inset:0;
@@ -38,7 +37,6 @@
     }
     #cookieOverlay.is-visible{ display:block; }
 
-    /* Titel: fix */
     #title{
       position:fixed;
       top:0; left:0; right:0;
@@ -53,7 +51,6 @@
     }
     #title.is-scrolled{ box-shadow: var(--shadow-header); }
 
-    /* Layout: Content + Cart */
     #layout{
       position:fixed;
       top: var(--title-height);
@@ -63,7 +60,6 @@
       width:100%;
     }
 
-    /* Stage (links): immer 1 Viewport hoch */
     #stage{
       flex:1;
       min-width:0;
@@ -71,27 +67,25 @@
       padding: 18px;
     }
 
-    /* Panels: 2 Screens untereinander */
     #panels{
       width:100%;
       height:200%;
       transform: translateY(0%);
       transition: transform .38s ease;
+      will-change: transform;
     }
     #panels.is-shop{ transform: translateY(-50%); }
 
-    /* Head / Shop Slots: jeweils genau 1 Screen hoch */
     .panel{
       height:50%;
       width:100%;
       border-radius: var(--radius);
       overflow:hidden;
       box-shadow: var(--shadow-soft);
-      background:#d9dde3; /* Fallback bis geladen */
+      background:#d9dde3;
     }
     #shop{ background:#eef2f7; }
 
-    /* Cart: rechts */
     #cart{
       width:var(--cart-width);
       flex:0 0 var(--cart-width);
@@ -99,7 +93,6 @@
       padding: 18px 18px 18px 0;
     }
 
-    /* Mobile: Cart ausblenden */
     @media (max-width: 980px){
       #layout{ display:block; }
       #cart{ display:none; }
@@ -150,7 +143,19 @@
         try{
           const res = await fetch(url, { cache:"no-store" });
           if(!res.ok) throw new Error("HTTP " + res.status + " for " + url);
-          el.innerHTML = await res.text();
+          const html = await res.text();
+          el.innerHTML = html;
+
+          // WICHTIG: inline Scripts aus geladenem HTML ausführen
+          const scripts = Array.from(el.querySelectorAll("script"));
+          for(const s of scripts){
+            const ns = document.createElement("script");
+            for(const attr of s.attributes){
+              ns.setAttribute(attr.name, attr.value);
+            }
+            ns.text = s.text || "";
+            s.parentNode.replaceChild(ns, s);
+          }
         }catch(err){
           console.error("Load failed:", url, err);
         }
@@ -167,7 +172,6 @@
       }
 
       function updateTitleShadow(){
-        // Shadow wenn der aktive Scroller nicht am Top ist
         const sc = getActiveScroller();
         const y = sc ? sc.scrollTop : 0;
         if(y > 2) titleEl.classList.add("is-scrolled");
@@ -179,7 +183,6 @@
         switching = true;
         activePanel = "shop";
         panels.classList.add("is-shop");
-        // nach Animation sicher entsperren
         setTimeout(() => { switching = false; updateTitleShadow(); }, 420);
       }
 
@@ -191,11 +194,11 @@
         setTimeout(() => { switching = false; updateTitleShadow(); }, 420);
       }
 
-      // API für Links/Buttons in geladenen Komponenten
       window.goShop = goShop;
       window.goHead = goHead;
 
-      // Overscroll-Trigger (nur Index steuert!)
+
+
       function atBottom(el){
         if(!el) return false;
         return (el.scrollTop + el.clientHeight) >= (el.scrollHeight - 2);
@@ -213,7 +216,6 @@
 
         const dy = e.deltaY;
 
-        // nur wenn der Nutzer wirklich am Rand ist
         if(activePanel === "head" && dy > 0 && atBottom(sc)){
           e.preventDefault();
           goShop();
@@ -226,7 +228,6 @@
         }
       }
 
-      // Touch: swipe up/down am Rand
       let touchY0 = null;
       function onTouchStart(e){
         if(!e.touches || !e.touches.length) return;
@@ -237,11 +238,10 @@
         if(!e.touches || !e.touches.length) return;
 
         const y = e.touches[0].clientY;
-        const dy = y - touchY0; // >0 = down, <0 = up
+        const dy = y - touchY0; // >0 down, <0 up
         const sc = getActiveScroller();
         if(!sc) return;
 
-        // nur mit spürbarem Swipe
         const threshold = 28;
 
         if(activePanel === "head" && dy < -threshold && atBottom(sc)){
@@ -259,10 +259,12 @@
       }
       function onTouchEnd(){ touchY0 = null; }
 
-      function bindScrollShadow(){
-        const sc = getActiveScroller();
-        if(!sc) return;
-        sc.addEventListener("scroll", updateTitleShadow, { passive:true });
+      function bindScrollShadows(){
+        const hs = getHeadScroller();
+        const ss = getShopScroller();
+        if(hs) hs.addEventListener("scroll", updateTitleShadow, { passive:true });
+        if(ss) ss.addEventListener("scroll", updateTitleShadow, { passive:true });
+        updateTitleShadow();
       }
 
       async function boot(){
@@ -285,7 +287,6 @@
           };
         }
 
-        // Wheel/Touch auf Stage (damit es überall greift)
         const stage = document.getElementById("stage");
         stage.addEventListener("wheel", onWheel, { passive:false });
         stage.addEventListener("touchstart", onTouchStart, { passive:true });
@@ -293,13 +294,8 @@
         stage.addEventListener("touchend", onTouchEnd, { passive:true });
         stage.addEventListener("touchcancel", onTouchEnd, { passive:true });
 
-        // Shadow an beide Scroller binden
-        const hs = getHeadScroller();
-        const ss = getShopScroller();
-        hs.addEventListener("scroll", updateTitleShadow, { passive:true });
-        ss.addEventListener("scroll", updateTitleShadow, { passive:true });
-
-        updateTitleShadow();
+        // nachdem head/shop scripts gelaufen sind, scroller binden
+        setTimeout(bindScrollShadows, 0);
       }
 
       boot().catch(console.error);
