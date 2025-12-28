@@ -1,19 +1,23 @@
-<!-- backend/head.html | 2-Zonen (oben 3/4 Slider | unten 1/4 Tabs), horizontales Verschieben (translateX), pro Slide: Bild 2/5 links + Text 3/5 rechts -->
+<!-- backend/head.html | Stage passt sich dem #head-Container an (100%), scrollt NUR intern.
+     Desktop: Anker-Punkte (Center) für Text/Bild/Auswahl.
+     Impuls-Logik: Wenn NICHT scrollbar → Wheel-Down triggert goShop().
+                  Wenn scrollbar → erst am Ende "Stop", erst beim nächsten Wheel-Down goShop().
+                  Optionaler Button "Zum Shop ↓" erscheint am Ende. -->
+
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
-  <div class="team-head__inner">
-    <div class="team-shell">
-      <!-- OBEN (3/4): Slider -->
-      <div class="team-top">
-        <div class="team-viewport" aria-label="Team Slider">
-          <div class="team-track" id="teamTrack"></div>
-        </div>
+  <!-- Dieser Wrapper ist die EINZIGE Scroll-Fläche innerhalb head.html -->
+  <div class="team-scroll" id="teamScroll" aria-label="Team Inhalt">
+    <div class="team-stage">
+      <!-- Slider -->
+      <div class="team-viewport" aria-label="Team Slider">
+        <div class="team-track" id="teamTrack"></div>
       </div>
 
-      <!-- UNTEN (1/4): Tabs (weiter oben ausgerichtet) -->
-      <div class="team-bottom" aria-label="Team Auswahl">
+      <!-- Auswahl (Tabs) -->
+      <div class="team-tabsAnchor" aria-label="Team Auswahl">
         <div class="team-tabsWrap">
           <div class="team-tabs" id="teamTabs"></div>
         </div>
@@ -24,27 +28,36 @@
 
 <style>
   :root{
-    --title-pad-x: 72px;
-    --logo-pad-left: 32px;
-    --nav-pad-right: 32px;
-
-    --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
-    --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
-
-    --title-height: 70px;
-
-    --top-h: 75%;
-    --bottom-h: 25%;
-
     --radius: 18px;
+
+    /* Desktop Anker (Center) */
+    --anc-text-x: 40%;
+    --anc-text-y: 37.5%;
+
+    --anc-img-x:  80%;
+    --anc-img-y:  37.5%;
+
+    --anc-tabs-x: 50%;
+    --anc-tabs-y: 87%;
+
+    /* Max Größen inkl. Padding */
+    --max-text-w: 60%;
+    --max-text-h: 75%;
+
+    --max-img-w:  40%;
+    --max-img-h:  75%;
+
+    --max-tabs-w: 100%;
+    --max-tabs-h: 25%;
+
+    --shadow-soft: 0 18px 50px rgba(0,0,0,0.12);
   }
 
   .team-head{
     position:relative;
     width:100%;
-    height: calc(100vh - var(--title-height));
-    min-height: calc(100vh - var(--title-height));
-    overflow:hidden;
+    height:100%;          /* <<< passt sich #head an */
+    overflow:hidden;      /* <<< nix nach außen */
     background:#d9dde3;
   }
 
@@ -64,48 +77,43 @@
     backdrop-filter: blur(10px);
   }
 
-  .team-head__inner{
+  /* ===== interner Scroll-Container (nur hier) ===== */
+  .team-scroll{
     position:relative;
     z-index:1;
     height:100%;
-    padding-left: var(--edge-left);
-    padding-right: var(--edge-right);
-    padding-top: 20px;
-    padding-bottom: 18px;
+    width:100%;
+    overflow:auto;                 /* <<< nur innen scrollen */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+
+    padding: 18px 24px;
   }
 
-  .team-shell{
+  /* Scrollbar verstecken (Scroll bleibt aktiv) */
+  .team-scroll{ scrollbar-width:none; }
+  .team-scroll::-webkit-scrollbar{ width:0; height:0; }
+
+  /* ===== Bühne ===== */
+  .team-stage{
+    position:relative;
+    width:100%;
     height:100%;
-    display:flex;
-    flex-direction:column;
-    gap: 14px;
-  }
-
-  .team-top{
-    flex: 0 0 var(--top-h);
-    min-height:0;
-  }
-
-  .team-bottom{
-    flex: 0 0 var(--bottom-h);
-    min-height:0;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start; /* weiter oben */
-    padding-top: 6px;
+    min-height: 520px; /* Sicherheit, falls Head sehr klein */
   }
 
   /* ===== Slider ===== */
   .team-viewport{
-    height:100%;
+    position:relative;
     width:100%;
+    height:100%;
     overflow:hidden;
     border-radius: var(--radius);
   }
 
   .team-track{
     height:100%;
-    display:flex;            /* Slides nebeneinander */
+    display:flex;
     width:100%;
     transform: translateX(0%);
     transition: transform .55s cubic-bezier(.22,.9,.18,1);
@@ -113,32 +121,94 @@
   }
 
   .team-slide{
-    flex: 0 0 100%;          /* volle Breite pro Slide */
+    position:relative;
+    flex: 0 0 100%;
     height:100%;
+  }
+
+  /* ===== Cards (absolut über Anker) ===== */
+  .card{
+    position:absolute;
+    transform: translate(-50%, -50%);
+    border-radius: var(--radius);
+  }
+
+  /* Textcard (links) */
+  .card--text{
+    left: var(--anc-text-x);
+    top:  var(--anc-text-y);
+
+    width: min(var(--max-text-w), 860px);
+    max-height: var(--max-text-h);
+
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(15,23,42,0.10);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(10px);
+
+    padding: 22px 22px 18px;
+    overflow:hidden;
+  }
+
+  .team-title{
+    margin:0 0 10px 0;
+    font-size: clamp(24px, 2.2vw, 40px);
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    color:#0f172a;
+  }
+
+  .team-text{
+    font-size: clamp(14px, 1.0vw, 16px);
+    line-height:1.65;
+    color: rgba(15,23,42,0.78);
+    white-space: pre-wrap;
+  }
+
+  /* CTA erscheint nur wenn am Ende */
+  .team-ctaRow{
+    margin-top: 14px;
+    display:none;
+    justify-content:flex-end;
+  }
+  .team-ctaRow.is-visible{ display:flex; }
+
+  .team-cta{
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+    user-select:none;
+
+    background: rgba(31,79,163,0.12);
+    border: 1px solid rgba(31,79,163,0.28);
+    color:#0f172a;
+    font-weight: 800;
+    letter-spacing:-0.01em;
+
+    transition: transform .12s ease, background .12s ease;
+  }
+  .team-cta:hover{ background: rgba(31,79,163,0.18); }
+  .team-cta:active{ transform: scale(0.98); }
+
+  /* Bildcard (rechts) */
+  .card--image{
+    left: var(--anc-img-x);
+    top:  var(--anc-img-y);
+
+    width: min(var(--max-img-w), 520px);
+    max-height: var(--max-img-h);
+
     display:flex;
     align-items:center;
     justify-content:center;
-    gap: clamp(16px, 3vw, 42px);
-    padding: clamp(14px, 2.4vw, 32px);
-  }
-
-  .team-photoCol{
-    flex: 0 0 40%;           /* 2/5 */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-width:0;
-  }
-
-  .team-textCol{
-    flex: 0 0 60%;           /* 3/5 */
-    min-width:0;
-    display:flex;
-    justify-content:flex-start;
+    pointer-events:none; /* rein dekorativ */
   }
 
   .team-portrait{
-    width: min(420px, 100%);
+    width: 100%;
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
@@ -155,43 +225,29 @@
     transform: scale(1.02);
   }
 
-  /* Text Panel (nur EIN Shadow -> kein Container-in-Container Problem) */
-  .team-panel{
-    width: 100%;
-    max-width: 780px;
-    background: rgba(255,255,255,0.84);
-    border: 1px solid rgba(15,23,42,0.10);
-    border-radius: var(--radius);
-    box-shadow: 0 18px 50px rgba(0,0,0,0.12);
-    backdrop-filter: blur(10px);
-    padding: 22px 22px 18px;
-    overflow:hidden; /* kein Scroll */
+  /* ===== Tabs (Auswahl) ===== */
+  .team-tabsAnchor{
+    position:absolute;
+    left: var(--anc-tabs-x);
+    top:  var(--anc-tabs-y);
+    transform: translate(-50%, -50%);
+    width: min(var(--max-tabs-w), 1200px);
+    max-height: var(--max-tabs-h);
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    pointer-events:auto;
   }
 
-  .team-title{
-    margin:0 0 10px 0;
-    font-size: clamp(24px, 2.2vw, 40px);
-    line-height:1.02;
-    letter-spacing:-0.02em;
-    color:#0f172a;
-  }
-
-  .team-text{
-    font-size: clamp(14px, 1.0vw, 16px);
-    line-height:1.65;
-    color: rgba(15,23,42,0.78);
-    white-space: pre-wrap;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 10; /* kein Scroll */
-    overflow: hidden;
-  }
-
-  /* ===== Tabs unten ===== */
   .team-tabsWrap{
     width:100%;
     display:flex;
     justify-content:center;
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.40);
+    border: 1px solid rgba(15,23,42,0.10);
+    backdrop-filter: blur(10px);
   }
 
   .team-tabs{
@@ -199,9 +255,8 @@
     gap: 12px;
     align-items:center;
     justify-content:center;
-    max-width: min(1100px, 100%);
-    padding: 6px 8px;
-    overflow:hidden; /* kein Scroll */
+    width:100%;
+    overflow:hidden;
   }
 
   .team-tab{
@@ -212,16 +267,16 @@
     border-radius: 999px;
     background: rgba(255,255,255,0.62);
     border: 1px solid rgba(15,23,42,0.12);
-    box-shadow:none;
     cursor:pointer;
     user-select:none;
-    transition: background .14s ease, border-color .14s ease;
+    transition: background .14s ease, border-color .14s ease, transform .14s ease;
     white-space:nowrap;
     flex: 0 0 auto;
   }
   .team-tab:hover{
     background: rgba(255,255,255,0.78);
     border-color: rgba(31,79,163,0.22);
+    transform: translateY(-1px);
   }
   .team-tab.is-active{
     background: rgba(255,255,255,0.92);
@@ -249,48 +304,62 @@
     letter-spacing:-0.01em;
   }
 
-  /* Mobile: oben/unten bleibt, aber Inhalt untereinander im Slide */
+  /* ===== Mobile: untereinander (Bild -> Auswahl -> Text) ===== */
   @media (max-width: 980px){
-    .team-head__inner{
-      padding-left: 22px;
-      padding-right: 22px;
-      padding-top: 16px;
-      padding-bottom: 16px;
+    .team-scroll{
+      padding: 14px 14px 18px;
     }
 
-    :root{
-      --top-h: 78%;
-      --bottom-h: 22%;
+    .team-stage{
+      min-height: 0;
+      height: auto;     /* untereinander fließen */
+    }
+
+    .team-viewport{
+      height: auto;
+      overflow: visible;
+      border-radius: 16px;
+    }
+
+    .team-track{
+      height: auto;
     }
 
     .team-slide{
-      flex-direction:column;
-      gap: 14px;
-      padding: 14px;
+      height: auto;
+      padding-bottom: 14px;
     }
-    .team-photoCol, .team-textCol{
-      flex: 0 0 auto;
-      width:100%;
-      justify-content:center;
-    }
-    .team-portrait{
-      width: min(280px, 70vw);
-    }
-    .team-panel{
-      max-width: 100%;
+
+    /* Karten werden statisch, damit sie untereinander stehen */
+    .card{
+      position:static;
+      transform:none;
       border-radius: 16px;
-      padding: 18px 18px 14px;
+    }
+
+    /* Reihenfolge: Bild, Tabs, Text */
+    .card--image{ width:100%; max-height:none; margin-bottom: 12px; }
+    .team-portrait{ width: min(280px, 70vw); margin: 0 auto; }
+
+    .team-tabsAnchor{
+      position:static;
+      transform:none;
+      width:100%;
+      max-height:none;
+      margin-bottom: 12px;
     }
 
     .team-tabs{
       flex-wrap: wrap;
       justify-content:center;
+      overflow: visible;
     }
-  }
 
-  @media (max-width: 560px){
-    .team-title{ font-size: 30px; }
-    .team-text{ -webkit-line-clamp: 12; }
+    .card--text{
+      width:100%;
+      max-height:none;
+      padding: 18px 18px 14px;
+    }
   }
 </style>
 
@@ -299,12 +368,17 @@
     const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
-    const bgEl = document.getElementById("teamBg");
+    const bgEl    = document.getElementById("teamBg");
     const trackEl = document.getElementById("teamTrack");
-    const tabsEl = document.getElementById("teamTabs");
+    const tabsEl  = document.getElementById("teamTabs");
+    const scrollEl= document.getElementById("teamScroll");
 
     let members = [];
     let active = 0;
+
+    // Impuls-Handling
+    let downArmed = false;
+    let downCooldown = false;
 
     function parseFolder(folder){
       const parts = String(folder).split("_");
@@ -320,13 +394,16 @@
 
     function splitFirstSentence(text){
       const t = (text || "").trim();
-      if (!t) return { first: "Wir sind das Team.", rest: "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt." };
+      if (!t) return {
+        first: "Schön, dass du da bist!",
+        rest:  "Wir sind LG Eventverleih – ein kleines, engagiertes Team mit einer großen Leidenschaft für besondere Momente."
+      };
 
       const nl = t.indexOf("\n");
       if (nl > 0){
         const first = t.slice(0, nl).trim();
         const rest = t.slice(nl + 1).trim();
-        return { first: first || "Wir sind das Team.", rest };
+        return { first: first || "Schön, dass du da bist!", rest };
       }
 
       const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
@@ -334,7 +411,7 @@
         const cut = m[0].length;
         const first = t.slice(0, cut).trim();
         const rest = t.slice(cut).trim();
-        return { first: first || "Wir sind das Team.", rest };
+        return { first: first || "Schön, dass du da bist!", rest };
       }
 
       return { first: t, rest: "" };
@@ -365,14 +442,116 @@
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
+
+      // Impuls-Zustand beim Wechsel zurücksetzen
+      downArmed = false;
+      downCooldown = false;
+      updateCtaVisibility();
+    }
+
+    function isScrollable(){
+      return scrollEl.scrollHeight > scrollEl.clientHeight + 1;
+    }
+
+    function atBottom(){
+      return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
+    }
+
+    function triggerDown(){
+      if (downCooldown) return;
+      downCooldown = true;
+
+      if (typeof window.goShop === "function") window.goShop();
+
+      setTimeout(() => { downCooldown = false; }, 500);
+    }
+
+    function updateCtaVisibility(){
+      const slide = trackEl.querySelectorAll(".team-slide")[active];
+      if (!slide) return;
+      const ctaRow = slide.querySelector(".team-ctaRow");
+      if (!ctaRow) return;
+
+      // CTA nur, wenn scrollbar UND am Ende
+      if (isScrollable() && atBottom()) ctaRow.classList.add("is-visible");
+      else ctaRow.classList.remove("is-visible");
+    }
+
+    function bindImpulseLogic(){
+      if (!scrollEl) return;
+
+      scrollEl.addEventListener("scroll", () => {
+        // Wenn scrollbar: am Ende CTA zeigen + downArmed setzen
+        if (isScrollable() && atBottom()){
+          downArmed = true;
+        }else{
+          downArmed = false;
+        }
+        updateCtaVisibility();
+      }, { passive:true });
+
+      scrollEl.addEventListener("wheel", (e) => {
+        const down = e.deltaY > 0;
+
+        // Fall A: NICHT scrollbar -> erster Down triggert direkt
+        if (!isScrollable()){
+          if (down){
+            e.preventDefault();
+            triggerDown();
+          }
+          return;
+        }
+
+        // Fall B: scrollbar
+        if (down && atBottom()){
+          // "Stop" beim ersten Mal am Ende, erst beim nächsten Wheel-Down
+          if (downArmed){
+            e.preventDefault();
+            triggerDown();
+          }else{
+            // falls jemand exakt ans Ende wheel't: erstmal nur scharf schalten
+            downArmed = true;
+          }
+        }
+      }, { passive:false });
     }
 
     function makeSlide(member){
       const slide = document.createElement("div");
       slide.className = "team-slide";
 
-      const left = document.createElement("div");
-      left.className = "team-photoCol";
+      // TEXT (links)
+      const textCard = document.createElement("div");
+      textCard.className = "card card--text";
+
+      const { first, rest } = splitFirstSentence(member.text);
+
+      const h = document.createElement("h1");
+      h.className = "team-title";
+      h.textContent = first || "Schön, dass du da bist!";
+
+      const t = document.createElement("div");
+      t.className = "team-text";
+      t.textContent = (rest && rest.trim().length)
+        ? rest
+        : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
+
+      const ctaRow = document.createElement("div");
+      ctaRow.className = "team-ctaRow";
+      const cta = document.createElement("button");
+      cta.type = "button";
+      cta.className = "team-cta";
+      cta.textContent = "Zum Shop ↓";
+      cta.addEventListener("click", () => triggerDown());
+      ctaRow.appendChild(cta);
+
+      textCard.appendChild(h);
+      textCard.appendChild(t);
+      textCard.appendChild(ctaRow);
+
+      // BILD (rechts)
+      const imgCard = document.createElement("div");
+      imgCard.className = "card card--image";
 
       const portrait = document.createElement("div");
       portrait.className = "team-portrait";
@@ -387,30 +566,10 @@
       };
 
       portrait.appendChild(img);
-      left.appendChild(portrait);
+      imgCard.appendChild(portrait);
 
-      const right = document.createElement("div");
-      right.className = "team-textCol";
-
-      const panel = document.createElement("div");
-      panel.className = "team-panel";
-
-      const { first, rest } = splitFirstSentence(member.text);
-
-      const h = document.createElement("h1");
-      h.className = "team-title";
-      h.textContent = first || "Wir sind das Team.";
-
-      const t = document.createElement("div");
-      t.className = "team-text";
-      t.textContent = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
-
-      panel.appendChild(h);
-      panel.appendChild(t);
-      right.appendChild(panel);
-
-      slide.appendChild(left);
-      slide.appendChild(right);
+      slide.appendChild(textCard);
+      slide.appendChild(imgCard);
 
       return slide;
     }
@@ -452,7 +611,12 @@
       btn.appendChild(av);
       btn.appendChild(name);
 
-      const open = () => setActive(idx);
+      const open = () => {
+        setActive(idx);
+        // Scroll-Position beibehalten, aber CTA updaten
+        updateCtaVisibility();
+      };
+
       btn.addEventListener("click", open);
       btn.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
@@ -508,8 +672,12 @@
       });
 
       if (members.length) setActive(0);
+
+      // initial CTA-State
+      updateCtaVisibility();
     }
 
+    bindImpulseLogic();
     load().catch(() => {});
   })();
 </script>
