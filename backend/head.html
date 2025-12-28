@@ -1,384 +1,583 @@
-<!-- backend/head.html | Clean vA: index steuert Navigation, head ist nur Inhalt -->
+<!-- backend/head.html | Stage-kompatibel (Variante A): Index steuert Navigation -->
+<section class="team-head" aria-label="Team">
+  <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
+  <div class="team-head__veil" aria-hidden="true"></div>
+
+  <!-- Interner Scroll (Head) -->
+  <div class="team-scroll" id="teamScroll" aria-label="Team Inhalt">
+    <div class="team-stage">
+
+      <!-- Zone A -->
+      <div class="sceneZone" aria-label="Vorstellung">
+        <div class="team-viewport" aria-label="Team Slider">
+          <div class="team-track" id="teamTrack"></div>
+        </div>
+      </div>
+
+      <!-- Zone B (Desktop Tabs) -->
+      <div class="selectorZone" id="selectorZone" aria-label="Team Auswahl">
+        <div class="team-tabs" id="teamTabs"></div>
+      </div>
+
+      <!-- Gate (nur Klick-Fallback, KEINE eigene Scroll-Logik) -->
+      <div class="gateZone" id="gateZone" aria-hidden="true">
+        <button class="gateBtn" id="gateBtn" type="button">Zum Shop ↓</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <style>
   :root{
     --radius: 18px;
-    --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
+    --panel-bg: rgba(255,255,255,0.84);
+    --panel-border: rgba(15,23,42,0.10);
+    --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
 
-    --bg-hero: #d9dde3;
-    --bg-panel: rgba(255,255,255,.92);
-    --text: #0f172a;
-    --muted: #64748b;
+    --zoneA: 80%;
+    --zoneB: 20%;
 
-    --gap: 18px;
-    --pad: 22px;
-
-    --tab-h: 56px;
-    --tab-radius: 999px;
-    --tab-bg: rgba(255,255,255,.72);
-    --tab-bg-active: rgba(255,255,255,.95);
-    --tab-border: rgba(15,23,42,.10);
+    --text-max-w: min(780px, 60vw);
+    --img-max: min(420px, 40vw);
   }
 
-  *{ box-sizing:border-box; }
-
-  .head-wrap{
+  .team-head{
+    position:relative;
     width:100%;
-    background: var(--bg-hero);
+    height:100%;
+    overflow:hidden;
+    background:#d9dde3;
+  }
+
+  .team-head__bg{
+    position:absolute; inset:0;
+    background-size:cover;
+    background-position:center;
+    transform:scale(1.05);
+    filter:saturate(.98) contrast(.98);
+  }
+
+  .team-head__veil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
+      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 40%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.10) 100%);
+    backdrop-filter: blur(10px);
+  }
+
+  .team-scroll{
+    position:relative;
+    z-index:1;
+    height:100%;
+    width:100%;
+    overflow:auto;
+    overflow-x:hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 18px 24px;
+  }
+  .team-scroll{ scrollbar-width:none; }
+  .team-scroll::-webkit-scrollbar{ width:0; height:0; }
+
+  .team-stage{
+    position:relative;
+    width:100%;
+    height:100%;
+    min-height: 520px;
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .sceneZone{
+    flex: 0 0 var(--zoneA);
+    min-height: 320px;
     border-radius: var(--radius);
     overflow:hidden;
   }
 
-  /* ===== HERO (Slider) ===== */
-  .hero{
-    width:100%;
-    position:relative;
-    padding: var(--pad);
+  .selectorZone{
+    flex: 0 0 var(--zoneB);
+    min-height: 96px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top: 6px;
+    background: transparent;
+    box-shadow:none;
   }
 
-  .slider{
+  .team-viewport{
     width:100%;
+    height:100%;
     overflow:hidden;
-    border-radius: calc(var(--radius) - 2px);
-    background: rgba(255,255,255,.08);
+    border-radius: var(--radius);
   }
 
-  .track{
+  .team-track{
+    height:100%;
     display:flex;
     width:100%;
+    transform: translateX(0%);
+    transition: transform .55s cubic-bezier(.22,.9,.18,1);
     will-change: transform;
-    transition: transform .35s ease;
   }
 
-  .slide{
+  .team-slide{
     flex: 0 0 100%;
-    width:100%;
-    padding: 0;
-  }
-
-  /* Desktop Layout: Text links, Bild rechts */
-  .card{
+    height:100%;
     display:flex;
-    gap: var(--gap);
-    align-items: stretch;
-    width:100%;
-    padding: var(--pad);
-    background: var(--bg-panel);
-    border-radius: calc(var(--radius) - 2px);
-    box-shadow: var(--shadow-soft);
+    align-items:center;
+    justify-content:center;
+    padding: clamp(12px, 2vw, 26px);
   }
 
-  .text{
-    flex: 1 1 60%;
-    min-width: 0;
-    color: var(--text);
+  .slide-grid{
+    width: min(1200px, 100%);
+    height: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: clamp(18px, 3vw, 44px);
   }
 
-  .name{
+  .textPanel{
+    width: var(--text-max-w);
+    max-height: 82%;
+    overflow:hidden;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px);
+    padding: 22px 22px 18px;
+  }
+
+  .textTitle{
     margin:0 0 10px 0;
-    font-size: clamp(22px, 2.2vw, 30px);
-    line-height:1.1;
-    letter-spacing:.2px;
+    font-size: clamp(24px, 2.2vw, 40px);
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    color:#0f172a;
   }
 
-  .role{
-    margin:0 0 14px 0;
-    color: var(--muted);
-    font-size: 15px;
-  }
-
-  /* GANZER TEXT: niemals clamp/hidden */
-  .body{
-    margin:0;
-    font-size: 16px;
-    line-height: 1.55;
-    white-space: pre-wrap; /* respektiert Umbrüche aus JSON */
-    overflow: visible;
+  .textBody{
+    font-size: clamp(14px, 1.0vw, 16px);
+    line-height:1.65;
+    color: rgba(15,23,42,0.78);
+    white-space: pre-wrap;
   }
 
   .portraitWrap{
-    flex: 0 0 40%;
-    min-width: 240px;
+    width: var(--img-max);
+    max-height: 82%;
     display:flex;
     align-items:center;
     justify-content:center;
   }
 
   .portrait{
-    width:min(320px, 100%);
+    width: 100%;
+    max-width: var(--img-max);
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
-    box-shadow: 0 18px 44px rgba(0,0,0,.20);
-    background: rgba(255,255,255,.35);
+    background: rgba(255,255,255,0.60);
+    border: 1px solid rgba(15,23,42,0.10);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
+    backdrop-filter: blur(8px);
   }
   .portrait img{
     width:100%;
     height:100%;
-    object-fit: cover;
+    object-fit:cover;
     display:block;
+    transform: scale(1.02);
   }
 
-  /* ===== TABS (Auswahl) ===== */
-  .tabsBar{
-    margin-top: var(--gap);
+  .team-tabs{
     display:flex;
-    gap: 10px;
+    gap: 12px;
     align-items:center;
-    overflow:auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 2px;
+    justify-content:center;
+    width: min(1200px, 100%);
+    overflow:hidden; /* wie vorher: kein horizontaler Scroll */
+    background: transparent;
   }
-  .tabsBar::-webkit-scrollbar{ height: 10px; }
-  .tabsBar::-webkit-scrollbar-thumb{ background: rgba(15,23,42,.15); border-radius: 999px; }
-  .tabsBar::-webkit-scrollbar-track{ background: rgba(255,255,255,.15); border-radius: 999px; }
 
-  .tab{
-    height: var(--tab-h);
-    display:inline-flex;
+  .team-tab{
+    display:flex;
     align-items:center;
     gap: 10px;
-    padding: 0 14px 0 10px;
-    border-radius: var(--tab-radius);
-    border: 1px solid var(--tab-border);
-    background: var(--tab-bg);
-    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.62);
+    border: 1px solid rgba(15,23,42,0.12);
     cursor:pointer;
     user-select:none;
+    transition: background .14s ease, border-color .14s ease, transform .14s ease;
+    white-space:nowrap;
     flex: 0 0 auto;
-    transition: transform .12s ease, background .12s ease, border-color .12s ease;
   }
-  .tab:active{ transform: scale(.98); }
-  .tab.is-active{
-    background: var(--tab-bg-active);
-    border-color: rgba(15,23,42,.18);
+  .team-tab:hover{
+    background: rgba(255,255,255,0.78);
+    border-color: rgba(31,79,163,0.22);
+    transform: translateY(-1px);
+  }
+  .team-tab.is-active{
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(15,23,42,0.20);
   }
 
-  .tabAvatar{
-    width: 38px;
-    height: 38px;
+  .team-tab__avatar{
+    width: 30px;
+    height: 30px;
     border-radius: 999px;
     overflow:hidden;
-    flex: 0 0 38px;
-    background: rgba(255,255,255,.55);
-    border: 1px solid rgba(15,23,42,.10);
+    background:#e9eef7;
+    border: 1px solid rgba(15,23,42,0.10);
+    flex: 0 0 auto;
   }
-  .tabAvatar img{
+  .team-tab__avatar img{
     width:100%;
     height:100%;
-    object-fit: cover;
+    object-fit:cover;
     display:block;
   }
-  .tabName{
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
+  .team-tab__name{
+    font-weight: 760;
+    color:#0f172a;
+    letter-spacing:-0.01em;
   }
 
-  /* ===== Mobile Layout: Bild oben, dann Auswahl, dann Text ===== */
-  @media (max-width: 900px){
-    .hero{ padding: 14px; }
-    .card{
-      flex-direction: column;
-      padding: 16px;
-    }
-    .portraitWrap{
-      flex: 0 0 auto;
-      min-width: 0;
+  .gateZone{
+    position:absolute;
+    left:50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    z-index: 5;
+    display:none;
+    pointer-events:none;
+  }
+  .gateZone.is-visible{ display:block; pointer-events:auto; }
+  .gateBtn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+    user-select:none;
+    font-weight: 800;
+    letter-spacing:-0.01em;
+    color:#0f172a;
+    background: rgba(31,79,163,0.12);
+    border: 1px solid rgba(31,79,163,0.28);
+    transition: transform .12s ease, background .12s ease;
+  }
+  .gateBtn:hover{ background: rgba(31,79,163,0.18); }
+  .gateBtn:active{ transform: scale(0.98); }
+
+  @media (max-width: 980px){
+    .team-scroll{ padding: 14px 14px 18px; }
+    .team-stage{ height:auto; min-height:0; gap: 10px; }
+    .sceneZone{ flex: 0 0 auto; height:auto; overflow:visible; }
+    .selectorZone{ display:none; }
+    .team-viewport{ height:auto; border-radius: 16px; }
+    .team-track{ height:auto; }
+    .team-slide{ height:auto; padding: 14px; align-items:stretch; }
+
+    .slide-grid{
       width:100%;
+      height:auto;
+      flex-direction:column;
+      gap: 12px;
+      align-items:center;
+    }
+
+    .portraitWrap{ width: min(260px, 70vw); max-height:none; }
+    .portrait{ box-shadow: 0 18px 44px rgba(0,0,0,0.16); }
+
+    .mobileTabsSlot{
+      width:100%;
+      display:flex;
       justify-content:center;
-      margin-bottom: 6px;
     }
-    .portrait{
-      width: 140px;
+    .team-tabs{
+      flex-wrap: wrap;
+      justify-content:center;
+      width:100%;
     }
-    .name{ margin-top: 6px; }
-    .tabsBar{ margin-top: 12px; }
+
+    .textPanel{
+      width:100%;
+      max-height:none;
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+    }
   }
 </style>
 
-<div class="head-wrap" id="headRoot">
-  <div class="hero">
-    <div class="slider" aria-label="Team Slider">
-      <div class="track" id="teamTrack"></div>
-    </div>
-
-    <!-- Auswahl bleibt IMMER separat (nicht in Slides verschieben!) -->
-    <div class="tabsBar" id="tabsBar" aria-label="Team Auswahl"></div>
-  </div>
-</div>
-
 <script>
 (function(){
-  "use strict";
-
+  const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
   const TEAM_MANIFEST_URL = "Team/manifest.json";
 
-  const track = document.getElementById("teamTrack");
-  const tabsBar = document.getElementById("tabsBar");
+  const bgEl       = document.getElementById("teamBg");
+  const trackEl    = document.getElementById("teamTrack");
+  const tabsEl     = document.getElementById("teamTabs");
+  const selectorEl = document.getElementById("selectorZone");
+  const scrollEl   = document.getElementById("teamScroll");
+  const gateZone   = document.getElementById("gateZone");
+  const gateBtn    = document.getElementById("gateBtn");
+
+  const mqMobile = window.matchMedia("(max-width: 980px)");
 
   let members = [];
-  let activeIndex = 0;
+  let active = 0;
 
-  function esc(s){
-    return String(s ?? "").replace(/[&<>"']/g, c => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[c]));
-  }
-
-  function setActive(idx, opts = { focusTab:false, scrollTab:true }){
-    if(!members.length) return;
-    activeIndex = Math.max(0, Math.min(idx, members.length - 1));
-
-    // slider
-    track.style.transform = `translateX(${-activeIndex * 100}%)`;
-
-    // tabs
-    const tabs = tabsBar.querySelectorAll(".tab");
-    tabs.forEach((t, i) => {
-      if(i === activeIndex) t.classList.add("is-active");
-      else t.classList.remove("is-active");
-    });
-
-    const activeTab = tabs[activeIndex];
-    if(activeTab && opts.scrollTab){
-      activeTab.scrollIntoView({ behavior:"smooth", inline:"center", block:"nearest" });
+  function parseFolder(folder){
+    const parts = String(folder).split("_");
+    let pos = null;
+    if (parts.length > 1) {
+      const last = parts[parts.length - 1];
+      const n = Number(last);
+      if (Number.isFinite(n)) { pos = n; parts.pop(); }
     }
-    if(activeTab && opts.focusTab){
-      activeTab.focus({ preventScroll:true });
+    const name = parts.join(" ").trim() || folder;
+    return { name, pos };
+  }
+
+  function splitFirstSentence(text){
+    const t = (text || "").trim();
+    if (!t) return {
+      first: "Schön, dass du da bist!",
+      rest:  "Wir sind LG Eventverleih – ein kleines, engagiertes Team mit einer großen Leidenschaft für besondere Momente."
+    };
+
+    const nl = t.indexOf("\n");
+    if (nl > 0){
+      const first = t.slice(0, nl).trim();
+      const rest = t.slice(nl + 1).trim();
+      return { first: first || "Schön, dass du da bist!", rest };
     }
-  }
 
-  function buildSlides(){
-    track.innerHTML = members.map(m => {
-      const name = esc(m.name);
-      const role = esc(m.role);
-      const body = esc(m.text);
-      const img  = esc(m.image);
+    const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
+    if (m && m[0]){
+      const cut = m[0].length;
+      const first = t.slice(0, cut).trim();
+      const rest = t.slice(cut).trim();
+      return { first: first || "Schön, dass du da bist!", rest };
+    }
 
-      return `
-        <div class="slide">
-          <div class="card">
-            <div class="text">
-              <h2 class="name">${name}</h2>
-              ${role ? `<p class="role">${role}</p>` : ``}
-              <p class="body">${body}</p>
-            </div>
-            <div class="portraitWrap">
-              <div class="portrait">
-                ${img ? `<img src="${img}" alt="${name}">` : ``}
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function buildTabs(){
-    tabsBar.innerHTML = members.map((m, i) => {
-      const name = esc(m.name);
-      const img  = esc(m.image);
-      return `
-        <button class="tab" type="button" data-i="${i}" aria-label="${name}">
-          <span class="tabAvatar">${img ? `<img src="${img}" alt="">` : ``}</span>
-          <span class="tabName">${name}</span>
-        </button>
-      `;
-    }).join("");
-
-    tabsBar.addEventListener("click", (e) => {
-      const btn = e.target.closest(".tab");
-      if(!btn) return;
-      const i = parseInt(btn.dataset.i, 10);
-      if(Number.isFinite(i)) setActive(i, { focusTab:false, scrollTab:true });
-    }, { passive:true });
-
-    // Keyboard: links/rechts auf Tabs
-    tabsBar.addEventListener("keydown", (e) => {
-      if(e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      e.preventDefault();
-      const dir = e.key === "ArrowRight" ? 1 : -1;
-      setActive(activeIndex + dir, { focusTab:true, scrollTab:true });
-    });
+    return { first: t, rest: "" };
   }
 
   async function fetchJson(url){
-    const r = await fetch(url, { cache:"no-store" });
-    if(!r.ok) throw new Error("Fetch failed: " + url + " (" + r.status + ")");
-    return r.json();
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error("Fetch failed: " + url);
+    return await r.json();
   }
 
-  function normalizeManifest(manifest){
-    // Erwartet z.B.:
-    // { "members":[ { "name":"...", "role":"...", "text":"...", "image":"Team/kevin.jpg" }, ... ] }
-    const arr = Array.isArray(manifest?.members) ? manifest.members : [];
-    return arr.map(x => ({
-      name: x?.name ?? "",
-      role: x?.role ?? "",
-      text: x?.text ?? "",
-      image: x?.image ?? ""
-    })).filter(x => x.name || x.text || x.image);
+  async function fetchText(url){
+    const r = await fetch(url, { cache: "no-store" });
+    if (!r.ok) throw new Error("Fetch failed: " + url);
+    return await r.text();
   }
 
-  async function init(){
-    try{
-      const manifest = await fetchJson(TEAM_MANIFEST_URL);
-      members = normalizeManifest(manifest);
+  function setRandomBackground(list){
+    if (!Array.isArray(list) || list.length === 0) return;
+    const pick = list[Math.floor(Math.random() * list.length)];
+    bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
+  }
 
-      if(!members.length){
-        track.innerHTML = `
-          <div class="slide">
-            <div class="card">
-              <div class="text">
-                <h2 class="name">Team-Daten fehlen</h2>
-                <p class="body">Bitte prüfe ${TEAM_MANIFEST_URL} (members[]).</p>
-              </div>
-            </div>
-          </div>`;
-        tabsBar.innerHTML = "";
-        return;
-      }
+  function isScrollable(){ return scrollEl.scrollHeight > scrollEl.clientHeight + 1; }
+  function atBottom(){ return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1; }
 
-      buildSlides();
-      buildTabs();
-      setActive(0, { focusTab:false, scrollTab:false });
+  function updateGateVisibility(){
+    if (!gateZone) return;
+    // Gate nur anzeigen, wenn wirklich gescrollt werden kann und man unten ist
+    const show = isScrollable() && atBottom();
+    gateZone.classList.toggle("is-visible", !!show);
+  }
 
-      // Swipe auf Slider (Mobile)
-      let startX = 0, dx = 0, dragging = false;
-      track.addEventListener("pointerdown", (e) => {
-        dragging = true;
-        startX = e.clientX;
-        dx = 0;
-        track.setPointerCapture(e.pointerId);
-      });
-      track.addEventListener("pointermove", (e) => {
-        if(!dragging) return;
-        dx = e.clientX - startX;
-      });
-      track.addEventListener("pointerup", () => {
-        if(!dragging) return;
-        dragging = false;
-        const threshold = 40;
-        if(dx > threshold) setActive(activeIndex - 1, { focusTab:false, scrollTab:true });
-        else if(dx < -threshold) setActive(activeIndex + 1, { focusTab:false, scrollTab:true });
-      });
-      track.addEventListener("pointercancel", () => { dragging = false; });
+  function bindGate(){
+    if (!gateBtn) return;
+    gateBtn.addEventListener("click", () => {
+      if (typeof window.goShop === "function") window.goShop();
+    });
+  }
 
-    }catch(err){
-      console.error(err);
-      track.innerHTML = `
-        <div class="slide">
-          <div class="card">
-            <div class="text">
-              <h2 class="name">Team konnte nicht geladen werden</h2>
-              <p class="body">Prüfe Pfad/Datei: ${TEAM_MANIFEST_URL}</p>
-            </div>
-          </div>
-        </div>`;
-      tabsBar.innerHTML = "";
+  function placeTabs(){
+    const isMobile = mqMobile.matches;
+    const slides = trackEl.querySelectorAll(".team-slide");
+    const current = slides[active];
+    if (!current) return;
+
+    const slot = current.querySelector(".mobileTabsSlot");
+    if (isMobile){
+      if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
+    }else{
+      if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
     }
   }
 
-  init();
+  function setActive(idx){
+    active = idx;
+    trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
+
+    tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
+    const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
+    if (btn) btn.classList.add("is-active");
+
+    placeTabs();
+    updateGateVisibility();
+  }
+
+  function makeSlide(member){
+    const slide = document.createElement("div");
+    slide.className = "team-slide";
+
+    const grid = document.createElement("div");
+    grid.className = "slide-grid";
+
+    const textPanel = document.createElement("div");
+    textPanel.className = "textPanel";
+
+    const title = document.createElement("h1");
+    title.className = "textTitle";
+
+    const body = document.createElement("div");
+    body.className = "textBody";
+
+    const { first, rest } = splitFirstSentence(member.text);
+    title.textContent = first || "Schön, dass du da bist!";
+    body.textContent = (rest && rest.trim().length)
+      ? rest
+      : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
+
+    const portraitWrap = document.createElement("div");
+    portraitWrap.className = "portraitWrap";
+
+    const portrait = document.createElement("div");
+    portrait.className = "portrait";
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = member.img;
+    img.alt = member.name;
+    img.onerror = () => { img.removeAttribute("src"); img.alt = ""; };
+
+    portrait.appendChild(img);
+    portraitWrap.appendChild(portrait);
+
+    const mobileTabsSlot = document.createElement("div");
+    mobileTabsSlot.className = "mobileTabsSlot";
+    mobileTabsSlot.setAttribute("aria-hidden","true");
+
+    textPanel.appendChild(title);
+    textPanel.appendChild(body);
+
+    grid.appendChild(textPanel);
+    grid.appendChild(portraitWrap);
+    grid.appendChild(mobileTabsSlot);
+
+    slide.appendChild(grid);
+    return slide;
+  }
+
+  function makeTab(member, idx){
+    const btn = document.createElement("div");
+    btn.className = "team-tab";
+    btn.tabIndex = 0;
+    btn.setAttribute("role", "button");
+    btn.dataset.index = String(idx);
+    btn.setAttribute("aria-label", "Teammitglied: " + member.name);
+
+    const av = document.createElement("div");
+    av.className = "team-tab__avatar";
+
+    const img = document.createElement("img");
+    img.loading = "lazy";
+    img.src = member.img;
+    img.alt = member.name;
+    img.onerror = () => {
+      av.innerHTML = "";
+      const fb = document.createElement("div");
+      fb.style.width="100%"; fb.style.height="100%";
+      fb.style.display="grid"; fb.style.placeItems="center";
+      fb.style.fontWeight="900";
+      fb.style.color="rgba(15,23,42,0.65)";
+      fb.style.background="#e9eef7";
+      fb.textContent = member.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+      av.appendChild(fb);
+    };
+    av.appendChild(img);
+
+    const name = document.createElement("div");
+    name.className = "team-tab__name";
+    name.textContent = member.name;
+
+    btn.appendChild(av);
+    btn.appendChild(name);
+
+    const open = () => setActive(idx);
+    btn.addEventListener("click", open);
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+    });
+
+    return btn;
+  }
+
+  async function load(){
+    try{
+      const bg = await fetchJson(BG_MANIFEST_URL);
+      setRandomBackground(bg);
+    }catch(e){}
+
+    const manifest = await fetchJson(TEAM_MANIFEST_URL);
+    const folders = (manifest && Array.isArray(manifest.members))
+      ? manifest.members.map(m => m.folder).filter(Boolean)
+      : [];
+
+    members = await Promise.all(folders.map(async (folder) => {
+      const meta = parseFolder(folder);
+      const base = "Team/" + folder + "/";
+      const img  = base + "image.png";
+      const txt  = base + "team.txt";
+      let text = "";
+      try{ text = await fetchText(txt); }catch(e){ text = ""; }
+      return { folder, name: meta.name, pos: meta.pos, img, text };
+    }));
+
+    members.sort((a,b) => {
+      const ap = (a.pos == null) ? 9999 : a.pos;
+      const bp = (b.pos == null) ? 9999 : b.pos;
+      if (ap !== bp) return ap - bp;
+      return a.name.localeCompare(b.name, "de");
+    });
+
+    trackEl.innerHTML = "";
+    tabsEl.innerHTML = "";
+
+    members.forEach((m, i) => {
+      trackEl.appendChild(makeSlide(m));
+      tabsEl.appendChild(makeTab(m, i));
+    });
+
+    mqMobile.addEventListener?.("change", () => placeTabs());
+
+    if (members.length) setActive(0);
+    placeTabs();
+    updateGateVisibility();
+
+    // Gate-Sichtbarkeit beim Scroll (nur Anzeige, kein Autoweiter)
+    scrollEl.addEventListener("scroll", updateGateVisibility, { passive:true });
+  }
+
+  bindGate();
+  load().catch(() => {});
 })();
 </script>
