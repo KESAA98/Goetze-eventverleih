@@ -80,9 +80,7 @@
     overflow-x:hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-
-    /* FIX: kein "unsichtbarer Innenrand" links/rechts */
-    padding: 18px 0;
+    padding: 18px 24px;
   }
   .team-scroll{ scrollbar-width:none; }
   .team-scroll::-webkit-scrollbar{ width:0; height:0; }
@@ -98,8 +96,7 @@
   }
 
   .sceneZone{
-    /* FIX: darf wachsen -> Text wird nicht mehr abgeschnitten */
-    flex: 1 1 auto;
+    flex: 0 0 var(--zoneA);
     min-height: 320px;
     border-radius: var(--radius);
     overflow:hidden;
@@ -154,11 +151,8 @@
 
   .textPanel{
     width: var(--text-max-w);
-
-    /* FIX: niemals abschneiden */
-    max-height: none;
-    overflow: visible;
-
+    max-height: 82%;
+    overflow:hidden;
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius);
@@ -176,11 +170,13 @@
   }
 
   .textBody{
+
     font-size: clamp(14px, 1.0vw, 16px);
     line-height:1.65;
     color: rgba(15,23,42,0.78);
     white-space: pre-wrap;
-  }
+}
+
 
   .portraitWrap{
     width: var(--img-max);
@@ -296,7 +292,7 @@
 
   /* ===== Mobile: Bild oben, Tabs, Text ===== */
   @media (max-width: 980px){
-    .team-scroll{ padding: 14px 0 18px; } /* FIX: auch mobile ohne seitlichen Innenrand */
+    .team-scroll{ padding: 14px 14px 18px; }
     .team-stage{ height:auto; min-height:0; gap: 10px; }
     .sceneZone{ flex: 0 0 auto; height:auto; overflow:visible; }
     .selectorZone{ display:none; } /* Tabs wandern in Slide */
@@ -333,8 +329,7 @@
       padding: 18px 18px 14px;
     }
     .textBody{
-      /* FIX: auch mobile kein Abschneiden */
-      -webkit-line-clamp: unset;
+      -webkit-line-clamp: 14;
     }
   }
 </style>
@@ -620,4 +615,24 @@
         const bp = (b.pos == null) ? 9999 : b.pos;
         if (ap !== bp) return ap - bp;
         return a.name.localeCompare(b.name, "de");
-     
+      });
+
+      trackEl.innerHTML = "";
+      tabsEl.innerHTML = "";
+
+      members.forEach((m, i) => {
+        trackEl.appendChild(makeSlide(m));
+        tabsEl.appendChild(makeTab(m, i));
+      });
+
+      mqMobile.addEventListener?.("change", () => placeTabs());
+
+      if (members.length) setActive(0);
+      placeTabs();
+      updateGateVisibility();
+    }
+
+    bindGateLogic();
+    load().catch(() => {});
+  })();
+</script>
