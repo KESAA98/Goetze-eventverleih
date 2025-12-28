@@ -15,9 +15,6 @@
       --font-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
       --bg: #ffffff;
-      --text: #0f172a;
-      --muted: #6b7280;
-
       --radius: 18px;
       --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
       --shadow-header: 0 10px 26px rgba(0,0,0,.12);
@@ -28,15 +25,11 @@
     body{
       margin:0;
       font-family:var(--font-base);
-      color:var(--text);
       background:var(--bg);
-      overflow-y:auto;
+      overflow:hidden; /* WICHTIG: Stage-Prinzip */
     }
 
-    /* Slots: werden mit externen HTML-Dateien befüllt */
-    .slot{ display:block; }
-
-    /* Cookie overlay: liegt über allem */
+    /* Cookie overlay */
     #cookieOverlay{
       position:fixed;
       inset:0;
@@ -45,7 +38,7 @@
     }
     #cookieOverlay.is-visible{ display:block; }
 
-    /* Titel ist fix */
+    /* Titel: fix */
     #title{
       position:fixed;
       top:0; left:0; right:0;
@@ -62,92 +55,86 @@
 
     /* Layout: Content + Cart */
     #layout{
+      position:fixed;
+      top: var(--title-height);
+      left:0; right:0;
+      height: calc(100vh - var(--title-height));
       display:flex;
       width:100%;
-      min-height:100vh;
-      padding-top: var(--title-height);
     }
 
-    #content{
+    /* Stage (links): immer 1 Viewport hoch */
+    #stage{
       flex:1;
       min-width:0;
-      padding: 18px 18px 28px 18px;
+      height: 100%;
+      padding: 18px;
     }
 
-    /* Head + Shop sind normale Bereiche untereinander (native Scroll) */
-    section.page{
+    /* Panels: 2 Screens untereinander */
+    #panels{
+      width:100%;
+      height:200%;
+      transform: translateY(0%);
+      transition: transform .38s ease;
+    }
+    #panels.is-shop{ transform: translateY(-50%); }
+
+    /* Head / Shop Slots: jeweils genau 1 Screen hoch */
+    .panel{
+      height:50%;
       width:100%;
       border-radius: var(--radius);
       overflow:hidden;
-      background:#fff;
-    }
-
-    #head{
-      min-height: calc(100vh - var(--title-height) - 36px);
-      margin-bottom: 18px;
       box-shadow: var(--shadow-soft);
-      background:#d9dde3; /* Fallback bis head.html geladen ist */
+      background:#d9dde3; /* Fallback bis geladen */
     }
+    #shop{ background:#eef2f7; }
 
-    #shop{
-      min-height: calc(100vh - var(--title-height) - 36px);
-      box-shadow: var(--shadow-soft);
-      background:#eef2f7; /* Fallback bis shop.html geladen ist */
-    }
-
-    /* Cart: rechts fest */
+    /* Cart: rechts */
     #cart{
       width:var(--cart-width);
       flex:0 0 var(--cart-width);
-      position:sticky;
-      top: var(--title-height);
-      height: calc(100vh - var(--title-height));
-      padding: 18px 18px 28px 0;
-      align-self:flex-start;
+      height: 100%;
+      padding: 18px 18px 18px 0;
     }
 
-    /* Mobile: Cart ausblenden (später als Drawer/Overlay) */
+    /* Mobile: Cart ausblenden */
     @media (max-width: 980px){
       #layout{ display:block; }
       #cart{ display:none; }
-      #content{ padding: 14px 14px 22px 14px; }
-      #head, #shop{ border-radius: 16px; }
+      #stage{ padding: 14px; }
+      .panel{ border-radius: 16px; }
     }
   </style>
 </head>
 
 <body>
-  <!-- 1) Cookies -->
-  <div id="cookieOverlay" class="slot" data-src="backend/cookie.html"></div>
+  <div id="cookieOverlay" data-src="backend/cookie.html"></div>
+  <header id="title" data-src="backend/titel.html"></header>
 
-  <!-- 2) Titel -->
-  <header id="title" class="slot" data-src="backend/titel.html"></header>
-
-  <!-- 3/4/5) Layout -->
   <div id="layout">
-    <div id="content">
-      <section id="head" class="slot page" data-src="backend/head.html" aria-label="Head"></section>
-      <main id="shop" class="slot page" data-src="backend/shop.html" aria-label="Shop"></main>
+    <div id="stage" aria-label="Stage">
+      <div id="panels">
+        <section id="head" class="panel" data-src="backend/head.html" aria-label="Head"></section>
+        <main id="shop" class="panel" data-src="backend/shop.html" aria-label="Shop"></main>
+      </div>
     </div>
 
-    <aside id="cart" class="slot" data-src="backend/cart.html" aria-label="Warenkorb"></aside>
+    <aside id="cart" data-src="backend/cart.html" aria-label="Warenkorb"></aside>
   </div>
 
   <script>
     (function(){
       "use strict";
 
-      async function loadInto(el, url){
-        try{
-          const res = await fetch(url, { cache: "no-store" });
-          if(!res.ok) throw new Error("HTTP " + res.status + " for " + url);
-          const html = await res.text();
-          el.innerHTML = html;
-        }catch(err){
-          console.error("Load failed:", url, err);
-          // Fallback: nichts erzwingen – Seite bleibt bedienbar
-        }
-      }
+      const panels = document.getElementById("panels");
+      const headEl = document.getElementById("head");
+      const shopEl = document.getElementById("shop");
+      const titleEl = document.getElementById("title");
+
+      let activePanel = "head"; // "head" | "shop"
+      let switching = false;
 
       function setCookie(name, value, days){
         const d = new Date();
@@ -159,53 +146,163 @@
         return m ? decodeURIComponent(m[2]) : null;
       }
 
+      async function loadInto(el, url){
+        try{
+          const res = await fetch(url, { cache:"no-store" });
+          if(!res.ok) throw new Error("HTTP " + res.status + " for " + url);
+          el.innerHTML = await res.text();
+        }catch(err){
+          console.error("Load failed:", url, err);
+        }
+      }
+
+      function getHeadScroller(){
+        return headEl.querySelector(".team-scroll") || headEl;
+      }
+      function getShopScroller(){
+        return shopEl.querySelector(".shop-scroll") || shopEl;
+      }
+      function getActiveScroller(){
+        return (activePanel === "head") ? getHeadScroller() : getShopScroller();
+      }
+
       function updateTitleShadow(){
-        const t = document.getElementById("title");
-        if(!t) return;
-        if(window.scrollY > 2) t.classList.add("is-scrolled");
-        else t.classList.remove("is-scrolled");
+        // Shadow wenn der aktive Scroller nicht am Top ist
+        const sc = getActiveScroller();
+        const y = sc ? sc.scrollTop : 0;
+        if(y > 2) titleEl.classList.add("is-scrolled");
+        else titleEl.classList.remove("is-scrolled");
       }
 
-      // Soft API für andere Komponenten (falls du Buttons/Links nutzt)
-      function scrollToSection(id){
-        const target = document.getElementById(id);
-        if(!target) return;
-
-        const y = target.getBoundingClientRect().top + window.scrollY - (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--title-height")) || 70) - 10;
-        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+      function goShop(){
+        if(switching || activePanel === "shop") return;
+        switching = true;
+        activePanel = "shop";
+        panels.classList.add("is-shop");
+        // nach Animation sicher entsperren
+        setTimeout(() => { switching = false; updateTitleShadow(); }, 420);
       }
-      window.goShop = () => scrollToSection("shop");
-      window.goHead = () => scrollToSection("head");
+
+      function goHead(){
+        if(switching || activePanel === "head") return;
+        switching = true;
+        activePanel = "head";
+        panels.classList.remove("is-shop");
+        setTimeout(() => { switching = false; updateTitleShadow(); }, 420);
+      }
+
+      // API für Links/Buttons in geladenen Komponenten
+      window.goShop = goShop;
+      window.goHead = goHead;
+
+      // Overscroll-Trigger (nur Index steuert!)
+      function atBottom(el){
+        if(!el) return false;
+        return (el.scrollTop + el.clientHeight) >= (el.scrollHeight - 2);
+      }
+      function atTop(el){
+        if(!el) return true;
+        return el.scrollTop <= 0;
+      }
+
+      function onWheel(e){
+        if(switching) return;
+
+        const sc = getActiveScroller();
+        if(!sc) return;
+
+        const dy = e.deltaY;
+
+        // nur wenn der Nutzer wirklich am Rand ist
+        if(activePanel === "head" && dy > 0 && atBottom(sc)){
+          e.preventDefault();
+          goShop();
+          return;
+        }
+        if(activePanel === "shop" && dy < 0 && atTop(sc)){
+          e.preventDefault();
+          goHead();
+          return;
+        }
+      }
+
+      // Touch: swipe up/down am Rand
+      let touchY0 = null;
+      function onTouchStart(e){
+        if(!e.touches || !e.touches.length) return;
+        touchY0 = e.touches[0].clientY;
+      }
+      function onTouchMove(e){
+        if(switching || touchY0 === null) return;
+        if(!e.touches || !e.touches.length) return;
+
+        const y = e.touches[0].clientY;
+        const dy = y - touchY0; // >0 = down, <0 = up
+        const sc = getActiveScroller();
+        if(!sc) return;
+
+        // nur mit spürbarem Swipe
+        const threshold = 28;
+
+        if(activePanel === "head" && dy < -threshold && atBottom(sc)){
+          e.preventDefault();
+          touchY0 = null;
+          goShop();
+          return;
+        }
+        if(activePanel === "shop" && dy > threshold && atTop(sc)){
+          e.preventDefault();
+          touchY0 = null;
+          goHead();
+          return;
+        }
+      }
+      function onTouchEnd(){ touchY0 = null; }
+
+      function bindScrollShadow(){
+        const sc = getActiveScroller();
+        if(!sc) return;
+        sc.addEventListener("scroll", updateTitleShadow, { passive:true });
+      }
 
       async function boot(){
-        // Grundgerüst immer laden
         await Promise.all([
-          loadInto(document.getElementById("title"), document.getElementById("title").dataset.src),
-          loadInto(document.getElementById("head"),  document.getElementById("head").dataset.src),
-          loadInto(document.getElementById("shop"),  document.getElementById("shop").dataset.src),
-          loadInto(document.getElementById("cart"),  document.getElementById("cart").dataset.src)
+          loadInto(titleEl, titleEl.dataset.src),
+          loadInto(headEl, headEl.dataset.src),
+          loadInto(shopEl, shopEl.dataset.src),
+          loadInto(document.getElementById("cart"), document.getElementById("cart").dataset.src),
         ]);
 
-        // Cookie Overlay nur bei Bedarf
+        // Cookie overlay nur bei Bedarf
         const accepted = getCookie("cookies_accepted") === "yes";
         if(!accepted){
           const overlay = document.getElementById("cookieOverlay");
           overlay.classList.add("is-visible");
           await loadInto(overlay, overlay.dataset.src);
-
-          // Optionaler Helfer: cookie.html kann window.acceptCookies() aufrufen
           window.acceptCookies = () => {
             setCookie("cookies_accepted","yes",180);
             overlay.classList.remove("is-visible");
           };
         }
 
+        // Wheel/Touch auf Stage (damit es überall greift)
+        const stage = document.getElementById("stage");
+        stage.addEventListener("wheel", onWheel, { passive:false });
+        stage.addEventListener("touchstart", onTouchStart, { passive:true });
+        stage.addEventListener("touchmove", onTouchMove, { passive:false });
+        stage.addEventListener("touchend", onTouchEnd, { passive:true });
+        stage.addEventListener("touchcancel", onTouchEnd, { passive:true });
+
+        // Shadow an beide Scroller binden
+        const hs = getHeadScroller();
+        const ss = getShopScroller();
+        hs.addEventListener("scroll", updateTitleShadow, { passive:true });
+        ss.addEventListener("scroll", updateTitleShadow, { passive:true });
+
         updateTitleShadow();
-        window.addEventListener("scroll", updateTitleShadow, { passive:true });
-        window.addEventListener("resize", updateTitleShadow, { passive:true });
       }
 
-      boot().catch(err => console.error(err));
+      boot().catch(console.error);
     })();
   </script>
 </body>
