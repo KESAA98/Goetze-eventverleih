@@ -1,29 +1,37 @@
-<!-- backend/head.html | Centered pill-tabs, airier layout (higher + smaller), shadow fix (only panel has shadow) -->
+<!-- backend/head.html | 3-Kachel-Layout (1 Text | 2 Portrait | 3 Tabs oben), keine Scrolls, “Blättern”-Animation, Mobile: 2 > 3 > 1 -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
   <div class="team-head__inner">
-    <div class="team-head__layout">
-      <!-- LEFT -->
-      <div class="team-left">
-        <div class="team-panel" id="teamPanel">
-          <h1 class="team-title" id="teamTitle">Wir sind das Team.</h1>
-          <div class="team-text" id="teamText">
-            Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
+    <div class="team-grid">
+      <!-- Kachel 1: Text (zentriert) -->
+      <div class="tile tile--text">
+        <div class="tile-center">
+          <div class="team-panel" id="teamPanel" aria-live="polite">
+            <div class="team-panel__slide" id="panelSlide">
+              <h1 class="team-title" id="teamTitle">Wir sind das Team.</h1>
+              <div class="team-text" id="teamText">
+                Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
+              </div>
+            </div>
           </div>
-        </div>
-
-        <!-- CENTERED tabs (screen centered, not tied to panel width) -->
-        <div class="team-tabsOuter" aria-label="Team Auswahl">
-          <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
 
-      <!-- RIGHT -->
-      <div class="team-right" aria-hidden="true">
-        <div class="team-portrait">
-          <img id="teamPortrait" alt="" />
+      <!-- Kachel 2: Bild (zentriert) -->
+      <div class="tile tile--portrait" aria-hidden="true">
+        <div class="tile-center">
+          <div class="team-portrait" id="portraitFrame">
+            <img id="teamPortrait" alt="" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Kachel 3: Auswahl oben (mittig zentriert) -->
+      <div class="tile tile--tabs" aria-label="Team Auswahl">
+        <div class="tabs-top">
+          <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
     </div>
@@ -40,6 +48,14 @@
     --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
 
     --title-height: 70px;
+
+    /* feste Höhenverhältnisse (Desktop) */
+    --h-tabs: 22%;
+    --h-main: 78%;
+
+    /* safe widths */
+    --panel-max: 720px;
+    --portrait-max: 460px;
   }
 
   .team-head{
@@ -74,138 +90,86 @@
     height:100%;
     padding-left: var(--edge-left);
     padding-right: var(--edge-right);
-    padding-top: 28px;  /* etwas luftiger */
-    padding-bottom: 28px;
-    display:flex;
-    align-items:stretch;
+    padding-top: 20px;
+    padding-bottom: 24px;
   }
 
-  .team-head__layout{
-    width:100%;
+  /* ===== 3-Kachel-Grid =====
+     oben (Kachel 3) über volle Breite
+     unten: links Text (Kachel 1) | rechts Portrait (Kachel 2)
+  */
+  .team-grid{
     height:100%;
     display:grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: clamp(18px, 3vw, 48px);
-    align-items:start; /* höher ausgerichtet */
+    grid-template-rows: var(--h-tabs) var(--h-main);
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "tabs tabs"
+      "text portrait";
+    gap: 18px 36px;
   }
 
-  /* LEFT */
-  .team-left{
-    min-width:0;
+  .tile{ min-width:0; min-height:0; }
+  .tile--tabs{ grid-area: tabs; }
+  .tile--text{ grid-area: text; }
+  .tile--portrait{ grid-area: portrait; }
+
+  .tile-center{
+    width:100%;
     height:100%;
     display:flex;
-    flex-direction:column;
-    gap: 16px;
-    padding-top: 18px; /* Inhalte höher */
+    align-items:center;
+    justify-content:center;
   }
 
-  /* Panel: Höhe passt sich an, mit Limit */
-  .team-panel{
-    position:relative;
-    width: 100%;
-    max-width: 720px; /* etwas kleiner */
-    background: rgba(255,255,255,0.84);
-    border: 1px solid rgba(15,23,42,0.10);
-    border-radius: 18px;
-
-    /* Shadow fix: NUR hier ein Shadow */
-    box-shadow: 0 18px 50px rgba(0,0,0,0.12);
-    backdrop-filter: blur(10px);
-
-    padding: 22px 22px 18px;
-    max-height: 56vh;          /* nicht riesig leer */
-    overflow: auto;            /* bei langen Texten scrollt nur hier */
-  }
-
-  .team-title{
-    margin:0 0 10px 0;
-    font-size: clamp(24px, 2.4vw, 40px); /* kleiner */
-    line-height:1.02;
-    letter-spacing:-0.02em;
-    color:#0f172a;
-  }
-
-  .team-text{
-    font-size: clamp(14px, 1.0vw, 16px);
-    line-height:1.65;
-    color: rgba(15,23,42,0.78);
-    white-space: pre-wrap;
-  }
-
-  /* Tabs: screen-centered */
-  .team-tabsOuter{
-    width: 100vw;                    /* über den ganzen Bildschirm */
-    margin-left: calc(-1 * var(--edge-left));   /* links padding neutralisieren */
-    margin-right: calc(-1 * var(--edge-right)); /* rechts padding neutralisieren */
+  /* Kachel 3: Tabs oben, mittig */
+  .tabs-top{
+    width:100%;
+    height:100%;
     display:flex;
-    justify-content:center;          /* MITTIG im Bildschirm */
-    padding: 0 16px;                 /* etwas Luft am Rand */
+    align-items:flex-start;
+    justify-content:center;
+    padding-top: 6px;
   }
 
   .team-tabs{
     display:flex;
     gap: 12px;
-    overflow:auto;
     align-items:center;
+    justify-content:center;
+    max-width: min(1100px, 100%);
     padding: 6px 8px;
-    max-width: min(1000px, 92vw);
+    overflow:hidden; /* keine Scrolls */
   }
 
-  .team-tabs::-webkit-scrollbar{ height: 10px; }
-  .team-tabs::-webkit-scrollbar-track{ background: transparent; }
-  .team-tabs::-webkit-scrollbar-thumb{
-    background: rgba(15,23,42,0.14);
-    border-radius: 999px;
-    border: 3px solid transparent;
-    background-clip: padding-box;
-  }
-
-  /* Pill tabs, no shadow (solves nested shadow issue) */
+  /* Pill Tabs (ohne Shadow) */
   .team-tab{
     display:flex;
     align-items:center;
     gap: 10px;
     padding: 10px 14px;
-    border-radius: 999px; /* pill */
+    border-radius: 999px;
     background: rgba(255,255,255,0.62);
-    border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: none; /* <- wichtig */
+    border: 1px solid rgba(15,23,42,0.12);
+    box-shadow:none;
     cursor:pointer;
     user-select:none;
     transition: background .14s ease, border-color .14s ease;
-    flex: 0 0 auto; /* Breite nur Inhalt */
-    white-space: nowrap;
+    white-space:nowrap;
+    flex: 0 0 auto;
   }
-
   .team-tab:hover{
     background: rgba(255,255,255,0.78);
     border-color: rgba(31,79,163,0.22);
   }
-
   .team-tab.is-active{
     background: rgba(255,255,255,0.92);
-    border-color: rgba(15,23,42,0.18);
-  }
-
-  /* Active connection: subtle underline “bridge” only, no lifting */
-  .team-tab.is-active{
-    position:relative;
-  }
-  .team-tab.is-active::after{
-    content:"";
-    position:absolute;
-    left: 18px;
-    right: 18px;
-    bottom: -8px;
-    height: 8px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.84);
-    border: 1px solid rgba(15,23,42,0.10);
+    border-color: rgba(15,23,42,0.20);
   }
 
   .team-tab__avatar{
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 999px;
     overflow:hidden;
     background:#e9eef7;
@@ -224,18 +188,46 @@
     letter-spacing:-0.01em;
   }
 
-  /* RIGHT: slightly smaller portrait, a bit higher */
-  .team-right{
-    height:100%;
-    display:flex;
-    align-items:flex-start; /* höher */
-    justify-content:center;
-    padding-top: 22px;
-    min-width:0;
+  /* Kachel 1: Text Panel (keine Scrolls -> Text wird ggf. gekürzt) */
+  .team-panel{
+    width: min(var(--panel-max), 100%);
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(15,23,42,0.10);
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+    backdrop-filter: blur(10px);
+    padding: 22px 22px 18px;
+    overflow:hidden; /* keine Scrolls */
+    position:relative;
   }
 
+  .team-panel__slide{
+    position:relative;
+    will-change: transform, opacity;
+  }
+
+  .team-title{
+    margin:0 0 10px 0;
+    font-size: clamp(24px, 2.3vw, 40px);
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    color:#0f172a;
+  }
+
+  .team-text{
+    font-size: clamp(14px, 1.0vw, 16px);
+    line-height:1.65;
+    color: rgba(15,23,42,0.78);
+    white-space: pre-wrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10; /* kein Scroll: clamp */
+    overflow: hidden;
+  }
+
+  /* Kachel 2: Portrait */
   .team-portrait{
-    width: min(460px, 34vw); /* kleiner */
+    width: min(var(--portrait-max), 100%);
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
@@ -243,53 +235,74 @@
     border: 1px solid rgba(15,23,42,0.10);
     box-shadow: 0 22px 60px rgba(0,0,0,0.18);
     backdrop-filter: blur(8px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    position:relative;
   }
+
   .team-portrait img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
     transform: scale(1.02);
+    will-change: transform, opacity;
   }
 
-  /* Mobile */
+  /* ===== Blätter-Animation (Text + Bild) ===== */
+  .slide-out-left  { animation: slideOutLeft  .26s ease forwards; }
+  .slide-out-right { animation: slideOutRight .26s ease forwards; }
+  .slide-in-left   { animation: slideInLeft   .30s ease forwards; }
+  .slide-in-right  { animation: slideInRight  .30s ease forwards; }
+
+  @keyframes slideOutLeft  { to { transform: translateX(-26px); opacity: 0; } }
+  @keyframes slideOutRight { to { transform: translateX( 26px); opacity: 0; } }
+  @keyframes slideInLeft   { from { transform: translateX(-26px); opacity: 0; } to { transform: translateX(0); opacity:1; } }
+  @keyframes slideInRight  { from { transform: translateX( 26px); opacity: 0; } to { transform: translateX(0); opacity:1; } }
+
+  /* ===== Mobile: Reihenfolge 2 > 3 > 1 ===== */
   @media (max-width: 980px){
     .team-head__inner{
-      padding-left: 24px;
-      padding-right: 24px;
-      padding-top: 22px;
-      padding-bottom: 22px;
+      padding-left: 22px;
+      padding-right: 22px;
+      padding-top: 16px;
+      padding-bottom: 20px;
     }
-    .team-head__layout{
+
+    .team-grid{
+      grid-template-rows: auto auto 1fr;
       grid-template-columns: 1fr;
+      grid-template-areas:
+        "portrait"
+        "tabs"
+        "text";
       gap: 14px;
     }
-    .team-left{
+
+    .tabs-top{
+      align-items:center;
       padding-top: 0;
     }
-    .team-right{
-      justify-content:flex-start;
-      padding-top: 0;
+
+    .team-tabs{
+      flex-wrap: wrap;
+      justify-content:center;
+      overflow:hidden; /* kein Scroll */
     }
-    .team-portrait{
-      width: min(280px, 62vw);
-    }
+
     .team-panel{
-      max-width: 100%;
-      max-height: 48vh;
-      padding: 18px 18px 14px;
+      width: 100%;
       border-radius: 16px;
     }
-    .team-tabsOuter{
-      width: 100%;
-      margin-left: 0;
-      margin-right: 0;
-      justify-content:flex-start;
-      padding: 0;
+
+    .team-portrait{
+      width: min(280px, 70vw);
+      margin: 0 auto;
     }
-    .team-tabs{
-      max-width: 100%;
-      padding: 6px 0;
+
+    .team-text{
+      -webkit-line-clamp: 12;
     }
   }
 
@@ -308,6 +321,12 @@
     const textEl  = document.getElementById("teamText");
     const portraitEl = document.getElementById("teamPortrait");
     const tabsEl = document.getElementById("teamTabs");
+    const panelSlide = document.getElementById("panelSlide");
+    const portraitFrame = document.getElementById("portraitFrame");
+
+    let members = [];
+    let activeIndex = 0;
+    let isAnimating = false;
 
     function parseFolder(folder){
       const parts = String(folder).split("_");
@@ -370,23 +389,63 @@
       };
     }
 
-    function setActive(member){
+    function setActiveTab(idx){
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
-      const btn = tabsEl.querySelector('[data-folder="' + CSS.escape(member.folder) + '"]');
+      const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
-
-      const { first, rest } = splitFirstSentence(member.text);
-      titleEl.textContent = first || "Wir sind das Team.";
-      textEl.textContent  = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
-      setPortrait(member.img, member.name);
     }
 
-    function makeTab(member){
+    function animateFlip(toIndex){
+      if (isAnimating || toIndex === activeIndex) return;
+      isAnimating = true;
+
+      const dir = (toIndex > activeIndex) ? "right" : "left";
+
+      // OUT
+      panelSlide.classList.remove("slide-in-left","slide-in-right","slide-out-left","slide-out-right");
+      portraitFrame.classList.remove("slide-in-left","slide-in-right","slide-out-left","slide-out-right");
+
+      panelSlide.classList.add(dir === "right" ? "slide-out-left" : "slide-out-right");
+      portraitFrame.classList.add(dir === "right" ? "slide-out-left" : "slide-out-right");
+
+      const outDone = () => {
+        panelSlide.removeEventListener("animationend", outDone);
+
+        // swap content
+        activeIndex = toIndex;
+        const m = members[activeIndex];
+        const { first, rest } = splitFirstSentence(m.text);
+
+        titleEl.textContent = first || "Wir sind das Team.";
+        textEl.textContent  = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+        setPortrait(m.img, m.name);
+        setActiveTab(activeIndex);
+
+        // IN
+        panelSlide.classList.remove("slide-out-left","slide-out-right");
+        portraitFrame.classList.remove("slide-out-left","slide-out-right");
+
+        panelSlide.classList.add(dir === "right" ? "slide-in-right" : "slide-in-left");
+        portraitFrame.classList.add(dir === "right" ? "slide-in-right" : "slide-in-left");
+
+        const inDone = () => {
+          panelSlide.removeEventListener("animationend", inDone);
+          panelSlide.classList.remove("slide-in-left","slide-in-right");
+          portraitFrame.classList.remove("slide-in-left","slide-in-right");
+          isAnimating = false;
+        };
+        panelSlide.addEventListener("animationend", inDone, { once:true });
+      };
+
+      panelSlide.addEventListener("animationend", outDone, { once:true });
+    }
+
+    function makeTab(member, idx){
       const btn = document.createElement("div");
       btn.className = "team-tab";
       btn.tabIndex = 0;
       btn.setAttribute("role", "button");
-      btn.dataset.folder = member.folder;
+      btn.dataset.index = String(idx);
       btn.setAttribute("aria-label", "Teammitglied: " + member.name);
 
       const av = document.createElement("div");
@@ -418,19 +477,18 @@
       btn.appendChild(av);
       btn.appendChild(name);
 
-      const open = () => setActive(member);
+      const open = () => animateFlip(idx);
       btn.addEventListener("click", open);
       btn.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
-      // "von rechts rein" (stagger) – per inline animation delay
+      // “von rechts rein” (stagger)
       btn.style.opacity = "0";
       btn.style.transform = "translateX(18px)";
       requestAnimationFrame(() => {
-        const i = tabsEl.children.length;
         btn.style.transition = "opacity .28s ease, transform .28s ease";
-        btn.style.transitionDelay = (i * 40) + "ms";
+        btn.style.transitionDelay = (idx * 45) + "ms";
         btn.style.opacity = "1";
         btn.style.transform = "translateX(0)";
       });
@@ -449,7 +507,7 @@
         ? manifest.members.map(m => m.folder).filter(Boolean)
         : [];
 
-      const members = await Promise.all(folders.map(async (folder) => {
+      members = await Promise.all(folders.map(async (folder) => {
         const meta = parseFolder(folder);
         const base = "Team/" + folder + "/";
         const img  = base + "image.png";
@@ -467,9 +525,18 @@
       });
 
       tabsEl.innerHTML = "";
-      members.forEach(m => tabsEl.appendChild(makeTab(m)));
+      members.forEach((m, i) => tabsEl.appendChild(makeTab(m, i)));
 
-      if (members.length) setActive(members[0]);
+      if (members.length){
+        activeIndex = 0;
+        const m = members[0];
+        const { first, rest } = splitFirstSentence(m.text);
+
+        titleEl.textContent = first || "Wir sind das Team.";
+        textEl.textContent  = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+        setPortrait(m.img, m.name);
+        setActiveTab(0);
+      }
     }
 
     load().catch(() => {
