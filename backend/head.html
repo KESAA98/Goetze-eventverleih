@@ -1,4 +1,4 @@
-<!-- backend/head.html | Stage-kompatibel – FULLSCREEN FIX -->
+<!-- backend/head.html | Stage-kompatibel (Variante A) – FULLSCREEN FIX -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
@@ -42,7 +42,7 @@
   --img-max: min(420px, 40vw);
 }
 
-/* 🔧 WICHTIGSTER FIX */
+/* 🔧 FULLSCREEN-FIX */
 .team-head{
   position:absolute;
   inset:0;
@@ -95,7 +95,7 @@
   gap: 12px;
 }
 
-/* 🔧 RADIUS HIER RAUS */
+/* 🔧 RADIUS HIER ENTFERNT */
 .sceneZone{
   flex: 0 0 var(--zoneA);
   min-height: 320px;
@@ -146,7 +146,7 @@
   gap: clamp(18px, 3vw, 44px);
 }
 
-/* ✅ Karten dürfen Radius behalten */
+/* Inhalt */
 .textPanel{
   width: var(--text-max-w);
   max-height: 82%;
@@ -184,6 +184,7 @@
 
 .portrait{
   width: 100%;
+  max-width: var(--img-max);
   aspect-ratio: 1 / 1;
   border-radius: 999px;
   overflow:hidden;
@@ -225,6 +226,7 @@
 </style>
 
 <script>
+/* === DEIN KOMPLETTES ORIGINAL-JS === */
 (function(){
   const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
   const TEAM_MANIFEST_URL = "Team/manifest.json";
@@ -261,14 +263,14 @@
       rest:  "Wir sind LG Eventverleih – ein kleines, engagiertes Team mit einer großen Leidenschaft für besondere Momente."
     };
 
-    const nl = t.indexOf("\n");
+    const nl = t.indexOf("\\n");
     if (nl > 0){
       const first = t.slice(0, nl).trim();
       const rest = t.slice(nl + 1).trim();
       return { first: first || "Schön, dass du da bist!", rest };
     }
 
-    const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
+    const m = t.match(/^[\\s\\S]*?[.!?](?:\\s|$)/);
     if (m && m[0]){
       const cut = m[0].length;
       const first = t.slice(0, cut).trim();
@@ -302,7 +304,6 @@
 
   function updateGateVisibility(){
     if (!gateZone) return;
-    // Gate nur anzeigen, wenn wirklich gescrollt werden kann und man unten ist
     const show = isScrollable() && atBottom();
     gateZone.classList.toggle("is-visible", !!show);
   }
@@ -478,7 +479,6 @@
     placeTabs();
     updateGateVisibility();
 
-    // Gate-Sichtbarkeit beim Scroll (nur Anzeige, kein Autoweiter)
     scrollEl.addEventListener("scroll", updateGateVisibility, { passive:true });
   }
 
@@ -486,4 +486,3 @@
   load().catch(() => {});
 })();
 </script>
-
