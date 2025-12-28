@@ -1,7 +1,6 @@
 <!-- backend/head.html | Zonen-Raster:
      Desktop: Zone A (75%) Slider/Karte + Zone B (25%) Tabs getrennt unten.
      Mobile: Tabs werden in die aktive Karte integriert (zwischen Bild und Text), Sliden bleibt gleich.
-     Head scrollt nur intern (#teamScroll), overflow-x ist gesperrt.
 -->
 
 <section class="team-head" aria-label="Team">
@@ -42,7 +41,7 @@
     --zoneB: 25%;
 
     /* Card Limits (Desktop) */
-    --card-max-w: min(1100px, 92%);
+    --card-max-w: min(1120px, 92%);
     --card-max-h: 92%;
 
     /* Card inner split (Desktop) */
@@ -140,15 +139,16 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    padding: clamp(14px, 2.4vw, 32px);
+    padding: clamp(12px, 2vw, 26px);
   }
 
-  /* ===== Card (Desktop) ===== */
+  /* ===== Card ===== */
   .team-card{
     width: var(--card-max-w);
     height: min(var(--card-max-h), 100%);
     display:grid;
     grid-template-columns: var(--text-col) var(--img-col);
+    grid-template-areas: "text media";
     gap: clamp(16px, 3vw, 42px);
     align-items:center;
 
@@ -157,13 +157,12 @@
     border-radius: var(--radius);
     box-shadow: var(--shadow-soft);
     backdrop-filter: blur(10px);
-    padding: clamp(14px, 2.4vw, 26px);
+    padding: clamp(14px, 2.2vw, 26px);
     overflow:hidden;
   }
 
-  .card-text{
-    min-width:0;
-  }
+  .card-text{ grid-area:text; min-width:0; }
+  .card-media{ grid-area:media; min-width:0; display:flex; align-items:center; justify-content:center; }
 
   .card-title{
     margin:0 0 10px 0;
@@ -173,18 +172,17 @@
     color:#0f172a;
   }
 
+  /* Desktop: Text nicht "zu tief" -> clamp statt unendlich */
   .card-body{
     font-size: clamp(14px, 1.0vw, 16px);
     line-height:1.65;
     color: rgba(15,23,42,0.78);
     white-space: pre-wrap;
-  }
 
-  .card-media{
-    min-width:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10;
+    overflow: hidden;
   }
 
   .portrait{
@@ -203,6 +201,13 @@
     object-fit:cover;
     display:block;
     transform: scale(1.02);
+  }
+
+  /* Tabs-Slot existiert immer, aber:
+     Desktop: unsichtbar (damit NICHTS das Grid verschiebt)
+     Mobile: sichtbar und sitzt zwischen Bild und Text */
+  .tabs-slot{
+    display:none;
   }
 
   /* ===== Tabs (ohne extra Wrap) ===== */
@@ -293,7 +298,7 @@
   .gateBtn:hover{ background: rgba(31,79,163,0.18); }
   .gateBtn:active{ transform: scale(0.98); }
 
-  /* ===== Mobile: Tabs in die Karte integrieren, SelectorZone ausblenden ===== */
+  /* ===== Mobile: Tabs in die Karte integrieren ===== */
   @media (max-width: 980px){
     .team-scroll{ padding: 14px 14px 18px; }
 
@@ -303,7 +308,6 @@
       gap: 10px;
     }
 
-    /* Scene darf wachsen, Selector wird im Card integriert */
     .sceneZone{
       flex: 0 0 auto;
       min-height: 0;
@@ -311,9 +315,7 @@
       overflow: visible;
     }
 
-    .selectorZone{
-      display:none; /* Tabs wandern in die aktive Karte */
-    }
+    .selectorZone{ display:none; }
 
     .team-viewport{
       height:auto;
@@ -331,6 +333,10 @@
       width: 100%;
       height:auto;
       grid-template-columns: 1fr;
+      grid-template-areas:
+        "media"
+        "tabs"
+        "text";
       gap: 12px;
       border-radius: 16px;
     }
@@ -340,12 +346,22 @@
       margin: 0 auto;
     }
 
+    .tabs-slot{
+      display:block;
+      grid-area: tabs;
+    }
+
     .team-tabs{
       flex-wrap: wrap;
       justify-content:center;
       overflow:hidden;
       width:100%;
-      margin: 2px 0 4px;
+      margin: 0;
+    }
+
+    /* Mobile: etwas mehr Text erlauben */
+    .card-body{
+      -webkit-line-clamp: 14;
     }
   }
 </style>
@@ -435,10 +451,7 @@
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
 
-      // bei Mobile Tabs in aktive Card einhängen
       placeTabsForLayout();
-
-      // Gate-Status reset
       downArmed = false;
       downCooldown = false;
       updateGateVisibility();
@@ -452,10 +465,8 @@
 
       const slot = current.querySelector(".tabs-slot");
       if (isMobile){
-        // Tabs in den Slot der aktiven Karte
         if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
       }else{
-        // Tabs zurück in SelectorZone
         if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
       }
     }
@@ -471,15 +482,12 @@
     function triggerDown(){
       if (downCooldown) return;
       downCooldown = true;
-
       if (typeof window.goShop === "function") window.goShop();
-
       setTimeout(() => { downCooldown = false; }, 500);
     }
 
     function updateGateVisibility(){
       if (!gateZone) return;
-
       const show = isScrollable() && atBottom();
       gateZone.classList.toggle("is-visible", !!show);
     }
@@ -500,7 +508,6 @@
       scrollEl.addEventListener("wheel", (e) => {
         const down = e.deltaY > 0;
 
-        // Fall A: nicht scrollbar -> erster Down triggert direkt
         if (!isScrollable()){
           if (down){
             e.preventDefault();
@@ -509,7 +516,6 @@
           return;
         }
 
-        // Fall B: scrollbar -> am Ende erst Stop, dann zweiter Impuls
         if (down && atBottom()){
           if (downArmed){
             e.preventDefault();
@@ -534,6 +540,10 @@
       const mediaCol = document.createElement("div");
       mediaCol.className = "card-media";
 
+      const tabsSlot = document.createElement("div");
+      tabsSlot.className = "tabs-slot";
+      tabsSlot.setAttribute("aria-hidden", "true");
+
       const { first, rest } = splitFirstSentence(member.text);
 
       const h = document.createElement("h1");
@@ -545,18 +555,6 @@
       body.textContent = (rest && rest.trim().length)
         ? rest
         : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
-
-      // Mobile Slot für Tabs (wird per JS befüllt)
-      const tabsSlot = document.createElement("div");
-      tabsSlot.className = "tabs-slot";
-      tabsSlot.setAttribute("aria-hidden", "true");
-
-      textCol.appendChild(h);
-
-      // Mobile: Reihenfolge Bild -> Tabs -> Text
-      // Wir legen TabsSlot in die Card; per CSS/DOM-Reihenfolge ist es auf Mobile zwischen Bild und Text sichtbar,
-      // auf Desktop bleibt es leer (Tabs liegen unten).
-      textCol.appendChild(body);
 
       const portrait = document.createElement("div");
       portrait.className = "portrait";
@@ -573,15 +571,13 @@
       portrait.appendChild(img);
       mediaCol.appendChild(portrait);
 
-      // Card zusammensetzen:
-      // Desktop Grid: Text | Bild
-      // Mobile Grid: Bild, TabsSlot, Text (wir hängen TabsSlot separat in die Card ein)
+      textCol.appendChild(h);
+      textCol.appendChild(body);
+
+      // DOM-Reihenfolge ist egal, Grid-Areas bestimmen die Position
       card.appendChild(textCol);
       card.appendChild(mediaCol);
-
-      // TabsSlot kommt als eigener Block in die Card (CSS macht ihn auf Desktop unsichtbar, auf Mobile sichtbar)
-      // Auf Desktop ist TabsSlot leer und ohne Layoutwirkung.
-      card.insertBefore(tabsSlot, textCol.nextSibling);
+      card.appendChild(tabsSlot);
 
       slide.appendChild(card);
       return slide;
@@ -630,7 +626,6 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
-      // Stagger rein
       btn.style.opacity = "0";
       btn.style.transform = "translateX(18px)";
       requestAnimationFrame(() => {
@@ -679,7 +674,6 @@
         tabsEl.appendChild(makeTab(m, i));
       });
 
-      // TabsSlot auf Desktop ohne Einfluss; auf Mobile wird tabsEl in Slot der aktiven Card bewegt
       mqMobile.addEventListener?.("change", () => placeTabsForLayout());
 
       if (members.length) setActive(0);
