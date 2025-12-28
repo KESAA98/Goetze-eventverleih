@@ -1,4 +1,8 @@
-<!-- backend/head.html | Stage-kompatibel (Variante A) – FULLSCREEN FIX -->
+<!-- backend/head.html | Slider: Text-Panel links + Portrait rechts (getrennte Container)
+     Desktop: Zone A (75%) Slider | Zone B (25%) Tabs unten (ohne zusätzliche Hülle)
+     Mobile: Bild oben, Tabs darunter, Text darunter (alles in Slide), KEIN horizontales Scrollen.
+-->
+
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
@@ -19,7 +23,7 @@
         <div class="team-tabs" id="teamTabs"></div>
       </div>
 
-      <!-- Gate -->
+      <!-- Gate (optional) -->
       <div class="gateZone" id="gateZone" aria-hidden="true">
         <button class="gateBtn" id="gateBtn" type="button">Zum Shop ↓</button>
       </div>
@@ -29,460 +33,606 @@
 </section>
 
 <style>
-:root{
-  --radius: 18px;
-  --panel-bg: rgba(255,255,255,0.84);
-  --panel-border: rgba(15,23,42,0.10);
-  --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
+  :root{
+    --radius: 18px;
+    --panel-bg: rgba(255,255,255,0.84);
+    --panel-border: rgba(15,23,42,0.10);
+    --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
 
-  --zoneA: 80%;
-  --zoneB: 20%;
+    --zoneA: 80%;
+    --zoneB: 20%;
 
-  --text-max-w: min(780px, 60vw);
-  --img-max: min(420px, 40vw);
+    --text-max-w: min(780px, 60vw);  /* Textpanel max */
+    --img-max: min(420px, 40vw);     /* Bild max */
+  }
+
+  .team-head{
+    position:relative;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#d9dde3;
+  }
+
+  .team-head__bg{
+    position:absolute; inset:0;
+    background-size:cover;
+    background-position:center;
+    transform:scale(1.05);
+    filter:saturate(.98) contrast(.98);
+  }
+
+  .team-head__veil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
+      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 40%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.10) 100%);
+    backdrop-filter: blur(10px);
+  }
+
+  /* interner Scroll */
+  .team-scroll{
+    position:relative;
+    z-index:1;
+    height:100%;
+    width:100%;
+    overflow:auto;
+    overflow-x:hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 18px 24px;
+  }
+  .team-scroll{ scrollbar-width:none; }
+  .team-scroll::-webkit-scrollbar{ width:0; height:0; }
+
+  .team-stage{
+    position:relative;
+    width:100%;
+    height:100%;
+    min-height: 520px;
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .sceneZone{
+    flex: 0 0 var(--zoneA);
+    min-height: 320px;
+    border-radius: var(--radius);
+    overflow:hidden;
+  }
+
+  .selectorZone{
+    flex: 0 0 var(--zoneB);
+    min-height: 96px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top: 6px;
+    background: transparent;     /* wichtig: kein grauer Balken */
+    box-shadow:none;
+  }
+
+  /* slider */
+  .team-viewport{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    border-radius: var(--radius);
+  }
+
+  .team-track{
+    height:100%;
+    display:flex;
+    width:100%;
+    transform: translateX(0%);
+    transition: transform .55s cubic-bezier(.22,.9,.18,1);
+    will-change: transform;
+  }
+
+  .team-slide{
+    flex: 0 0 100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: clamp(12px, 2vw, 26px);
+  }
+
+  /* === Slide Layout Desktop: Text links + Bild rechts (getrennt, KEIN gemeinsamer Container) === */
+  .slide-grid{
+    width: min(1200px, 100%);
+    height: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: clamp(18px, 3vw, 44px);
+  }
+
+  .textPanel{
+    width: var(--text-max-w);
+    max-height: 82%;
+    overflow:hidden;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px);
+    padding: 22px 22px 18px;
+  }
+
+  .textTitle{
+    margin:0 0 10px 0;
+    font-size: clamp(24px, 2.2vw, 40px);
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    color:#0f172a;
+  }
+
+  .textBody{
+
+    font-size: clamp(14px, 1.0vw, 16px);
+    line-height:1.65;
+    color: rgba(15,23,42,0.78);
+    white-space: pre-wrap;
 }
 
-/* 🔧 FULLSCREEN-FIX */
-.team-head{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#d9dde3;
-  border-radius:0;
-}
 
-.team-head__bg{
-  position:absolute;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-  transform:scale(1.05);
-  filter:saturate(.98) contrast(.98);
-}
+  .portraitWrap{
+    width: var(--img-max);
+    max-height: 82%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
 
-.team-head__veil{
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
-    linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 40%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.10) 100%);
-  backdrop-filter: blur(10px);
-}
+  .portrait{
+    width: 100%;
+    max-width: var(--img-max);
+    aspect-ratio: 1 / 1;
+    border-radius: 999px;
+    overflow:hidden;
+    background: rgba(255,255,255,0.60);
+    border: 1px solid rgba(15,23,42,0.10);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.18); /* nur am Bild */
+    backdrop-filter: blur(8px);
+  }
+  .portrait img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    transform: scale(1.02);
+  }
 
-.team-scroll{
-  position:relative;
-  z-index:1;
-  height:100%;
-  width:100%;
-  overflow:auto;
-  overflow-x:hidden;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-  padding: 18px 24px;
-}
-.team-scroll{ scrollbar-width:none; }
-.team-scroll::-webkit-scrollbar{ width:0; height:0; }
+  /* Tabs */
+  .team-tabs{
+    display:flex;
+    gap: 12px;
+    align-items:center;
+    justify-content:center;
+    width: min(1200px, 100%);
+    overflow:hidden; /* kein horizontaler Scroll */
+    background: transparent;
+  }
 
-.team-stage{
-  position:relative;
-  width:100%;
-  height:100%;
-  min-height: 520px;
-  display:flex;
-  flex-direction:column;
-  gap: 12px;
-}
+  .team-tab{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.62);
+    border: 1px solid rgba(15,23,42,0.12);
+    cursor:pointer;
+    user-select:none;
+    transition: background .14s ease, border-color .14s ease, transform .14s ease;
+    white-space:nowrap;
+    flex: 0 0 auto;
+  }
+  .team-tab:hover{
+    background: rgba(255,255,255,0.78);
+    border-color: rgba(31,79,163,0.22);
+    transform: translateY(-1px);
+  }
+  .team-tab.is-active{
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(15,23,42,0.20);
+  }
 
-/* 🔧 RADIUS HIER ENTFERNT */
-.sceneZone{
-  flex: 0 0 var(--zoneA);
-  min-height: 320px;
-  overflow:hidden;
-  border-radius:0;
-}
+  .team-tab__avatar{
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    overflow:hidden;
+    background:#e9eef7;
+    border: 1px solid rgba(15,23,42,0.10);
+    flex: 0 0 auto;
+  }
+  .team-tab__avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .team-tab__name{
+    font-weight: 760;
+    color:#0f172a;
+    letter-spacing:-0.01em;
+  }
 
-.selectorZone{
-  flex: 0 0 var(--zoneB);
-  min-height: 96px;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  padding-top: 6px;
-}
+  /* Gate */
+  .gateZone{
+    position:absolute;
+    left:50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    z-index: 5;
+    display:none;
+    pointer-events:none;
+  }
+  .gateZone.is-visible{ display:block; pointer-events:auto; }
+  .gateBtn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+    user-select:none;
+    font-weight: 800;
+    letter-spacing:-0.01em;
+    color:#0f172a;
+    background: rgba(31,79,163,0.12);
+    border: 1px solid rgba(31,79,163,0.28);
+    transition: transform .12s ease, background .12s ease;
+  }
+  .gateBtn:hover{ background: rgba(31,79,163,0.18); }
+  .gateBtn:active{ transform: scale(0.98); }
 
-.team-viewport{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  border-radius:0;
-}
+  /* ===== Mobile: Bild oben, Tabs, Text ===== */
+  @media (max-width: 980px){
+    .team-scroll{ padding: 14px 14px 18px; }
+    .team-stage{ height:auto; min-height:0; gap: 10px; }
+    .sceneZone{ flex: 0 0 auto; height:auto; overflow:visible; }
+    .selectorZone{ display:none; } /* Tabs wandern in Slide */
+    .team-viewport{ height:auto; border-radius: 16px; }
+    .team-track{ height:auto; }
+    .team-slide{ height:auto; padding: 14px; align-items:stretch; }
 
-.team-track{
-  height:100%;
-  display:flex;
-  width:100%;
-  transform: translateX(0%);
-  transition: transform .55s cubic-bezier(.22,.9,.18,1);
-  will-change: transform;
-}
+    .slide-grid{
+      width:100%;
+      height:auto;
+      flex-direction:column;
+      gap: 12px;
+      align-items:center;
+    }
 
-.team-slide{
-  flex: 0 0 100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: clamp(12px, 2vw, 26px);
-}
+    .portraitWrap{ width: min(260px, 70vw); max-height:none; }
+    .portrait{ box-shadow: 0 18px 44px rgba(0,0,0,0.16); }
 
-.slide-grid{
-  width: min(1200px, 100%);
-  height: 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap: clamp(18px, 3vw, 44px);
-}
+    .mobileTabsSlot{
+      width:100%;
+      display:flex;
+      justify-content:center;
+    }
+    .team-tabs{
+      flex-wrap: wrap;
+      justify-content:center;
+      width:100%;
+    }
 
-/* Inhalt */
-.textPanel{
-  width: var(--text-max-w);
-  max-height: 82%;
-  overflow:hidden;
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: var(--radius);
-  box-shadow: var(--panel-shadow);
-  backdrop-filter: blur(10px);
-  padding: 22px 22px 18px;
-}
-
-.textTitle{
-  margin:0 0 10px 0;
-  font-size: clamp(24px, 2.2vw, 40px);
-  line-height:1.02;
-  letter-spacing:-0.02em;
-  color:#0f172a;
-}
-
-.textBody{
-  font-size: clamp(14px, 1.0vw, 16px);
-  line-height:1.65;
-  color: rgba(15,23,42,0.78);
-  white-space: pre-wrap;
-}
-
-.portraitWrap{
-  width: var(--img-max);
-  max-height: 82%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.portrait{
-  width: 100%;
-  max-width: var(--img-max);
-  aspect-ratio: 1 / 1;
-  border-radius: 999px;
-  overflow:hidden;
-  background: rgba(255,255,255,0.60);
-  border: 1px solid rgba(15,23,42,0.10);
-  box-shadow: 0 22px 60px rgba(0,0,0,0.18);
-}
-
-.team-tabs{
-  display:flex;
-  gap: 12px;
-  align-items:center;
-  justify-content:center;
-}
-
-.team-tab{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.62);
-  border: 1px solid rgba(15,23,42,0.12);
-  cursor:pointer;
-}
-.team-tab.is-active{
-  background: rgba(255,255,255,0.92);
-}
-
-.gateZone{
-  position:absolute;
-  left:50%;
-  bottom: 10px;
-  transform: translateX(-50%);
-  z-index: 5;
-  display:none;
-}
-.gateZone.is-visible{ display:block; }
+    .textPanel{
+      width:100%;
+      max-height:none;
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+    }
+    .textBody{
+      -webkit-line-clamp: 14;
+    }
+  }
 </style>
 
 <script>
-/* === DEIN KOMPLETTES ORIGINAL-JS === */
-(function(){
-  const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
-  const TEAM_MANIFEST_URL = "Team/manifest.json";
+  (function(){
+    const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
+    const TEAM_MANIFEST_URL = "Team/manifest.json";
 
-  const bgEl       = document.getElementById("teamBg");
-  const trackEl    = document.getElementById("teamTrack");
-  const tabsEl     = document.getElementById("teamTabs");
-  const selectorEl = document.getElementById("selectorZone");
-  const scrollEl   = document.getElementById("teamScroll");
-  const gateZone   = document.getElementById("gateZone");
-  const gateBtn    = document.getElementById("gateBtn");
+    const bgEl       = document.getElementById("teamBg");
+    const trackEl    = document.getElementById("teamTrack");
+    const tabsEl     = document.getElementById("teamTabs");
+    const selectorEl = document.getElementById("selectorZone");
+    const scrollEl   = document.getElementById("teamScroll");
+    const gateZone   = document.getElementById("gateZone");
+    const gateBtn    = document.getElementById("gateBtn");
 
-  const mqMobile = window.matchMedia("(max-width: 980px)");
+    const mqMobile = window.matchMedia("(max-width: 980px)");
 
-  let members = [];
-  let active = 0;
+    let members = [];
+    let active = 0;
 
-  function parseFolder(folder){
-    const parts = String(folder).split("_");
-    let pos = null;
-    if (parts.length > 1) {
-      const last = parts[parts.length - 1];
-      const n = Number(last);
-      if (Number.isFinite(n)) { pos = n; parts.pop(); }
-    }
-    const name = parts.join(" ").trim() || folder;
-    return { name, pos };
-  }
+    // Gate / Impuls
+    let downArmed = false;
+    let downCooldown = false;
 
-  function splitFirstSentence(text){
-    const t = (text || "").trim();
-    if (!t) return {
-      first: "Schön, dass du da bist!",
-      rest:  "Wir sind LG Eventverleih – ein kleines, engagiertes Team mit einer großen Leidenschaft für besondere Momente."
-    };
-
-    const nl = t.indexOf("\\n");
-    if (nl > 0){
-      const first = t.slice(0, nl).trim();
-      const rest = t.slice(nl + 1).trim();
-      return { first: first || "Schön, dass du da bist!", rest };
+    function parseFolder(folder){
+      const parts = String(folder).split("_");
+      let pos = null;
+      if (parts.length > 1) {
+        const last = parts[parts.length - 1];
+        const n = Number(last);
+        if (Number.isFinite(n)) { pos = n; parts.pop(); }
+      }
+      const name = parts.join(" ").trim() || folder;
+      return { name, pos };
     }
 
-    const m = t.match(/^[\\s\\S]*?[.!?](?:\\s|$)/);
-    if (m && m[0]){
-      const cut = m[0].length;
-      const first = t.slice(0, cut).trim();
-      const rest = t.slice(cut).trim();
-      return { first: first || "Schön, dass du da bist!", rest };
+    function splitFirstSentence(text){
+      const t = (text || "").trim();
+      if (!t) return {
+        first: "Schön, dass du da bist!",
+        rest:  "Wir sind LG Eventverleih – ein kleines, engagiertes Team mit einer großen Leidenschaft für besondere Momente."
+      };
+
+      const nl = t.indexOf("\n");
+      if (nl > 0){
+        const first = t.slice(0, nl).trim();
+        const rest = t.slice(nl + 1).trim();
+        return { first: first || "Schön, dass du da bist!", rest };
+      }
+
+      const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
+      if (m && m[0]){
+        const cut = m[0].length;
+        const first = t.slice(0, cut).trim();
+        const rest = t.slice(cut).trim();
+        return { first: first || "Schön, dass du da bist!", rest };
+      }
+
+      return { first: t, rest: "" };
     }
 
-    return { first: t, rest: "" };
-  }
+    async function fetchJson(url){
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error("Fetch failed: " + url);
+      return await r.json();
+    }
 
-  async function fetchJson(url){
-    const r = await fetch(url, { cache: "no-store" });
-    if (!r.ok) throw new Error("Fetch failed: " + url);
-    return await r.json();
-  }
+    async function fetchText(url){
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error("Fetch failed: " + url);
+      return await r.text();
+    }
 
-  async function fetchText(url){
-    const r = await fetch(url, { cache: "no-store" });
-    if (!r.ok) throw new Error("Fetch failed: " + url);
-    return await r.text();
-  }
+    function setRandomBackground(list){
+      if (!Array.isArray(list) || list.length === 0) return;
+      const pick = list[Math.floor(Math.random() * list.length)];
+      bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
+    }
 
-  function setRandomBackground(list){
-    if (!Array.isArray(list) || list.length === 0) return;
-    const pick = list[Math.floor(Math.random() * list.length)];
-    bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
-  }
+    function isScrollable(){ return scrollEl.scrollHeight > scrollEl.clientHeight + 1; }
+    function atBottom(){ return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1; }
 
-  function isScrollable(){ return scrollEl.scrollHeight > scrollEl.clientHeight + 1; }
-  function atBottom(){ return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1; }
-
-  function updateGateVisibility(){
-    if (!gateZone) return;
-    const show = isScrollable() && atBottom();
-    gateZone.classList.toggle("is-visible", !!show);
-  }
-
-  function bindGate(){
-    if (!gateBtn) return;
-    gateBtn.addEventListener("click", () => {
+    function triggerDown(){
+      if (downCooldown) return;
+      downCooldown = true;
       if (typeof window.goShop === "function") window.goShop();
-    });
-  }
-
-  function placeTabs(){
-    const isMobile = mqMobile.matches;
-    const slides = trackEl.querySelectorAll(".team-slide");
-    const current = slides[active];
-    if (!current) return;
-
-    const slot = current.querySelector(".mobileTabsSlot");
-    if (isMobile){
-      if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
-    }else{
-      if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
+      setTimeout(() => { downCooldown = false; }, 500);
     }
-  }
 
-  function setActive(idx){
-    active = idx;
-    trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
+    function updateGateVisibility(){
+      if (!gateZone) return;
+      const show = isScrollable() && atBottom();
+      gateZone.classList.toggle("is-visible", !!show);
+    }
 
-    tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
-    const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
-    if (btn) btn.classList.add("is-active");
+    function bindGateLogic(){
+      if (gateBtn) gateBtn.addEventListener("click", () => triggerDown());
 
-    placeTabs();
-    updateGateVisibility();
-  }
+      scrollEl.addEventListener("scroll", () => {
+        downArmed = isScrollable() && atBottom();
+        updateGateVisibility();
+      }, { passive:true });
 
-  function makeSlide(member){
-    const slide = document.createElement("div");
-    slide.className = "team-slide";
+      scrollEl.addEventListener("wheel", (e) => {
+        const down = e.deltaY > 0;
 
-    const grid = document.createElement("div");
-    grid.className = "slide-grid";
+        if (!isScrollable()){
+          if (down){ e.preventDefault(); triggerDown(); }
+          return;
+        }
 
-    const textPanel = document.createElement("div");
-    textPanel.className = "textPanel";
+        if (down && atBottom()){
+          if (downArmed){
+            e.preventDefault();
+            triggerDown();
+          }else{
+            downArmed = true;
+          }
+        }
+      }, { passive:false });
+    }
 
-    const title = document.createElement("h1");
-    title.className = "textTitle";
+    function placeTabs(){
+      const isMobile = mqMobile.matches;
+      const slides = trackEl.querySelectorAll(".team-slide");
+      const current = slides[active];
+      if (!current) return;
 
-    const body = document.createElement("div");
-    body.className = "textBody";
+      const slot = current.querySelector(".mobileTabsSlot");
+      if (isMobile){
+        if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
+      }else{
+        if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
+      }
+    }
 
-    const { first, rest } = splitFirstSentence(member.text);
-    title.textContent = first || "Schön, dass du da bist!";
-    body.textContent = (rest && rest.trim().length)
-      ? rest
-      : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
+    function setActive(idx){
+      active = idx;
+      trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
 
-    const portraitWrap = document.createElement("div");
-    portraitWrap.className = "portraitWrap";
+      tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
+      const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
+      if (btn) btn.classList.add("is-active");
 
-    const portrait = document.createElement("div");
-    portrait.className = "portrait";
+      placeTabs();
+      downArmed = false;
+      downCooldown = false;
+      updateGateVisibility();
+    }
 
-    const img = document.createElement("img");
-    img.loading = "lazy";
-    img.src = member.img;
-    img.alt = member.name;
-    img.onerror = () => { img.removeAttribute("src"); img.alt = ""; };
+    function makeSlide(member){
+      const slide = document.createElement("div");
+      slide.className = "team-slide";
 
-    portrait.appendChild(img);
-    portraitWrap.appendChild(portrait);
+      const grid = document.createElement("div");
+      grid.className = "slide-grid";
 
-    const mobileTabsSlot = document.createElement("div");
-    mobileTabsSlot.className = "mobileTabsSlot";
-    mobileTabsSlot.setAttribute("aria-hidden","true");
+      const textPanel = document.createElement("div");
+      textPanel.className = "textPanel";
 
-    textPanel.appendChild(title);
-    textPanel.appendChild(body);
+      const title = document.createElement("h1");
+      title.className = "textTitle";
 
-    grid.appendChild(textPanel);
-    grid.appendChild(portraitWrap);
-    grid.appendChild(mobileTabsSlot);
+      const body = document.createElement("div");
+      body.className = "textBody";
 
-    slide.appendChild(grid);
-    return slide;
-  }
+      const { first, rest } = splitFirstSentence(member.text);
+      title.textContent = first || "Schön, dass du da bist!";
+      body.textContent = (rest && rest.trim().length)
+        ? rest
+        : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
 
-  function makeTab(member, idx){
-    const btn = document.createElement("div");
-    btn.className = "team-tab";
-    btn.tabIndex = 0;
-    btn.setAttribute("role", "button");
-    btn.dataset.index = String(idx);
-    btn.setAttribute("aria-label", "Teammitglied: " + member.name);
+      const portraitWrap = document.createElement("div");
+      portraitWrap.className = "portraitWrap";
 
-    const av = document.createElement("div");
-    av.className = "team-tab__avatar";
+      const portrait = document.createElement("div");
+      portrait.className = "portrait";
 
-    const img = document.createElement("img");
-    img.loading = "lazy";
-    img.src = member.img;
-    img.alt = member.name;
-    img.onerror = () => {
-      av.innerHTML = "";
-      const fb = document.createElement("div");
-      fb.style.width="100%"; fb.style.height="100%";
-      fb.style.display="grid"; fb.style.placeItems="center";
-      fb.style.fontWeight="900";
-      fb.style.color="rgba(15,23,42,0.65)";
-      fb.style.background="#e9eef7";
-      fb.textContent = member.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
-      av.appendChild(fb);
-    };
-    av.appendChild(img);
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.src = member.img;
+      img.alt = member.name;
+      img.onerror = () => { img.removeAttribute("src"); img.alt = ""; };
 
-    const name = document.createElement("div");
-    name.className = "team-tab__name";
-    name.textContent = member.name;
+      portrait.appendChild(img);
+      portraitWrap.appendChild(portrait);
 
-    btn.appendChild(av);
-    btn.appendChild(name);
+      const mobileTabsSlot = document.createElement("div");
+      mobileTabsSlot.className = "mobileTabsSlot";
+      mobileTabsSlot.setAttribute("aria-hidden","true");
 
-    const open = () => setActive(idx);
-    btn.addEventListener("click", open);
-    btn.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
-    });
+      textPanel.appendChild(title);
+      textPanel.appendChild(body);
 
-    return btn;
-  }
+      // Desktop: Text + Bild nebeneinander (separate Container)
+      // Mobile: Bild, Tabs, Text (per CSS Flex-Column + placeTabs())
+      grid.appendChild(textPanel);
+      grid.appendChild(portraitWrap);
+      grid.appendChild(mobileTabsSlot);
 
-  async function load(){
-    try{
-      const bg = await fetchJson(BG_MANIFEST_URL);
-      setRandomBackground(bg);
-    }catch(e){}
+      slide.appendChild(grid);
+      return slide;
+    }
 
-    const manifest = await fetchJson(TEAM_MANIFEST_URL);
-    const folders = (manifest && Array.isArray(manifest.members))
-      ? manifest.members.map(m => m.folder).filter(Boolean)
-      : [];
+    function makeTab(member, idx){
+      const btn = document.createElement("div");
+      btn.className = "team-tab";
+      btn.tabIndex = 0;
+      btn.setAttribute("role", "button");
+      btn.dataset.index = String(idx);
+      btn.setAttribute("aria-label", "Teammitglied: " + member.name);
 
-    members = await Promise.all(folders.map(async (folder) => {
-      const meta = parseFolder(folder);
-      const base = "Team/" + folder + "/";
-      const img  = base + "image.png";
-      const txt  = base + "team.txt";
-      let text = "";
-      try{ text = await fetchText(txt); }catch(e){ text = ""; }
-      return { folder, name: meta.name, pos: meta.pos, img, text };
-    }));
+      const av = document.createElement("div");
+      av.className = "team-tab__avatar";
 
-    members.sort((a,b) => {
-      const ap = (a.pos == null) ? 9999 : a.pos;
-      const bp = (b.pos == null) ? 9999 : b.pos;
-      if (ap !== bp) return ap - bp;
-      return a.name.localeCompare(b.name, "de");
-    });
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.src = member.img;
+      img.alt = member.name;
+      img.onerror = () => {
+        av.innerHTML = "";
+        const fb = document.createElement("div");
+        fb.style.width="100%"; fb.style.height="100%";
+        fb.style.display="grid"; fb.style.placeItems="center";
+        fb.style.fontWeight="900";
+        fb.style.color="rgba(15,23,42,0.65)";
+        fb.style.background="#e9eef7";
+        fb.textContent = member.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+        av.appendChild(fb);
+      };
+      av.appendChild(img);
 
-    trackEl.innerHTML = "";
-    tabsEl.innerHTML = "";
+      const name = document.createElement("div");
+      name.className = "team-tab__name";
+      name.textContent = member.name;
 
-    members.forEach((m, i) => {
-      trackEl.appendChild(makeSlide(m));
-      tabsEl.appendChild(makeTab(m, i));
-    });
+      btn.appendChild(av);
+      btn.appendChild(name);
 
-    mqMobile.addEventListener?.("change", () => placeTabs());
+      const open = () => setActive(idx);
+      btn.addEventListener("click", open);
+      btn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+      });
 
-    if (members.length) setActive(0);
-    placeTabs();
-    updateGateVisibility();
+      btn.style.opacity = "0";
+      btn.style.transform = "translateX(18px)";
+      requestAnimationFrame(() => {
+        btn.style.transition = "opacity .28s ease, transform .28s ease";
+        btn.style.transitionDelay = (idx * 45) + "ms";
+        btn.style.opacity = "1";
+        btn.style.transform = "translateX(0)";
+      });
 
-    scrollEl.addEventListener("scroll", updateGateVisibility, { passive:true });
-  }
+      return btn;
+    }
 
-  bindGate();
-  load().catch(() => {});
-})();
+    async function load(){
+      try{
+        const bg = await fetchJson(BG_MANIFEST_URL);
+        setRandomBackground(bg);
+      }catch(e){}
+
+      const manifest = await fetchJson(TEAM_MANIFEST_URL);
+      const folders = (manifest && Array.isArray(manifest.members))
+        ? manifest.members.map(m => m.folder).filter(Boolean)
+        : [];
+
+      members = await Promise.all(folders.map(async (folder) => {
+        const meta = parseFolder(folder);
+        const base = "Team/" + folder + "/";
+        const img  = base + "image.png";
+        const txt  = base + "team.txt";
+        let text = "";
+        try{ text = await fetchText(txt); }catch(e){ text = ""; }
+        return { folder, name: meta.name, pos: meta.pos, img, text };
+      }));
+
+      members.sort((a,b) => {
+        const ap = (a.pos == null) ? 9999 : a.pos;
+        const bp = (b.pos == null) ? 9999 : b.pos;
+        if (ap !== bp) return ap - bp;
+        return a.name.localeCompare(b.name, "de");
+      });
+
+      trackEl.innerHTML = "";
+      tabsEl.innerHTML = "";
+
+      members.forEach((m, i) => {
+        trackEl.appendChild(makeSlide(m));
+        tabsEl.appendChild(makeTab(m, i));
+      });
+
+      mqMobile.addEventListener?.("change", () => placeTabs());
+
+      if (members.length) setActive(0);
+      placeTabs();
+      updateGateVisibility();
+    }
+
+    bindGateLogic();
+    load().catch(() => {});
+  })();
 </script>
