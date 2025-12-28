@@ -1,596 +1,434 @@
-<!-- backend/head.html (clean, V9-inspiriert, minimal) -->
-<section class="lg-hero" aria-label="Hero">
-  <style>
-    :root{
-      --hero-radius: 22px;
-      --hero-shadow: 0 18px 55px rgba(0,0,0,.12);
-      --hero-pad: 54px;
-      --hero-max: 1180px;
-      --ink: #0f172a;
-      --muted: rgba(15,23,42,.72);
-      --chip: rgba(255,255,255,.72);
-      --glass: rgba(255,255,255,.58);
-      --glass-strong: rgba(255,255,255,.72);
-      --line: rgba(15,23,42,.10);
-    }
+<!-- backend/head.html -->
+<section class="lg-head" aria-label="Team">
+  <div class="lg-head__inner">
+    <!-- Left: ruhiger Textbereich (kein Branding-Block, kein Button) -->
+    <div class="lg-head__left">
+      <h1 class="lg-head__title">Persönlich. Zuverlässig. Unkompliziert.</h1>
+      <p class="lg-head__lead">
+        Wir kümmern uns um die Details, damit euer Event entspannt bleibt.
+        Von der Beratung bis zur Abholung: klar, schnell und mit einem Auge fürs Schöne.
+      </p>
+      <p class="lg-head__hint">Lernt unser Team kennen.</p>
 
-    .lg-hero{
-      width:100%;
-      padding: 40px 0 0;
-    }
-
-    .lg-hero .wrap{
-      width: min(var(--hero-max), calc(100% - 2*var(--edge-left, 72px)));
-      margin: 0 auto;
-    }
-
-    .hero-card{
-      position: relative;
-      border-radius: var(--hero-radius);
-      overflow: hidden;
-      box-shadow: var(--hero-shadow);
-      min-height: 420px;
-      background: #e5e7eb;
-      isolation:isolate;
-    }
-
-    .hero-bg{
-      position:absolute; inset:0;
-      background-size: cover;
-      background-position: center;
-      filter: saturate(1.02) contrast(1.02);
-      transform: scale(1.02);
-    }
-    .hero-vignette{
-      position:absolute; inset:0;
-      background:
-        radial-gradient(1200px 520px at 18% 62%, rgba(255,255,255,.92), rgba(255,255,255,.62) 52%, rgba(255,255,255,.18) 78%, rgba(0,0,0,.00) 100%),
-        linear-gradient(90deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.60) 44%, rgba(0,0,0,.00) 78%);
-      pointer-events:none;
-    }
-
-    .hero-inner{
-      position: relative;
-      z-index: 2;
-      padding: var(--hero-pad);
-      display:grid;
-      grid-template-columns: 1.05fr .95fr;
-      gap: 32px;
-      align-items: end;
-      min-height: 420px;
-    }
-
-    .brand-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: var(--chip);
-      border: 1px solid rgba(255,255,255,.55);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      font: 600 13px/1.1 var(--font-base, system-ui);
-      color: var(--ink);
-      width: fit-content;
-    }
-    .dot{
-      width: 10px; height:10px; border-radius:50%;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34,197,94,.18);
-    }
-
-    .hero-title{
-      margin: 16px 0 10px;
-      font-size: clamp(40px, 5.2vw, 64px);
-      line-height: .98;
-      letter-spacing: -0.02em;
-      color: var(--ink);
-      font-family: ui-serif, Georgia, "Times New Roman", serif;
-    }
-    .hero-sub{
-      margin: 0;
-      max-width: 44ch;
-      color: var(--muted);
-      font: 500 16px/1.45 var(--font-base, system-ui);
-    }
-
-    .cta-row{
-      display:flex;
-      gap: 12px;
-      align-items:center;
-      margin-top: 22px;
-    }
-    .btn-primary{
-      appearance:none;
-      border:0;
-      background: #0f172a;
-      color:#fff;
-      font: 700 14px/1 var(--font-base, system-ui);
-      padding: 12px 16px;
-      border-radius: 999px;
-      cursor:pointer;
-      display:inline-flex;
-      gap:10px;
-      align-items:center;
-      box-shadow: 0 10px 22px rgba(15,23,42,.18);
-    }
-    .btn-primary:active{ transform: translateY(1px); }
-
-    .muted-link{
-      font: 600 13px/1 var(--font-base, system-ui);
-      color: rgba(15,23,42,.72);
-      text-decoration: none;
-      padding: 10px 10px;
-      border-radius: 999px;
-    }
-    .muted-link:hover{ background: rgba(255,255,255,.55); }
-
-    /* Right column: Team (clean strip) */
-    .team-panel{
-      background: var(--glass);
-      border: 1px solid rgba(255,255,255,.55);
-      border-radius: 18px;
-      padding: 14px 14px 12px;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .team-head{
-      display:flex;
-      align-items:baseline;
-      justify-content: space-between;
-      padding: 2px 2px 10px;
-    }
-    .team-head h3{
-      margin:0;
-      font: 800 14px/1 var(--font-base, system-ui);
-      color: var(--ink);
-      letter-spacing: .01em;
-    }
-    .team-head .hint{
-      font: 600 12px/1 var(--font-base, system-ui);
-      color: rgba(15,23,42,.55);
-    }
-
-    .team-strip{
-      display:flex;
-      gap: 10px;
-      overflow:auto;
-      padding: 2px;
-      scrollbar-width: none;
-    }
-    .team-strip::-webkit-scrollbar{ display:none; }
-
-    .tm{
-      min-width: 160px;
-      max-width: 200px;
-      background: rgba(255,255,255,.72);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px;
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      cursor:pointer;
-      user-select:none;
-      transition: transform .15s ease, box-shadow .15s ease;
-    }
-    .tm:hover{
-      transform: translateY(-1px);
-      box-shadow: 0 12px 28px rgba(0,0,0,.10);
-    }
-    .avatar{
-      width: 44px; height:44px;
-      border-radius: 12px;
-      background: #e5e7eb;
-      overflow:hidden;
-      flex: 0 0 auto;
-      border: 1px solid rgba(0,0,0,.06);
-    }
-    .avatar img{
-      width:100%; height:100%;
-      object-fit: cover;
-      display:block;
-    }
-    .tm .meta{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-      gap: 4px;
-    }
-    .tm .name{
-      font: 800 13px/1.1 var(--font-base, system-ui);
-      color: var(--ink);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .tm .role{
-      font: 600 12px/1.1 var(--font-base, system-ui);
-      color: rgba(15,23,42,.55);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* Modal */
-    .lg-modal{
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,.42);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index: 9999;
-      padding: 18px;
-    }
-    .lg-modal.open{ display:flex; }
-    .lg-modal .box{
-      width: min(720px, 100%);
-      background: rgba(255,255,255,.92);
-      border: 1px solid rgba(255,255,255,.65);
-      border-radius: 18px;
-      box-shadow: 0 28px 70px rgba(0,0,0,.22);
-      overflow:hidden;
-    }
-    .lg-modal .box .top{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(15,23,42,.08);
-    }
-    .lg-modal .box .top .ttl{
-      font: 900 14px/1 var(--font-base, system-ui);
-      color: var(--ink);
-    }
-    .lg-modal .close{
-      appearance:none;
-      border: 1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.8);
-      border-radius: 12px;
-      padding: 8px 10px;
-      cursor:pointer;
-      font: 800 12px/1 var(--font-base, system-ui);
-    }
-    .lg-modal .body{
-      display:grid;
-      grid-template-columns: 220px 1fr;
-      gap: 16px;
-      padding: 16px;
-    }
-    .lg-modal .photo{
-      width: 100%;
-      border-radius: 14px;
-      background:#e5e7eb;
-      overflow:hidden;
-      border: 1px solid rgba(0,0,0,.06);
-      aspect-ratio: 4 / 5;
-    }
-    .lg-modal .photo img{ width:100%; height:100%; object-fit: cover; display:block; }
-    .lg-modal .text{
-      color: rgba(15,23,42,.78);
-      font: 500 14px/1.6 var(--font-base, system-ui);
-      white-space: pre-wrap;
-    }
-
-    @media (max-width: 980px){
-      .hero-inner{
-        grid-template-columns: 1fr;
-        align-items:start;
-        min-height: 520px;
-      }
-      .team-panel{ margin-top: 10px; }
-      .lg-modal .body{ grid-template-columns: 1fr; }
-      .lg-modal .photo{ max-width: 320px; }
-    }
-
-    @media (max-width: 640px){
-      .lg-hero .wrap{ width: calc(100% - 24px); }
-      .hero-inner{ padding: 28px; }
-      .hero-title{ font-size: 44px; }
-      .tm{ min-width: 150px; }
-    }
-  </style>
-
-  <div class="wrap">
-    <div class="hero-card" id="heroCard">
-      <div class="hero-bg" id="heroBg"></div>
-      <div class="hero-vignette"></div>
-
-      <div class="hero-inner">
-        <div>
-          <div class="brand-pill"><span class="dot"></span> LG Eventverleih</div>
-          <h1 class="hero-title">Feiern leicht gemacht.</h1>
-          <p class="hero-sub">Moderne Ausstattung, saubere Abwicklung und zuverlässiger Aufbau – damit du dich um das Wichtigste kümmern kannst.</p>
-
-          <div class="cta-row">
-            <button class="btn-primary" type="button" data-scroll="shop" aria-label="Zum Shop">
-              <span>Zum Shop</span>
-              <span aria-hidden="true">→</span>
-            </button>
-            <a class="muted-link" href="#" id="mixBtn" aria-label="Neu mischen">Neu mischen</a>
+      <!-- Detail-Panel (öffnet beim Klick auf Team-Mitglied) -->
+      <div class="lg-head__detail" id="teamDetail" hidden>
+        <div class="lg-head__detailHead">
+          <div class="lg-head__detailAvatarWrap">
+            <img id="teamDetailImg" class="lg-head__detailAvatar" alt="" />
+          </div>
+          <div class="lg-head__detailMeta">
+            <div id="teamDetailName" class="lg-head__detailName"></div>
+            <div id="teamDetailPos" class="lg-head__detailPos"></div>
           </div>
         </div>
+        <div id="teamDetailText" class="lg-head__detailText"></div>
+      </div>
+    </div>
 
-        <aside class="team-panel" aria-label="Team">
-          <div class="team-head">
-            <h3>Unser Team</h3>
-            <div class="hint">Klick für Details</div>
-          </div>
-          <div class="team-strip" id="teamStrip" role="list">
-            <div class="tm" style="opacity:.6; cursor:default">
-              <div class="avatar"></div>
-              <div class="meta">
-                <div class="name">Lädt…</div>
-                <div class="role">Team</div>
-              </div>
-            </div>
-          </div>
-        </aside>
+    <!-- Right: Team Grid -->
+    <div class="lg-head__right" aria-label="Team-Mitglieder">
+      <div class="lg-head__grid" id="teamGrid">
+        <!-- Cards werden per JS geladen -->
+      </div>
+
+      <!-- Fallback -->
+      <div class="lg-head__empty" id="teamEmpty" hidden>
+        Team-Daten konnten nicht geladen werden.
       </div>
     </div>
   </div>
-
-  <div class="lg-modal" id="teamModal" aria-hidden="true">
-    <div class="box" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
-      <div class="top">
-        <div class="ttl" id="teamModalTitle">Teammitglied</div>
-        <button class="close" type="button" id="teamModalClose">Schließen</button>
-      </div>
-      <div class="body">
-        <div class="photo"><img id="teamModalImg" alt="" /></div>
-        <div class="text" id="teamModalText"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    (function(){
-      const cacheBust = () => (Date.now().toString(36));
-
-      function basePath(){
-        // Works on GitHub Pages and locally via http(s). Opening as file:// will not allow fetch.
-        const p = (location.pathname || "/");
-        const segs = p.split("/").filter(Boolean);
-        // If project pages: /<repo>/...
-        return segs.length ? ("/" + segs[0] + "/") : "/";
-      }
-
-      async function fetchJsonSmart(urls){
-        let lastErr;
-        for(const u of urls){
-          try{
-            const r = await fetch(u, { cache: "no-store" });
-            if(!r.ok) throw new Error(r.status + " " + r.statusText);
-            return await r.json();
-          }catch(e){ lastErr = e; }
-        }
-        throw lastErr || new Error("fetch failed");
-      }
-
-      async function fetchTextSmart(urls){
-        let lastErr;
-        for(const u of urls){
-          try{
-            const r = await fetch(u, { cache: "no-store" });
-            if(!r.ok) throw new Error(r.status + " " + r.statusText);
-            return await r.text();
-          }catch(e){ lastErr = e; }
-        }
-        throw lastErr || new Error("fetch failed");
-      }
-
-      function pick(arr, n){
-        const a = (arr||[]).slice();
-        for(let i=a.length-1;i>0;i--){
-          const j = Math.floor(Math.random()*(i+1));
-          [a[i],a[j]]=[a[j],a[i]];
-        }
-        return a.slice(0, n);
-      }
-
-      function inferIndexFromFolder(name){
-        // prefer _<number> at end (Lisa_2, Kevin_3)
-        const m = String(name).match(/(\d+)\s*$/) || String(name).match(/_(\d+)\s*$/);
-        return m ? parseInt(m[1] || m[0], 10) : null;
-      }
-
-      function sortedMembers(members){
-        const withIdx = members.map(m => {
-          const idx = inferIndexFromFolder(m.folder);
-          return { ...m, _idx: (Number.isFinite(idx) ? idx : 9999) };
-        });
-        withIdx.sort((a,b)=> (a._idx - b._idx) || String(a.folder).localeCompare(String(b.folder)));
-        return withIdx;
-      }
-
-      function setHeroBg(bgFile){
-        const el = document.getElementById("heroBg");
-        if(!el) return;
-        el.style.backgroundImage = `url("${bgFile}")`;
-      }
-
-      async function loadBackground(){
-        const bust = cacheBust();
-        const base = basePath();
-        const urls = [
-          `${base}image/hintergrund/manifest.json?cb=${bust}`,
-          `image/hintergrund/manifest.json?cb=${bust}`,
-          `/image/hintergrund/manifest.json?cb=${bust}`
-        ];
-        const list = await fetchJsonSmart(urls);
-        const file = (list && list.length) ? list[Math.floor(Math.random()*list.length)] : null;
-        if(!file) return;
-        // background manifest contains filenames only
-        const bg = `${base}image/hintergrund/${file}`;
-        setHeroBg(bg);
-      }
-
-      function buildTeamCard({title, subtitle, imgSrc, text}){
-        const card = document.createElement("div");
-        card.className = "tm";
-        card.setAttribute("role", "listitem");
-
-        const av = document.createElement("div");
-        av.className = "avatar";
-        const img = document.createElement("img");
-        img.src = imgSrc;
-        img.alt = title;
-        img.loading = "lazy";
-        img.onerror = () => { av.innerHTML = ""; av.style.background = "#e5e7eb"; };
-        av.appendChild(img);
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        const nm = document.createElement("div");
-        nm.className = "name";
-        nm.textContent = title;
-        const rl = document.createElement("div");
-        rl.className = "role";
-        rl.textContent = subtitle;
-        meta.append(nm, rl);
-
-        card.append(av, meta);
-
-        card.addEventListener("click", () => openModal(title, imgSrc, text));
-        return card;
-      }
-
-      function openModal(title, imgSrc, text){
-        const m = document.getElementById("teamModal");
-        const t = document.getElementById("teamModalTitle");
-        const img = document.getElementById("teamModalImg");
-        const tx = document.getElementById("teamModalText");
-        if(!m||!t||!img||!tx) return;
-        t.textContent = title;
-        img.src = imgSrc;
-        img.alt = title;
-        tx.textContent = (text || "").trim() || "—";
-        m.classList.add("open");
-        m.setAttribute("aria-hidden","false");
-      }
-
-      function closeModal(){
-        const m = document.getElementById("teamModal");
-        if(!m) return;
-        m.classList.remove("open");
-        m.setAttribute("aria-hidden","true");
-      }
-
-      async function loadTeam(){
-        const strip = document.getElementById("teamStrip");
-        if(!strip) return;
-
-        // Important: fetch does not work from file://
-        if(location.protocol === "file:"){
-          strip.innerHTML = "";
-          const warn = document.createElement("div");
-          warn.className = "tm";
-          warn.style.cursor = "default";
-          warn.style.opacity = ".75";
-          warn.innerHTML = '<div class="meta"><div class="name">Team lädt hier nicht</div><div class="role">Bitte über GitHub-URL testen</div></div>';
-          strip.appendChild(warn);
-          return;
-        }
-
-        const bust = cacheBust();
-        const base = basePath();
-        const manUrls = [
-          `${base}Team/manifest.json?cb=${bust}`,
-          `Team/manifest.json?cb=${bust}`,
-          `/Team/manifest.json?cb=${bust}`
-        ];
-
-        const manifest = await fetchJsonSmart(manUrls);
-        const membersRaw = (manifest && manifest.members) ? manifest.members : [];
-        const members = sortedMembers(membersRaw);
-
-        strip.innerHTML = "";
-
-        for(let i=0;i<members.length;i++){
-          const folder = members[i].folder;
-          const pos = (Number.isFinite(members[i]._idx) && members[i]._idx !== 9999) ? members[i]._idx : (i+1);
-
-          // Your structure: Team/<folder>/image.png + team.txt
-          const imgUrls = [
-            `${base}Team/${folder}/image.png?cb=${bust}`,
-            `${base}Team/${folder}/image.jpg?cb=${bust}`,
-            `${base}Team/${folder}/image.jpeg?cb=${bust}`,
-            `${base}Team/${folder}/portrait.jpg?cb=${bust}`
-          ];
-          const txtUrls = [
-            `${base}Team/${folder}/team.txt?cb=${bust}`
-          ];
-
-          // image: just take first, browser will 404 fallback visually via onerror
-          const imgSrc = imgUrls[0];
-
-          let txt = "";
-          try{
-            txt = await fetchTextSmart(txtUrls);
-          }catch(e){
-            txt = "";
-          }
-
-          const title = `Teammitglied ${pos}`;
-          const subtitle = folder.replace(/[_-]\d+$/,"").replace(/_/g," ");
-          strip.appendChild(buildTeamCard({ title, subtitle, imgSrc, text: txt }));
-        }
-
-        if(!members.length){
-          const empty = document.createElement("div");
-          empty.className = "tm";
-          empty.style.cursor = "default";
-          empty.style.opacity = ".75";
-          empty.innerHTML = '<div class="meta"><div class="name">Kein Team gefunden</div><div class="role">Team/manifest.json ist leer</div></div>';
-          strip.appendChild(empty);
-        }
-      }
-
-      function bindScrollButtons(){
-        document.querySelectorAll('[data-scroll="shop"]').forEach(btn=>{
-          btn.addEventListener("click", (e)=>{
-            e.preventDefault();
-            const shop = document.getElementById("shop");
-            if(shop) shop.scrollIntoView({ behavior:"smooth", block:"start" });
-          });
-        });
-
-        const mix = document.getElementById("mixBtn");
-        if(mix){
-          mix.addEventListener("click", async (e)=>{
-            e.preventDefault();
-            try{
-              await loadBackground();
-              await loadTeam();
-            }catch(_){}
-          });
-        }
-      }
-
-      function bindModal(){
-        const m = document.getElementById("teamModal");
-        const c = document.getElementById("teamModalClose");
-        if(c) c.addEventListener("click", closeModal);
-        if(m){
-          m.addEventListener("click", (e)=>{
-            if(e.target === m) closeModal();
-          });
-        }
-        window.addEventListener("keydown", (e)=>{
-          if(e.key === "Escape") closeModal();
-        });
-      }
-
-      async function init(){
-        bindScrollButtons();
-        bindModal();
-        try{ await loadBackground(); }catch(_){}
-        try{ await loadTeam(); }catch(_){}
-      }
-
-      init();
-    })();
-  </script>
 </section>
+
+<style>
+  /* ===== Head Layout (modern, schlicht, stilvoll) ===== */
+  .lg-head{
+    width:100%;
+    min-height:100%;
+    display:flex;
+    align-items:stretch;
+  }
+
+  .lg-head__inner{
+    width:100%;
+    height:100%;
+    display:grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: clamp(18px, 3vw, 40px);
+    padding: clamp(18px, 3.2vw, 44px);
+    border-radius: var(--radius, 14px);
+    background: var(--card, #f8f9fb);
+    box-shadow: var(--shadow, 0 10px 28px rgba(0,0,0,.08));
+    overflow:hidden;
+  }
+
+  .lg-head__left{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap: 14px;
+    padding: clamp(8px, 1.5vw, 18px);
+  }
+
+  .lg-head__title{
+    margin:0;
+    font-size: clamp(26px, 3.2vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text, #0f172a);
+  }
+
+  .lg-head__lead{
+    margin:0;
+    font-size: clamp(14px, 1.1vw, 16px);
+    line-height: 1.55;
+    color: rgba(15, 23, 42, 0.78);
+    max-width: 48ch;
+  }
+
+  .lg-head__hint{
+    margin: 2px 0 0 0;
+    font-size: 13px;
+    color: rgba(15, 23, 42, 0.55);
+  }
+
+  /* Detail Panel (links) */
+  .lg-head__detail{
+    margin-top: 12px;
+    padding: 16px 16px 14px;
+    border-radius: calc(var(--radius, 14px) - 2px);
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(15,23,42,0.06);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.06);
+    backdrop-filter: blur(10px);
+  }
+
+  .lg-head__detailHead{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .lg-head__detailAvatarWrap{
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    overflow:hidden;
+    background:#e9eef7;
+    flex: 0 0 auto;
+  }
+
+  .lg-head__detailAvatar{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .lg-head__detailMeta{
+    display:flex;
+    flex-direction:column;
+    gap: 2px;
+    min-width:0;
+  }
+
+  .lg-head__detailName{
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    letter-spacing: -0.01em;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .lg-head__detailPos{
+    font-size: 12px;
+    color: rgba(15,23,42,0.55);
+  }
+
+  .lg-head__detailText{
+    font-size: 13px;
+    line-height: 1.6;
+    color: rgba(15, 23, 42, 0.78);
+    white-space: pre-wrap;
+  }
+
+  .lg-head__right{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-width:0;
+  }
+
+  .lg-head__grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    max-height: 72vh;          /* bleibt im Head */
+    overflow:auto;             /* mehr Team-Mitglieder ohne Buttons */
+    padding-right: 6px;        /* Platz für Scrollbar */
+  }
+
+  .lg-head__grid::-webkit-scrollbar{ width: 10px; }
+  .lg-head__grid::-webkit-scrollbar-track{ background: transparent; }
+  .lg-head__grid::-webkit-scrollbar-thumb{
+    background: rgba(15,23,42,0.12);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .team-card{
+    display:flex;
+    gap: 10px;
+    align-items:center;
+    padding: 12px;
+    border-radius: calc(var(--radius, 14px) - 2px);
+    background: rgba(255,255,255,0.78);
+    border: 1px solid rgba(15,23,42,0.06);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.05);
+    cursor:pointer;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    min-width:0;
+  }
+
+  .team-card:hover{
+    transform: translateY(-2px);
+    border-color: rgba(31,79,163,0.18);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.08);
+  }
+
+  .team-card__avatar{
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    overflow:hidden;
+    background:#e9eef7;
+    flex: 0 0 auto;
+  }
+
+  .team-card__avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .team-card__body{
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    gap: 3px;
+  }
+
+  .team-card__name{
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .team-card__snippet{
+    font-size: 12px;
+    line-height: 1.35;
+    color: rgba(15,23,42,0.62);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow:hidden;
+  }
+
+  .lg-head__empty{
+    padding: 14px;
+    border-radius: calc(var(--radius, 14px) - 2px);
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(15,23,42,0.06);
+    color: rgba(15,23,42,0.7);
+    font-size: 13px;
+  }
+
+  /* Responsive */
+  @media (max-width: 980px){
+    .lg-head__inner{
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .lg-head__grid{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-height: 46vh;
+    }
+  }
+
+  @media (max-width: 560px){
+    .lg-head__grid{ grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  (function(){
+    const MANIFEST_URL = "Team/manifest.json";
+
+    const grid = document.getElementById("teamGrid");
+    const empty = document.getElementById("teamEmpty");
+
+    const detailWrap = document.getElementById("teamDetail");
+    const detailImg  = document.getElementById("teamDetailImg");
+    const detailName = document.getElementById("teamDetailName");
+    const detailPos  = document.getElementById("teamDetailPos");
+    const detailText = document.getElementById("teamDetailText");
+
+    function parseFolder(folder){
+      // Erwartet: Name_Position (Position optional)
+      const parts = String(folder).split("_");
+      let pos = null;
+
+      if (parts.length > 1) {
+        const last = parts[parts.length - 1];
+        const n = Number(last);
+        if (Number.isFinite(n)) {
+          pos = n;
+          parts.pop();
+        }
+      }
+
+      const name = parts.join(" ").trim() || folder;
+      return { name, pos };
+    }
+
+    function snippetFromText(txt){
+      const s = (txt || "").trim().replace(/\s+/g, " ");
+      if (!s) return "—";
+      return s.length > 140 ? s.slice(0, 140).trim() + "…" : s;
+    }
+
+    async function safeFetchText(url){
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error("Fetch failed: " + url);
+      return await r.text();
+    }
+
+    function setDetail(member){
+      detailName.textContent = member.name;
+      detailPos.textContent = member.pos ? ("Position: " + member.pos) : "";
+      detailText.textContent = (member.text || "").trim();
+      detailImg.src = member.img;
+      detailImg.alt = member.name;
+      detailWrap.hidden = false;
+    }
+
+    function cardEl(member){
+      const card = document.createElement("div");
+      card.className = "team-card";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", "Teammitglied: " + member.name);
+
+      const avatar = document.createElement("div");
+      avatar.className = "team-card__avatar";
+
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.src = member.img;
+      img.alt = member.name;
+
+      // Fallback: wenn Bild fehlt, lässt Browser broken img – wir ersetzen mit Initialen
+      img.onerror = () => {
+        avatar.innerHTML = "";
+        const fallback = document.createElement("div");
+        fallback.style.width = "100%";
+        fallback.style.height = "100%";
+        fallback.style.display = "grid";
+        fallback.style.placeItems = "center";
+        fallback.style.fontWeight = "800";
+        fallback.style.color = "rgba(15,23,42,0.65)";
+        fallback.style.background = "#e9eef7";
+        fallback.textContent = member.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+        avatar.appendChild(fallback);
+      };
+
+      avatar.appendChild(img);
+
+      const body = document.createElement("div");
+      body.className = "team-card__body";
+
+      const name = document.createElement("div");
+      name.className = "team-card__name";
+      name.textContent = member.name;
+
+      const snip = document.createElement("div");
+      snip.className = "team-card__snippet";
+      snip.textContent = snippetFromText(member.text);
+
+      body.appendChild(name);
+      body.appendChild(snip);
+
+      card.appendChild(avatar);
+      card.appendChild(body);
+
+      const open = () => setDetail(member);
+      card.addEventListener("click", open);
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+      });
+
+      return card;
+    }
+
+    async function loadTeam(){
+      try{
+        const r = await fetch(MANIFEST_URL, { cache: "no-store" });
+        if (!r.ok) throw new Error("Manifest missing");
+        const manifest = await r.json();
+
+        const folders = (manifest && Array.isArray(manifest.members))
+          ? manifest.members.map(m => m.folder).filter(Boolean)
+          : [];
+
+        if (!folders.length) throw new Error("No members");
+
+        const members = await Promise.all(folders.map(async (folder) => {
+          const meta = parseFolder(folder);
+          const base = "Team/" + folder + "/";
+          const img  = base + "image.png";
+          const txt  = base + "team.txt";
+
+          let text = "";
+          try { text = await safeFetchText(txt); } catch(e){ text = ""; }
+
+          return {
+            folder,
+            name: meta.name,
+            pos: meta.pos,
+            img,
+            text
+          };
+        }));
+
+        // Sortierung nach pos, ansonsten ans Ende, dann Name
+        members.sort((a,b) => {
+          const ap = (a.pos == null) ? 9999 : a.pos;
+          const bp = (b.pos == null) ? 9999 : b.pos;
+          if (ap !== bp) return ap - bp;
+          return a.name.localeCompare(b.name, "de");
+        });
+
+        grid.innerHTML = "";
+        members.forEach(m => grid.appendChild(cardEl(m)));
+
+        // Detail initial: erstes Element
+        setDetail(members[0]);
+
+        empty.hidden = true;
+      }catch(err){
+        empty.hidden = false;
+        grid.innerHTML = "";
+        detailWrap.hidden = true;
+      }
+    }
+
+    loadTeam();
+  })();
+</script>
