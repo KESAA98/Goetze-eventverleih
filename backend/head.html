@@ -1,23 +1,32 @@
-<!-- backend/head.html | 2-Zonen (oben 3/4 Slider | unten 1/4 Tabs), horizontales Verschieben (translateX), pro Slide: Bild 2/5 links + Text 3/5 rechts -->
+<!-- backend/head.html | Neu: 3 Bereiche (Bild / Auswahl / Text) + Slider-Effekt (translateX) für Bild & Text getrennt -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
   <div class="team-head__inner">
     <div class="team-shell">
-      <!-- OBEN (3/4): Slider -->
-      <div class="team-top">
-        <div class="team-viewport" aria-label="Team Slider">
-          <div class="team-track" id="teamTrack"></div>
+
+      <!-- BILD (Desktop: oben 75% | Mobile: ganz oben) -->
+      <div class="team-stage team-stage--img" aria-label="Team Bild">
+        <div class="team-viewport team-viewport--img" aria-label="Team Bild Slider">
+          <div class="team-track" id="teamImgTrack"></div>
         </div>
       </div>
 
-      <!-- UNTEN (1/4): Tabs (weiter oben ausgerichtet) -->
-      <div class="team-bottom" aria-label="Team Auswahl">
+      <!-- AUSWAHL (Desktop: unten 25% | Mobile: mittig zwischen Bild & Text) -->
+      <div class="team-choice" aria-label="Team Auswahl">
         <div class="team-tabsWrap">
           <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
+
+      <!-- TEXT (Desktop: oben 75% “über” Bild | Mobile: unten, nutzt Rest) -->
+      <div class="team-stage team-stage--text" aria-label="Team Text">
+        <div class="team-viewport team-viewport--text" aria-label="Team Text Slider">
+          <div class="team-track" id="teamTextTrack"></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -33,8 +42,8 @@
 
     --title-height: 70px;
 
-    --top-h: 75%;
-    --bottom-h: 25%;
+    --stage-h: 75%;
+    --choice-h: 25%;
 
     --radius: 18px;
   }
@@ -42,8 +51,8 @@
   .team-head{
     position:relative;
     width:100%;
-    height: calc(100vh - var(--title-height));
-    min-height: calc(100vh - var(--title-height));
+    height: 100%;
+    min-height: 100%;
     overflow:hidden;
     background:#d9dde3;
   }
@@ -81,21 +90,39 @@
     gap: 14px;
   }
 
-  .team-top{
-    flex: 0 0 var(--top-h);
+  /* Desktop-Aufteilung: Bild+Text teilen sich denselben 75%-Bereich (Layer), Auswahl unten 25% */
+  .team-stage{
+    position:relative;
+    flex: 0 0 var(--stage-h);
     min-height:0;
+    border-radius: var(--radius);
+    overflow:hidden;
   }
 
-  .team-bottom{
-    flex: 0 0 var(--bottom-h);
+  /* Text liegt “über” Bild: */
+  .team-stage--text{
+    margin-top: calc(-1 * var(--stage-h)); /* schiebt den Text-Bereich über den Bild-Bereich */
+    pointer-events:none;                   /* Klicks gehen durch (Tabs bleiben klickbar) */
+    background: transparent;
+  }
+
+  /* Damit der Text trotzdem interaktiv sein könnte (falls später): */
+  .team-stage--text .team-panel,
+  .team-stage--text a,
+  .team-stage--text button{
+    pointer-events:auto;
+  }
+
+  .team-choice{
+    flex: 0 0 var(--choice-h);
     min-height:0;
     display:flex;
     justify-content:center;
-    align-items:flex-start; /* weiter oben */
+    align-items:flex-start; /* Buttons eher oben in Auswahl */
     padding-top: 6px;
   }
 
-  /* ===== Slider ===== */
+  /* ===== Slider / Track ===== */
   .team-viewport{
     height:100%;
     width:100%;
@@ -105,7 +132,7 @@
 
   .team-track{
     height:100%;
-    display:flex;            /* Slides nebeneinander */
+    display:flex;
     width:100%;
     transform: translateX(0%);
     transition: transform .55s cubic-bezier(.22,.9,.18,1);
@@ -113,32 +140,20 @@
   }
 
   .team-slide{
-    flex: 0 0 100%;          /* volle Breite pro Slide */
+    flex: 0 0 100%;
     height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap: clamp(16px, 3vw, 42px);
-    padding: clamp(14px, 2.4vw, 32px);
+    position:relative;
   }
 
-  .team-photoCol{
-    flex: 0 0 40%;           /* 2/5 */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    min-width:0;
-  }
-
-  .team-textCol{
-    flex: 0 0 60%;           /* 3/5 */
-    min-width:0;
-    display:flex;
-    justify-content:flex-start;
-  }
-
-  .team-portrait{
-    width: min(420px, 100%);
+  /* ===== Bild-Slide: Mittelpunkt bei ~20% (Desktop) ===== */
+  .team-portraitWrap{
+    position:absolute;
+    left: 20%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(420px, 40vw);
+    max-width: 420px;
+    min-width: 220px;
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
@@ -147,7 +162,7 @@
     box-shadow: 0 22px 60px rgba(0,0,0,0.18);
     backdrop-filter: blur(8px);
   }
-  .team-portrait img{
+  .team-portraitWrap img{
     width:100%;
     height:100%;
     object-fit:cover;
@@ -155,17 +170,25 @@
     transform: scale(1.02);
   }
 
-  /* Text Panel (nur EIN Shadow -> kein Container-in-Container Problem) */
-  .team-panel{
-    width: 100%;
+  /* ===== Text-Slide: Panel-Mittelpunkt bei ~30% (Desktop) ===== */
+  .team-panelWrap{
+    position:absolute;
+    left: 30%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(780px, 70vw);
     max-width: 780px;
+  }
+
+  .team-panel{
+    width:100%;
     background: rgba(255,255,255,0.84);
     border: 1px solid rgba(15,23,42,0.10);
     border-radius: var(--radius);
     box-shadow: 0 18px 50px rgba(0,0,0,0.12);
     backdrop-filter: blur(10px);
     padding: 22px 22px 18px;
-    overflow:hidden; /* kein Scroll */
+    overflow:hidden;
   }
 
   .team-title{
@@ -183,11 +206,11 @@
     white-space: pre-wrap;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 10; /* kein Scroll */
+    -webkit-line-clamp: 10;
     overflow: hidden;
   }
 
-  /* ===== Tabs unten ===== */
+  /* ===== Tabs ===== */
   .team-tabsWrap{
     width:100%;
     display:flex;
@@ -201,7 +224,7 @@
     justify-content:center;
     max-width: min(1100px, 100%);
     padding: 6px 8px;
-    overflow:hidden; /* kein Scroll */
+    overflow:hidden;
   }
 
   .team-tab{
@@ -249,7 +272,7 @@
     letter-spacing:-0.01em;
   }
 
-  /* Mobile: oben/unten bleibt, aber Inhalt untereinander im Slide */
+  /* ===== Mobile: Reihenfolge Bild -> Auswahl -> Text, ohne “Overlay”-Trick ===== */
   @media (max-width: 980px){
     .team-head__inner{
       padding-left: 22px;
@@ -258,26 +281,53 @@
       padding-bottom: 16px;
     }
 
-    :root{
-      --top-h: 78%;
-      --bottom-h: 22%;
+    .team-shell{
+      gap: 12px;
     }
 
-    .team-slide{
-      flex-direction:column;
-      gap: 14px;
-      padding: 14px;
-    }
-    .team-photoCol, .team-textCol{
+    .team-stage{
       flex: 0 0 auto;
-      width:100%;
-      justify-content:center;
+      height: auto;
+      min-height: 0;
     }
-    .team-portrait{
+
+    .team-stage--img{
+      height: 38%;
+      min-height: 220px;
+    }
+
+    .team-choice{
+      flex: 0 0 auto;
+      padding-top: 0;
+      align-items:center; /* mittig im Auswahl-Block */
+    }
+
+    .team-stage--text{
+      margin-top: 0;        /* kein Overlay */
+      flex: 1 1 auto;
+      min-height: 0;
+      pointer-events:auto;
+    }
+
+    /* Bild & Text: zentriert auf volle Breite */
+    .team-portraitWrap{
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
       width: min(280px, 70vw);
+      min-width: 200px;
     }
-    .team-panel{
+
+    .team-panelWrap{
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
       max-width: 100%;
+      padding: 0 0;
+    }
+
+    .team-panel{
       border-radius: 16px;
       padding: 18px 18px 14px;
     }
@@ -299,9 +349,10 @@
     const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
-    const bgEl = document.getElementById("teamBg");
-    const trackEl = document.getElementById("teamTrack");
-    const tabsEl = document.getElementById("teamTabs");
+    const bgEl       = document.getElementById("teamBg");
+    const imgTrackEl = document.getElementById("teamImgTrack");
+    const txtTrackEl = document.getElementById("teamTextTrack");
+    const tabsEl     = document.getElementById("teamTabs");
 
     let members = [];
     let active = 0;
@@ -320,7 +371,10 @@
 
     function splitFirstSentence(text){
       const t = (text || "").trim();
-      if (!t) return { first: "Wir sind das Team.", rest: "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt." };
+      if (!t) return {
+        first: "Wir sind das Team.",
+        rest: "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt."
+      };
 
       const nl = t.indexOf("\n");
       if (nl > 0){
@@ -360,22 +414,21 @@
 
     function setActive(idx){
       active = idx;
-      trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
+      const x = "translateX(" + (-idx * 100) + "%)";
+      imgTrackEl.style.transform = x;
+      txtTrackEl.style.transform = x;
 
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
     }
 
-    function makeSlide(member){
+    function makeImgSlide(member){
       const slide = document.createElement("div");
       slide.className = "team-slide";
 
-      const left = document.createElement("div");
-      left.className = "team-photoCol";
-
       const portrait = document.createElement("div");
-      portrait.className = "team-portrait";
+      portrait.className = "team-portraitWrap";
 
       const img = document.createElement("img");
       img.loading = "lazy";
@@ -387,10 +440,16 @@
       };
 
       portrait.appendChild(img);
-      left.appendChild(portrait);
+      slide.appendChild(portrait);
+      return slide;
+    }
 
-      const right = document.createElement("div");
-      right.className = "team-textCol";
+    function makeTextSlide(member){
+      const slide = document.createElement("div");
+      slide.className = "team-slide";
+
+      const wrap = document.createElement("div");
+      wrap.className = "team-panelWrap";
 
       const panel = document.createElement("div");
       panel.className = "team-panel";
@@ -403,14 +462,14 @@
 
       const t = document.createElement("div");
       t.className = "team-text";
-      t.textContent = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+      t.textContent = (rest && rest.trim().length)
+        ? rest
+        : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
 
       panel.appendChild(h);
       panel.appendChild(t);
-      right.appendChild(panel);
-
-      slide.appendChild(left);
-      slide.appendChild(right);
+      wrap.appendChild(panel);
+      slide.appendChild(wrap);
 
       return slide;
     }
@@ -499,11 +558,13 @@
         return a.name.localeCompare(b.name, "de");
       });
 
-      trackEl.innerHTML = "";
+      imgTrackEl.innerHTML = "";
+      txtTrackEl.innerHTML = "";
       tabsEl.innerHTML = "";
 
       members.forEach((m, i) => {
-        trackEl.appendChild(makeSlide(m));
+        imgTrackEl.appendChild(makeImgSlide(m));
+        txtTrackEl.appendChild(makeTextSlide(m));
         tabsEl.appendChild(makeTab(m, i));
       });
 
