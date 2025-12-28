@@ -15,131 +15,103 @@
       --font-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
       --bg: #ffffff;
-      --text: #1f2933;
+      --text: #0f172a;
       --muted: #6b7280;
-      --primary: #1f4fa3;
 
-      --radius: 14px;
-      --title-shadow: 0 8px 24px rgba(0,0,0,.12);
+      --radius: 18px;
+      --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
+      --shadow-header: 0 10px 26px rgba(0,0,0,.12);
     }
 
-    html, body{
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
       margin:0;
-      padding:0;
-      height:100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-base);
-      overflow:hidden; /* WICHTIG: kein Page-Scroll */
-      -webkit-text-size-adjust: 100%;
-      text-rendering: optimizeLegibility;
+      font-family:var(--font-base);
+      color:var(--text);
+      background:var(--bg);
+      overflow-y:auto;
     }
 
-    *, *::before, *::after{ box-sizing: border-box; }
+    /* Slots: werden mit externen HTML-Dateien befüllt */
+    .slot{ display:block; }
 
-    .slot{
-      width:100%;
-      border:0;
-      outline:0;
-      background:transparent;
-    }
-
-    /* Cookie-Overlay */
+    /* Cookie overlay: liegt über allem */
     #cookieOverlay{
       position:fixed;
       inset:0;
       z-index:9999;
       display:none;
-      background:transparent;
     }
     #cookieOverlay.is-visible{ display:block; }
 
-    /* Titel */
+    /* Titel ist fix */
     #title{
       position:fixed;
       top:0; left:0; right:0;
-      z-index:2000;
-      height: var(--title-height);
-      background:#fff;
-      display:block;
+      height:var(--title-height);
+      z-index:1000;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:saturate(140%) blur(10px);
+      -webkit-backdrop-filter:saturate(140%) blur(10px);
+      border-bottom:1px solid rgba(0,0,0,.06);
       box-shadow:none;
+      transition: box-shadow .18s ease;
     }
-    #title.is-scrolled{
-      box-shadow: var(--title-shadow);
-    }
+    #title.is-scrolled{ box-shadow: var(--shadow-header); }
 
-    /* Bühne */
-    #stage{
-      position:fixed;
-      top: var(--title-height);
-      left:0; right:0;
-      height: calc(100vh - var(--title-height));
-      overflow:hidden;
-    }
-
-    /* Panels (Head + Shop) */
-    #panels{
-      height: 200%;
-      transform: translateY(0);
-      transition: transform .35s ease;
-      will-change: transform;
-    }
-
-    /* WICHTIG: NICHT im Index scrollen. Scroll ist in head.html / shop.html */
-    #head, #shop{
-      height: calc(100vh - var(--title-height));
-      overflow:hidden;
-      position: relative;
-    }
-
-    /* Shop: Platz für Cart rechts (Desktop) */
-    #shop{
-      width:calc(100% - var(--cart-width));
-      margin-right:var(--cart-width);
-    }
-
-    /* Cart */
-    #cart{
-      position:fixed;
-      top:0;
-      right:0;
-      height:100vh;
-      width:var(--cart-width);
-      z-index:50;
-      background:transparent;
-      pointer-events:none;
-      transform: translateX(100%);
-      transition: transform .22s ease;
-    }
-
-    @media (max-width: 900px){
-      :root{ --cart-width: 0px; }
-      #cart{ transform:none; }
-      #shop{ width:100%; margin-right:0; }
-    }
-
-    /* Debug / Fehleranzeige beim Laden */
-    .load-error{
-      height:100%;
+    /* Layout: Content + Cart */
+    #layout{
       display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 24px;
-      color: rgba(15,23,42,0.75);
-      text-align:center;
+      width:100%;
+      min-height:100vh;
+      padding-top: var(--title-height);
     }
-    .load-error > div{
-      max-width: 860px;
-      background: rgba(255,255,255,0.92);
-      border: 1px solid rgba(15,23,42,0.12);
-      border-radius: 16px;
-      padding: 18px 18px 16px;
+
+    #content{
+      flex:1;
+      min-width:0;
+      padding: 18px 18px 28px 18px;
     }
-    .load-error b{ color:#0f172a; }
-    .load-error code{
-      background: rgba(15,23,42,0.06);
-      padding: 2px 6px;
-      border-radius: 8px;
+
+    /* Head + Shop sind normale Bereiche untereinander (native Scroll) */
+    section.page{
+      width:100%;
+      border-radius: var(--radius);
+      overflow:hidden;
+      background:#fff;
+    }
+
+    #head{
+      min-height: calc(100vh - var(--title-height) - 36px);
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-soft);
+      background:#d9dde3; /* Fallback bis head.html geladen ist */
+    }
+
+    #shop{
+      min-height: calc(100vh - var(--title-height) - 36px);
+      box-shadow: var(--shadow-soft);
+      background:#eef2f7; /* Fallback bis shop.html geladen ist */
+    }
+
+    /* Cart: rechts fest */
+    #cart{
+      width:var(--cart-width);
+      flex:0 0 var(--cart-width);
+      position:sticky;
+      top: var(--title-height);
+      height: calc(100vh - var(--title-height));
+      padding: 18px 18px 28px 0;
+      align-self:flex-start;
+    }
+
+    /* Mobile: Cart ausblenden (später als Drawer/Overlay) */
+    @media (max-width: 980px){
+      #layout{ display:block; }
+      #cart{ display:none; }
+      #content{ padding: 14px 14px 22px 14px; }
+      #head, #shop{ border-radius: 16px; }
     }
   </style>
 </head>
@@ -151,194 +123,86 @@
   <!-- 2) Titel -->
   <header id="title" class="slot" data-src="backend/titel.html"></header>
 
-  <!-- 3/4) Stage -->
-  <div id="stage">
-    <div id="panels">
-      <section id="head" class="slot" data-src="backend/head.html"></section>
-      <main id="shop" class="slot" data-src="backend/shop.html"></main>
+  <!-- 3/4/5) Layout -->
+  <div id="layout">
+    <div id="content">
+      <section id="head" class="slot page" data-src="backend/head.html" aria-label="Head"></section>
+      <main id="shop" class="slot page" data-src="backend/shop.html" aria-label="Shop"></main>
     </div>
-  </div>
 
-  <!-- 5) Cart -->
-  <aside id="cart" class="slot" data-src="backend/cart.html"></aside>
+    <aside id="cart" class="slot" data-src="backend/cart.html" aria-label="Warenkorb"></aside>
+  </div>
 
   <script>
     (function(){
-      const COOKIE_KEY = "cookiesAccepted_v1";
-
-      /* von cookie.html aufrufbar */
-      window.acceptCookies = function(){
-        try { localStorage.setItem(COOKIE_KEY, "1"); } catch(e) {}
-        document.getElementById("cookieOverlay")?.classList.remove("is-visible");
-      };
-
-      /* Cart-Steuerung */
-      window.openCart = function(){
-        const el = document.getElementById("cart");
-        if(!el) return;
-        el.style.pointerEvents = "auto";
-        el.style.transform = "translateX(0)";
-      };
-
-      window.closeCart = function(){
-        const el = document.getElementById("cart");
-        if(!el) return;
-        el.style.pointerEvents = "none";
-        el.style.transform = "translateX(100%)";
-      };
+      "use strict";
 
       async function loadInto(el, url){
-        const res = await fetch(url, { cache: "no-store" });
-        if(!res.ok) throw new Error(url + " -> " + res.status);
-
-        const html = await res.text();
-        el.innerHTML = html;
-
-        // Scripts aus geladenem HTML ausführen
-        const scripts = Array.from(el.querySelectorAll("script"));
-        for(const s of scripts){
-          const ns = document.createElement("script");
-          for(const attr of s.attributes){
-            ns.setAttribute(attr.name, attr.value);
-          }
-          ns.text = s.text || "";
-          s.parentNode.replaceChild(ns, s);
+        try{
+          const res = await fetch(url, { cache: "no-store" });
+          if(!res.ok) throw new Error("HTTP " + res.status + " for " + url);
+          const html = await res.text();
+          el.innerHTML = html;
+        }catch(err){
+          console.error("Load failed:", url, err);
+          // Fallback: nichts erzwingen – Seite bleibt bedienbar
         }
       }
 
-      function setupPanelSwitch(){
-        const panels = document.getElementById("panels");
-        if(!panels) return;
-
-        window.__view = "head"; // "head" | "shop"
-        let locked = false;
-
-        const cookieVisible = () => {
-          const ov = document.getElementById("cookieOverlay");
-          return !!(ov && ov.classList.contains("is-visible"));
-        };
-
-        const goShop = () => {
-          if(cookieVisible()) return;
-          if(locked || window.__view === "shop") return;
-          locked = true;
-          window.__view = "shop";
-          panels.style.transform = "translateY(-100%)";
-          window.__updateTitleShadow && window.__updateTitleShadow();
-          setTimeout(()=> locked = false, 380);
-        };
-
-        const goHead = () => {
-          if(cookieVisible()) return;
-          if(locked || window.__view === "head") return;
-          locked = true;
-          window.__view = "head";
-          panels.style.transform = "translateY(0)";
-          window.__updateTitleShadow && window.__updateTitleShadow();
-          setTimeout(()=> locked = false, 380);
-        };
-
-        window.goShop = goShop;
-        window.goHead = goHead;
+      function setCookie(name, value, days){
+        const d = new Date();
+        d.setTime(d.getTime() + days*24*60*60*1000);
+        document.cookie = name + "=" + encodeURIComponent(value) + ";expires=" + d.toUTCString() + ";path=/;SameSite=Lax";
+      }
+      function getCookie(name){
+        const m = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+        return m ? decodeURIComponent(m[2]) : null;
       }
 
-      function setupTitleShadow(){
-        const title = document.getElementById("title");
-        const head  = document.getElementById("head");
-        const shop  = document.getElementById("shop");
-        if(!title || !head || !shop) return;
-
-        // Wir versuchen den "inneren" Scrollcontainer zu finden:
-        // head.html: #teamScroll, shop.html: #shopScroll (falls vorhanden)
-        const getActiveInnerScroll = () => {
-          const v = window.__view || "head";
-          if (v === "shop") return document.getElementById("shopScroll");
-          return document.getElementById("teamScroll");
-        };
-
-        const update = () => {
-          const sc = getActiveInnerScroll();
-          const has = sc ? (sc.scrollTop > 0) : false;
-          title.classList.toggle("is-scrolled", !!has);
-        };
-
-        // Delegiert: wir hören global und aktualisieren bei Scroll in den inneren Containern
-        window.addEventListener("scroll", update, { passive:true, capture:true });
-        window.addEventListener("resize", update, { passive:true });
-
-        window.__updateTitleShadow = update;
-        update();
+      function updateTitleShadow(){
+        const t = document.getElementById("title");
+        if(!t) return;
+        if(window.scrollY > 2) t.classList.add("is-scrolled");
+        else t.classList.remove("is-scrolled");
       }
 
-      function showLoadError(el, url, err){
-        el.innerHTML = `
-          <div class="load-error">
-            <div>
-              <div style="font-size:18px; font-weight:900; margin-bottom:8px;">Inhalt konnte nicht geladen werden</div>
-              <div style="margin-bottom:10px;">
-                Datei: <b><code>${escapeHtml(url)}</code></b>
-              </div>
-              <div style="opacity:.85;">
-                ${escapeHtml(String(err && err.message ? err.message : err))}
-              </div>
-            </div>
-          </div>
-        `;
-      }
+      // Soft API für andere Komponenten (falls du Buttons/Links nutzt)
+      function scrollToSection(id){
+        const target = document.getElementById(id);
+        if(!target) return;
 
-      function escapeHtml(s){
-        return String(s)
-          .replaceAll("&","&amp;")
-          .replaceAll("<","&lt;")
-          .replaceAll(">","&gt;")
-          .replaceAll('"',"&quot;")
-          .replaceAll("'","&#039;");
+        const y = target.getBoundingClientRect().top + window.scrollY - (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--title-height")) || 70) - 10;
+        window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
       }
+      window.goShop = () => scrollToSection("shop");
+      window.goHead = () => scrollToSection("head");
 
       async function boot(){
-        const slots = Array.from(document.querySelectorAll("[data-src]"));
+        // Grundgerüst immer laden
+        await Promise.all([
+          loadInto(document.getElementById("title"), document.getElementById("title").dataset.src),
+          loadInto(document.getElementById("head"),  document.getElementById("head").dataset.src),
+          loadInto(document.getElementById("shop"),  document.getElementById("shop").dataset.src),
+          loadInto(document.getElementById("cart"),  document.getElementById("cart").dataset.src)
+        ]);
 
-        let accepted = false;
-        try { accepted = localStorage.getItem(COOKIE_KEY) === "1"; } catch(e) {}
-
-        // 1) Erst normale Slots laden (ohne CookieOverlay) – ABER robust (allSettled)
-        const normalSlots = slots.filter(el => el.id !== "cookieOverlay");
-
-        const results = await Promise.allSettled(
-          normalSlots.map(async (el) => {
-            const url = el.dataset.src;
-            try{
-              await loadInto(el, url);
-              return { ok:true, el, url };
-            }catch(err){
-              showLoadError(el, url, err);
-              return { ok:false, el, url, err };
-            }
-          })
-        );
-
-        // 2) Cookie nur bei Bedarf laden
+        // Cookie Overlay nur bei Bedarf
+        const accepted = getCookie("cookies_accepted") === "yes";
         if(!accepted){
           const overlay = document.getElementById("cookieOverlay");
           overlay.classList.add("is-visible");
-          try{
-            await loadInto(overlay, overlay.dataset.src);
-          }catch(err){
-            showLoadError(overlay, overlay.dataset.src, err);
-          }
+          await loadInto(overlay, overlay.dataset.src);
+
+          // Optionaler Helfer: cookie.html kann window.acceptCookies() aufrufen
+          window.acceptCookies = () => {
+            setCookie("cookies_accepted","yes",180);
+            overlay.classList.remove("is-visible");
+          };
         }
 
-        // 3) Switch + Shadow
-        setupPanelSwitch();
-        setupTitleShadow();
-
-        // Optional: wenn Shop nicht geladen wurde, kann natürlich auch kein Platzhalter erscheinen
-        // -> du siehst dann jetzt aber eine klare Fehlermeldung IM Shop-Panel.
-        results.forEach(r => {
-          if (r.status === "fulfilled" && r.value && r.value.ok === false){
-            console.warn("Load failed:", r.value.url, r.value.err);
-          }
-        });
+        updateTitleShadow();
+        window.addEventListener("scroll", updateTitleShadow, { passive:true });
+        window.addEventListener("resize", updateTitleShadow, { passive:true });
       }
 
       boot().catch(err => console.error(err));
