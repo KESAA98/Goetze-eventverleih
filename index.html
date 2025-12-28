@@ -9,11 +9,8 @@
 
   <style>
     :root{
-      --cart-width: 360px;
       --title-height: 70px;
-
       --font-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-
       --bg: #ffffff;
       --shadow-header: 0 10px 26px rgba(0,0,0,.12);
     }
@@ -28,7 +25,9 @@
       overflow:hidden; /* Stage-Prinzip */
     }
 
-    /* Header / Titel */
+    /* =========================
+       HEADER / TITEL
+       ========================= */
     #title{
       position:fixed;
       top:0; left:0; right:0;
@@ -41,28 +40,37 @@
       box-shadow:none;
       transition: box-shadow .18s ease;
     }
-    #title.is-scrolled{ box-shadow: var(--shadow-header); }
-
-    /* Layout */
-    #layout{
-      position:fixed;
-      top: var(--title-height);
-      left:0; right:0;
-      height: calc(100vh - var(--title-height));
-      display:flex;
-      width:100%;
+    #title.is-scrolled{
+      box-shadow: var(--shadow-header);
     }
 
-    /* STAGE – KEIN Padding! */
+    /* =========================
+       LAYOUT
+       ========================= */
+    #layout{
+      position:fixed;
+      top:var(--title-height);
+      left:0;
+      right:0;
+      bottom:0;
+      width:100%;
+      height:calc(100vh - var(--title-height));
+    }
+
+    /* =========================
+       STAGE (VOLLE FLÄCHE)
+       ========================= */
     #stage{
-      flex:1;
-      min-width:0;
+      width:100%;
       height:100%;
-      padding:0;              /* <<< WICHTIG */
+      padding:0;
+      margin:0;
       overflow:hidden;
     }
 
-    /* Panels */
+    /* =========================
+       PANELS
+       ========================= */
     #panels{
       width:100%;
       height:200%;
@@ -70,30 +78,36 @@
       transition: transform .38s ease;
       will-change: transform;
     }
-    #panels.is-shop{ transform: translateY(-50%); }
+
+    #panels.is-shop{
+      transform: translateY(-50%);
+    }
 
     .panel{
-      height:50%;
       width:100%;
+      height:50%;
+      margin:0;
+      padding:0;
       overflow:hidden;
-      background: transparent; /* Head zeichnet selbst */
+      background:transparent;
+      border:none;
+      border-radius:0;
+      box-shadow:none;
     }
 
-    /* Cart */
-    #cart{
-      width:var(--cart-width);
-      flex:0 0 var(--cart-width);
-      height:100%;
-    }
-
+    /* =========================
+       MOBILE
+       ========================= */
     @media (max-width: 980px){
-      #layout{ display:block; }
-      #cart{ display:none; }
+      #layout{
+        height:calc(100vh - var(--title-height));
+      }
     }
   </style>
 </head>
 
 <body>
+
   <header id="title" data-src="backend/titel.html"></header>
 
   <div id="layout">
@@ -103,15 +117,13 @@
         <main id="shop" class="panel" data-src="backend/shop.html"></main>
       </div>
     </div>
-
-    <aside id="cart" data-src="backend/cart.html"></aside>
   </div>
 
   <script>
     (function(){
-      const panels = document.getElementById("panels");
-      const headEl = document.getElementById("head");
-      const shopEl = document.getElementById("shop");
+      const panels  = document.getElementById("panels");
+      const headEl  = document.getElementById("head");
+      const shopEl  = document.getElementById("shop");
       const titleEl = document.getElementById("title");
 
       let active = "head";
@@ -121,7 +133,6 @@
         const res = await fetch(el.dataset.src, { cache:"no-store" });
         el.innerHTML = await res.text();
 
-        /* inline scripts ausführen */
         el.querySelectorAll("script").forEach(old=>{
           const s = document.createElement("script");
           s.text = old.text;
@@ -148,6 +159,7 @@
         panels.classList.add("is-shop");
         setTimeout(()=>{ switching=false; updateShadow(); }, 420);
       }
+
       function goHead(){
         if(switching || active==="head") return;
         switching = true;
@@ -194,14 +206,14 @@
         await Promise.all([
           loadInto(titleEl),
           loadInto(headEl),
-          loadInto(shopEl),
-          loadInto(document.getElementById("cart")),
+          loadInto(shopEl)
         ]);
 
-        document.getElementById("stage").addEventListener("wheel", onWheel, {passive:false});
-        document.getElementById("stage").addEventListener("touchstart", onTouchStart, {passive:true});
-        document.getElementById("stage").addEventListener("touchmove", onTouchMove, {passive:false});
-        document.getElementById("stage").addEventListener("touchend", onTouchEnd, {passive:true});
+        const stage = document.getElementById("stage");
+        stage.addEventListener("wheel", onWheel, {passive:false});
+        stage.addEventListener("touchstart", onTouchStart, {passive:true});
+        stage.addEventListener("touchmove", onTouchMove, {passive:false});
+        stage.addEventListener("touchend", onTouchEnd, {passive:true});
 
         const hs = headEl.querySelector(".team-scroll");
         const ss = shopEl.querySelector(".shop-scroll");
@@ -212,5 +224,6 @@
       boot();
     })();
   </script>
+
 </body>
 </html>
