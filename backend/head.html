@@ -1,24 +1,28 @@
-<!-- backend/head.html | Full-height Head (from index #head), connected text-panel + tabs, big round portrait, random BG -->
+<!-- backend/head.html | Full-height genutzt + linker “Dock”-Container (Text + Tabs verbunden) + Tabs ohne anheben -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
   <div class="team-head__inner">
     <div class="team-head__layout">
-      <!-- LEFT: Connected text panel + tabs dock -->
+      <!-- LEFT: EIN gemeinsamer Container (Text oben, Tabs unten) -->
       <div class="team-left">
-        <div class="team-panel" id="teamPanel">
-          <h1 class="team-title" id="teamTitle">Wir sind das Team.</h1>
-          <p class="team-text" id="teamText">
-            Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
-          </p>
-        </div>
+        <div class="team-dock" id="teamDock">
+          <div class="team-dock__content">
+            <h1 class="team-title" id="teamTitle">Wir sind das Team.</h1>
+            <div class="team-text" id="teamText">
+              Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
+            </div>
+          </div>
 
-        <div class="team-tabs" id="teamTabs" aria-label="Team Auswahl"></div>
+          <div class="team-dock__tabsWrap" aria-label="Team Auswahl">
+            <div class="team-tabs" id="teamTabs"></div>
+          </div>
+        </div>
       </div>
 
-      <!-- RIGHT: big round portrait -->
-      <div class="team-right">
+      <!-- RIGHT: großes rundes Bild -->
+      <div class="team-right" aria-hidden="true">
         <div class="team-portrait">
           <img id="teamPortrait" alt="" />
         </div>
@@ -28,7 +32,6 @@
 </section>
 
 <style>
-  /* Edges align to title/logo spacing (fallbacks included) */
   :root{
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
@@ -44,18 +47,17 @@
     width:100%;
     height:100%;
     min-height:100%;
-    border-radius: 0;
+    border-radius:0;
     overflow:hidden;
     background:#d9dde3;
   }
 
-  /* Background */
   .team-head__bg{
     position:absolute; inset:0;
-    background-size: cover;
-    background-position: center;
-    transform: scale(1.05);
-    filter: saturate(.98) contrast(.98);
+    background-size:cover;
+    background-position:center;
+    transform:scale(1.05);
+    filter:saturate(.98) contrast(.98);
   }
 
   .team-head__veil{
@@ -70,7 +72,7 @@
     position:relative;
     z-index:1;
     height:100%;
-    padding-left:  var(--edge-left);
+    padding-left: var(--edge-left);
     padding-right: var(--edge-right);
     padding-top: 34px;
     padding-bottom: 34px;
@@ -78,60 +80,71 @@
     align-items:stretch;
   }
 
+  /* WICHTIG: Layout füllt die komplette Head-Höhe */
   .team-head__layout{
     width:100%;
     height:100%;
     display:grid;
     grid-template-columns: 1.15fr 0.85fr;
     gap: clamp(18px, 3vw, 48px);
-    align-items:center;
+    align-items:stretch; /* statt center -> nutzt volle Höhe */
   }
 
-  /* LEFT column */
+  /* LEFT: nutzt volle Höhe */
   .team-left{
+    min-width:0;
+    height:100%;
+  }
+
+  /* Dock-Container = Text + Tabs “aus einem Guss” */
+  .team-dock{
     height:100%;
     display:flex;
     flex-direction:column;
-    justify-content:flex-end; /* tabs sit at bottom visually */
-    gap: 12px;
-    min-width:0;
-  }
-
-  /* Connected panel (looks like it "comes from" the active tab) */
-  .team-panel{
-    background: rgba(255,255,255,0.82);
+    background: rgba(255,255,255,0.84);
     border: 1px solid rgba(15,23,42,0.10);
     border-radius: 18px;
-    padding: 26px 26px 22px;
     box-shadow: 0 18px 50px rgba(0,0,0,0.12);
     backdrop-filter: blur(10px);
-    min-width:0;
+    overflow:hidden; /* verbindet Tabs sauber mit Container */
+  }
+
+  /* Content füllt den verfügbaren Platz -> so nutzt es die Höhe */
+  .team-dock__content{
+    flex: 1 1 auto;
+    padding: 26px 26px 18px;
+    overflow:auto; /* bei langen Texten scrollt nur der Content, nicht der ganze Head */
   }
 
   .team-title{
     margin:0 0 10px 0;
     font-size: clamp(28px, 3.4vw, 54px);
-    line-height: 1.02;
-    letter-spacing: -0.02em;
-    color: #0f172a;
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    color:#0f172a;
   }
 
   .team-text{
-    margin:0;
     font-size: clamp(14px, 1.1vw, 16px);
-    line-height: 1.65;
+    line-height:1.65;
     color: rgba(15,23,42,0.78);
-    max-width: 72ch;
     white-space: pre-wrap;
   }
 
-  /* TABS */
+  /* Tabs sitzen unten IM selben Container, mit Trennlinie */
+  .team-dock__tabsWrap{
+    flex: 0 0 auto;
+    padding: 12px 14px;
+    border-top: 1px solid rgba(15,23,42,0.10);
+    background: rgba(255,255,255,0.78);
+  }
+
   .team-tabs{
     display:flex;
-    gap: 12px;
+    gap: 10px;
     overflow:auto;
-    padding: 2px 0 0;
-    align-items:flex-end;
+    align-items:center;
+    padding-bottom: 2px;
   }
 
   .team-tabs::-webkit-scrollbar{ height: 10px; }
@@ -143,60 +156,38 @@
     background-clip: padding-box;
   }
 
-  /* Rect with radius (NOT pill), no min-width */
+  /* Tabs: rechteckig mit Radius, KEIN anheben */
   .team-tab{
+    position:relative;
     display:flex;
     align-items:center;
     gap: 10px;
-    padding: 10px 14px;
-    border-radius: 14px; /* rectangle with radius */
+    padding: 10px 12px;
+    border-radius: 12px;
     background: rgba(255,255,255,0.70);
     border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.08); /* cleaner, smaller */
+    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
     cursor:pointer;
     user-select:none;
-    transition: transform .14s ease, background .14s ease, border-color .14s ease, box-shadow .14s ease;
-    flex: 0 0 auto; /* content width */
+    transition: background .14s ease, border-color .14s ease, box-shadow .14s ease;
+    flex: 0 0 auto; /* keine Mindestbreite */
   }
 
   .team-tab:hover{
-    transform: translateY(-1px);
-    background: rgba(255,255,255,0.82);
+    background: rgba(255,255,255,0.84);
     border-color: rgba(31,79,163,0.22);
-    box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.10);
   }
 
-  /* Active tab visually connects to panel */
   .team-tab.is-active{
     background: rgba(255,255,255,0.92);
-    border-color: rgba(15,23,42,0.16);
-    box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-    transform: translateY(-6px); /* lifts into the panel */
-  }
-
-  /* "Bridge" between active tab and panel */
-  .team-tab.is-active::after{
-    content:"";
-    position:absolute;
-    left: 14px;
-    right: 14px;
-    top: -10px;
-    height: 12px;
-    border-radius: 12px 12px 0 0;
-    background: rgba(255,255,255,0.92);
-    border-left: 1px solid rgba(15,23,42,0.10);
-    border-right: 1px solid rgba(15,23,42,0.10);
-    border-top: 1px solid rgba(15,23,42,0.10);
-    /* no bottom border -> seamless */
-  }
-
-  .team-tab{
-    position:relative; /* needed for ::after */
+    border-color: rgba(15,23,42,0.18);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   }
 
   .team-tab__avatar{
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 999px;
     overflow:hidden;
     background:#e9eef7;
@@ -213,12 +204,13 @@
     font-weight: 760;
     color:#0f172a;
     letter-spacing:-0.01em;
-    white-space: nowrap;
+    white-space:nowrap;
     overflow:hidden;
-    text-overflow: ellipsis;
+    text-overflow:ellipsis;
+    max-width: 240px;
   }
 
-  /* RIGHT column */
+  /* RIGHT: nutzt volle Höhe, Portrait mittig */
   .team-right{
     height:100%;
     display:flex;
@@ -228,7 +220,7 @@
   }
 
   .team-portrait{
-    width: min(420px, 34vw);
+    width: min(520px, 36vw);
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
@@ -245,7 +237,7 @@
     transform: scale(1.02);
   }
 
-  /* ===== Mobile / Tablet ===== */
+  /* ===== Mobile ===== */
   @media (max-width: 980px){
     .team-head__inner{
       padding-left: 24px;
@@ -253,47 +245,43 @@
       padding-top: 22px;
       padding-bottom: 22px;
     }
-
     .team-head__layout{
       grid-template-columns: 1fr;
-      gap: 16px;
-      align-items:start;
+      gap: 14px;
     }
-
-    /* Portrait on top, smaller */
     .team-right{
-      order: -1;
       justify-content:flex-start;
     }
     .team-portrait{
       width: min(280px, 62vw);
     }
-
-    /* Keep tabs visible, avoid big lift */
-    .team-tab.is-active{ transform: translateY(-3px); }
-    .team-tab.is-active::after{ top: -8px; height: 10px; }
-
-    .team-panel{
-      padding: 18px 18px 16px;
+    .team-dock{
       border-radius: 16px;
+    }
+    .team-dock__content{
+      padding: 18px 18px 14px;
+    }
+    .team-dock__tabsWrap{
+      padding: 10px 10px;
+    }
+    .team-tab__name{
+      max-width: 38vw;
     }
   }
 
   @media (max-width: 560px){
     .team-title{ font-size: 30px; }
-    .team-tabs{ gap: 10px; }
-    .team-tab{ padding: 9px 12px; border-radius: 12px; }
-    .team-tab__name{ max-width: 34vw; }
+    .team-tab{ padding: 9px 10px; border-radius: 10px; }
+    .team-tab__name{ max-width: 44vw; }
   }
 </style>
 
 <script>
   (function(){
-    const BG_MANIFEST_URL   = "image/hintergrund/manifest.json"; // array of filenames
-    const TEAM_MANIFEST_URL = "Team/manifest.json";              // {members:[{folder:"Lisa_2"}]}
+    const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
+    const TEAM_MANIFEST_URL = "Team/manifest.json";
 
     const bgEl = document.getElementById("teamBg");
-
     const titleEl = document.getElementById("teamTitle");
     const textEl  = document.getElementById("teamText");
     const portraitEl = document.getElementById("teamPortrait");
@@ -302,7 +290,6 @@
     function parseFolder(folder){
       const parts = String(folder).split("_");
       let pos = null;
-
       if (parts.length > 1) {
         const last = parts[parts.length - 1];
         const n = Number(last);
@@ -419,13 +406,11 @@
     }
 
     async function load(){
-      // background (best-effort)
       try{
         const bg = await fetchJson(BG_MANIFEST_URL);
         setRandomBackground(bg);
       }catch(e){}
 
-      // team
       const manifest = await fetchJson(TEAM_MANIFEST_URL);
       const folders = (manifest && Array.isArray(manifest.members))
         ? manifest.members.map(m => m.folder).filter(Boolean)
@@ -441,7 +426,6 @@
         return { folder, name: meta.name, pos: meta.pos, img, text };
       }));
 
-      // sort by pos ascending (Position 1 first)
       members.sort((a,b) => {
         const ap = (a.pos == null) ? 9999 : a.pos;
         const bp = (b.pos == null) ? 9999 : b.pos;
