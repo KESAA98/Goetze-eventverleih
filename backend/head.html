@@ -1,322 +1,23 @@
-<!-- backend/head.html -->
+<!-- backend/head.html | 2-Zonen (oben 3/4 Slider | unten 1/4 Tabs), horizontales Verschieben (translateX), pro Slide: Bild 2/5 links + Text 3/5 rechts -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
   <div class="team-head__inner">
     <div class="team-shell">
-
-      <!-- Bild-Ebene (75%) -->
-      <div class="team-stage team-stage--img">
-        <div class="team-viewport">
-          <div class="team-track" id="teamImgTrack"></div>
+      <!-- OBEN (3/4): Slider -->
+      <div class="team-top">
+        <div class="team-viewport" aria-label="Team Slider">
+          <div class="team-track" id="teamTrack"></div>
         </div>
       </div>
 
-      <!-- Text-Ebene (liegt über Bild, gleiche Grid-Zeile) -->
-      <div class="team-stage team-stage--text">
-        <div class="team-viewport">
-          <div class="team-track" id="teamTextTrack"></div>
-        </div>
-      </div>
-
-      <!-- Auswahl (25%) -->
-      <div class="team-choice">
+      <!-- UNTEN (1/4): Tabs (weiter oben ausgerichtet) -->
+      <div class="team-bottom" aria-label="Team Auswahl">
         <div class="team-tabsWrap">
           <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
-
-    </div>
-  </div>
-</section>
-
-<style>
-:root{
-  --stage-h: 75%;
-  --choice-h: 25%;
-  --radius: 18px;
-}
-
-/* ===== Grundcontainer ===== */
-.team-head{
-  position:relative;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#d9dde3;
-}
-
-.team-head__bg{
-  position:absolute;
-  inset:0;
-  background-size:cover;
-  background-position:center;
-  transform:scale(1.05);
-  filter:saturate(.98) contrast(.98);
-}
-
-.team-head__veil{
-  position:absolute;
-  inset:0;
-  background:
-    radial-gradient(1200px 700px at 18% 40%,
-      rgba(255,255,255,.86),
-      rgba(255,255,255,.18) 58%,
-      rgba(255,255,255,0) 74%),
-    linear-gradient(90deg,
-      rgba(255,255,255,.92),
-      rgba(255,255,255,.70) 40%,
-      rgba(255,255,255,.22) 70%,
-      rgba(255,255,255,.10));
-  backdrop-filter: blur(10px);
-}
-
-.team-head__inner{
-  position:relative;
-  z-index:1;
-  height:100%;
-  padding: 20px 32px 18px;
-}
-
-/* ===== Grid-Aufteilung ===== */
-.team-shell{
-  height:100%;
-  display:grid;
-  grid-template-rows: var(--stage-h) var(--choice-h);
-  gap: 14px;
-}
-
-/* ===== Bild + Text liegen in derselben Grid-Zeile ===== */
-.team-stage{
-  grid-row: 1;
-  position:relative;
-  overflow:hidden;
-  border-radius: var(--radius);
-}
-
-.team-stage--img{ z-index:1; }
-.team-stage--text{
-  z-index:2;
-  pointer-events:none; /* Tabs bleiben klickbar */
-}
-
-/* ===== Slider ===== */
-.team-viewport{
-  width:100%;
-  height:100%;
-  overflow:hidden;
-}
-
-.team-track{
-  height:100%;
-  display:flex;
-  transform: translateX(0%);
-  transition: transform .55s cubic-bezier(.22,.9,.18,1);
-}
-
-.team-slide{
-  flex:0 0 100%;
-  height:100%;
-  position:relative;
-}
-
-/* ===== Bild ===== */
-.team-portrait{
-  position:absolute;
-  left:20%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:min(420px,40vw);
-  aspect-ratio:1/1;
-  border-radius:999px;
-  overflow:hidden;
-  background:rgba(255,255,255,.55);
-  box-shadow:0 22px 60px rgba(0,0,0,.18);
-}
-
-.team-portrait img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-/* ===== Text ===== */
-.team-panelWrap{
-  position:absolute;
-  left:30%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:min(780px,70vw);
-}
-
-.team-panel{
-  background:rgba(255,255,255,.84);
-  border-radius:var(--radius);
-  box-shadow:0 18px 50px rgba(0,0,0,.12);
-  padding:22px;
-}
-
-.team-title{
-  margin:0 0 10px;
-  font-size:clamp(24px,2.2vw,40px);
-}
-
-.team-text{
-  line-height:1.6;
-  color:#1f2933;
-}
-
-/* ===== Auswahl ===== */
-.team-choice{
-  grid-row:2;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start;
-  padding-top:6px;
-}
-
-.team-tabs{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
-
-.team-tab{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 14px;
-  border-radius:999px;
-  background:rgba(255,255,255,.7);
-  cursor:pointer;
-}
-
-.team-tab.is-active{
-  background:rgba(255,255,255,.95);
-}
-
-/* ===== Mobile ===== */
-@media (max-width: 900px){
-  .team-shell{
-    grid-template-rows: auto auto auto;
-  }
-
-  .team-stage{
-    grid-row:auto;
-    height:auto;
-  }
-
-  .team-portrait{
-    left:50%;
-    width:min(280px,70vw);
-  }
-
-  .team-panelWrap{
-    left:50%;
-    width:100%;
-  }
-
-  .team-choice{
-    order:2;
-    align-items:center;
-  }
-}
-</style>
-
-<script>
-(function(){
-  const TEAM_MANIFEST_URL = "Team/manifest.json";
-
-  const imgTrack = document.getElementById("teamImgTrack");
-  const txtTrack = document.getElementById("teamTextTrack");
-  const tabs     = document.getElementById("teamTabs");
-
-  let members = [];
-  let active = 0;
-
-  const setActive = (i) => {
-    active = i;
-    const x = `translateX(${-i*100}%)`;
-    imgTrack.style.transform = x;
-    txtTrack.style.transform = x;
-    tabs.querySelectorAll(".team-tab").forEach(t=>t.classList.remove("is-active"));
-    tabs.children[i]?.classList.add("is-active");
-  };
-
-  const makeImg = (m) => {
-    const s = document.createElement("div");
-    s.className="team-slide";
-    s.innerHTML = `
-      <div class="team-portrait">
-        <img src="${m.img}" alt="${m.name}">
-      </div>`;
-    return s;
-  };
-
-  const makeTxt = (m) => {
-    const s = document.createElement("div");
-    s.className="team-slide";
-    s.innerHTML = `
-      <div class="team-panelWrap">
-        <div class="team-panel">
-          <h1 class="team-title">${m.name}</h1>
-          <div class="team-text">${m.text || ""}</div>
-        </div>
-      </div>`;
-    return s;
-  };
-
-  const makeTab = (m,i) => {
-    const b = document.createElement("div");
-    b.className="team-tab";
-    b.textContent=m.name;
-    b.onclick=()=>setActive(i);
-    return b;
-  };
-
-  fetch(TEAM_MANIFEST_URL)
-    .then(r=>r.json())
-    .then(data=>{
-      members = data.members || [];
-      members.forEach((m,i)=>{
-        imgTrack.appendChild(makeImg(m));
-        txtTrack.appendChild(makeTxt(m));
-        tabs.appendChild(makeTab(m,i));
-      });
-      if(members.length) setActive(0);
-    });
-})();
-</script>
-<!-- backend/head.html | 3 Bereiche (Bild / Auswahl / Text) + Slider-Effekt (translateX) | Desktop: Bild+Text gelayert (Grid), Auswahl unten | Mobile: Bild -> Auswahl -> Text -->
-<section class="team-head" aria-label="Team">
-  <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
-  <div class="team-head__veil" aria-hidden="true"></div>
-
-  <div class="team-head__inner">
-    <div class="team-shell">
-
-      <!-- BILD (Grid-Zeile 1) -->
-      <div class="team-stage team-stage--img" aria-label="Team Bild">
-        <div class="team-viewport" aria-label="Team Bild Slider">
-          <div class="team-track" id="teamImgTrack"></div>
-        </div>
-      </div>
-
-      <!-- TEXT (Grid-Zeile 1, über Bild) -->
-      <div class="team-stage team-stage--text" aria-label="Team Text">
-        <div class="team-viewport" aria-label="Team Text Slider">
-          <div class="team-track" id="teamTextTrack"></div>
-        </div>
-      </div>
-
-      <!-- AUSWAHL (Grid-Zeile 2) -->
-      <div class="team-choice" aria-label="Team Auswahl">
-        <div class="team-tabsWrap">
-          <div class="team-tabs" id="teamTabs"></div>
-        </div>
-      </div>
-
     </div>
   </div>
 </section>
@@ -332,8 +33,8 @@
 
     --title-height: 70px;
 
-    --stage-h: 75%;
-    --choice-h: 25%;
+    --top-h: 75%;
+    --bottom-h: 25%;
 
     --radius: 18px;
   }
@@ -341,8 +42,8 @@
   .team-head{
     position:relative;
     width:100%;
-    height:100%;
-    min-height:100%;
+    height: calc(100vh - var(--title-height));
+    min-height: calc(100vh - var(--title-height));
     overflow:hidden;
     background:#d9dde3;
   }
@@ -373,40 +74,24 @@
     padding-bottom: 18px;
   }
 
-  /* ===== Desktop: Grid (oben 75% gelayert: Bild + Text | unten 25% Auswahl) ===== */
   .team-shell{
     height:100%;
-    display:grid;
-    grid-template-rows: var(--stage-h) var(--choice-h);
+    display:flex;
+    flex-direction:column;
     gap: 14px;
   }
 
-  .team-stage{
-    grid-row: 1;
-    position:relative;
+  .team-top{
+    flex: 0 0 var(--top-h);
     min-height:0;
-    border-radius: var(--radius);
-    overflow:hidden;
   }
 
-  .team-stage--img{ z-index: 1; }
-  .team-stage--text{
-    z-index: 2;
-    pointer-events:none; /* Tabs bleiben klickbar */
-    background: transparent;
-  }
-  .team-stage--text .team-panel,
-  .team-stage--text a,
-  .team-stage--text button{
-    pointer-events:auto;
-  }
-
-  .team-choice{
-    grid-row: 2;
+  .team-bottom{
+    flex: 0 0 var(--bottom-h);
     min-height:0;
     display:flex;
     justify-content:center;
-    align-items:flex-start; /* Buttons eher oben */
+    align-items:flex-start; /* weiter oben */
     padding-top: 6px;
   }
 
@@ -420,7 +105,7 @@
 
   .team-track{
     height:100%;
-    display:flex;
+    display:flex;            /* Slides nebeneinander */
     width:100%;
     transform: translateX(0%);
     transition: transform .55s cubic-bezier(.22,.9,.18,1);
@@ -428,20 +113,32 @@
   }
 
   .team-slide{
-    flex: 0 0 100%;
+    flex: 0 0 100%;          /* volle Breite pro Slide */
     height:100%;
-    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: clamp(16px, 3vw, 42px);
+    padding: clamp(14px, 2.4vw, 32px);
   }
 
-  /* ===== Bild-Slide (Desktop: Mittelpunkt bei ~20%) ===== */
+  .team-photoCol{
+    flex: 0 0 40%;           /* 2/5 */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+  }
+
+  .team-textCol{
+    flex: 0 0 60%;           /* 3/5 */
+    min-width:0;
+    display:flex;
+    justify-content:flex-start;
+  }
+
   .team-portrait{
-    position:absolute;
-    left: 20%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: min(420px, 40vw);
-    max-width: 420px;
-    min-width: 220px;
+    width: min(420px, 100%);
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
@@ -458,25 +155,17 @@
     transform: scale(1.02);
   }
 
-  /* ===== Text-Slide (Desktop: Panel-Mittelpunkt bei ~30%) ===== */
-  .team-panelWrap{
-    position:absolute;
-    left: 30%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: min(780px, 70vw);
-    max-width: 780px;
-  }
-
+  /* Text Panel (nur EIN Shadow -> kein Container-in-Container Problem) */
   .team-panel{
     width: 100%;
+    max-width: 780px;
     background: rgba(255,255,255,0.84);
     border: 1px solid rgba(15,23,42,0.10);
     border-radius: var(--radius);
     box-shadow: 0 18px 50px rgba(0,0,0,0.12);
     backdrop-filter: blur(10px);
     padding: 22px 22px 18px;
-    overflow:hidden;
+    overflow:hidden; /* kein Scroll */
   }
 
   .team-title{
@@ -494,7 +183,7 @@
     white-space: pre-wrap;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 10;
+    -webkit-line-clamp: 10; /* kein Scroll */
     overflow: hidden;
   }
 
@@ -512,7 +201,7 @@
     justify-content:center;
     max-width: min(1100px, 100%);
     padding: 6px 8px;
-    overflow:hidden;
+    overflow:hidden; /* kein Scroll */
   }
 
   .team-tab{
@@ -560,7 +249,7 @@
     letter-spacing:-0.01em;
   }
 
-  /* ===== Mobile: Bild -> Auswahl -> Text, kein Overlay ===== */
+  /* Mobile: oben/unten bleibt, aber Inhalt untereinander im Slide */
   @media (max-width: 980px){
     .team-head__inner{
       padding-left: 22px;
@@ -569,55 +258,23 @@
       padding-bottom: 16px;
     }
 
-    .team-shell{
-      display:flex;
+    :root{
+      --top-h: 78%;
+      --bottom-h: 22%;
+    }
+
+    .team-slide{
       flex-direction:column;
-      gap: 12px;
-      height:100%;
+      gap: 14px;
+      padding: 14px;
     }
-
-    /* Bild oben mit fester “sinnvoller” Höhe */
-    .team-stage{
-      border-radius: var(--radius);
-      overflow:hidden;
-    }
-    .team-stage--img{
-      order: 1;
-      flex: 0 0 38%;
-      min-height: 220px;
-      z-index: 1;
-    }
-    /* Auswahl mittig, Höhe nach Inhalt */
-    .team-choice{
-      order: 2;
+    .team-photoCol, .team-textCol{
       flex: 0 0 auto;
-      padding-top: 0;
-      align-items:center;
+      width:100%;
+      justify-content:center;
     }
-    /* Text unten, nimmt Rest */
-    .team-stage--text{
-      order: 3;
-      flex: 1 1 auto;
-      min-height: 0;
-      z-index: 1;
-      pointer-events:auto;
-    }
-    .team-stage--text .team-viewport{ border-radius: var(--radius); }
-
     .team-portrait{
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
       width: min(280px, 70vw);
-      min-width: 200px;
-    }
-
-    .team-panelWrap{
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 100%;
-      max-width: 100%;
     }
     .team-panel{
       max-width: 100%;
@@ -642,10 +299,9 @@
     const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
-    const bgEl       = document.getElementById("teamBg");
-    const imgTrackEl = document.getElementById("teamImgTrack");
-    const txtTrackEl = document.getElementById("teamTextTrack");
-    const tabsEl     = document.getElementById("teamTabs");
+    const bgEl = document.getElementById("teamBg");
+    const trackEl = document.getElementById("teamTrack");
+    const tabsEl = document.getElementById("teamTabs");
 
     let members = [];
     let active = 0;
@@ -664,10 +320,7 @@
 
     function splitFirstSentence(text){
       const t = (text || "").trim();
-      if (!t) return {
-        first: "Wir sind das Team.",
-        rest: "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt."
-      };
+      if (!t) return { first: "Wir sind das Team.", rest: "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt." };
 
       const nl = t.indexOf("\n");
       if (nl > 0){
@@ -707,18 +360,19 @@
 
     function setActive(idx){
       active = idx;
-      const x = "translateX(" + (-idx * 100) + "%)";
-      imgTrackEl.style.transform = x;
-      txtTrackEl.style.transform = x;
+      trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
 
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
     }
 
-    function makeImgSlide(member){
+    function makeSlide(member){
       const slide = document.createElement("div");
       slide.className = "team-slide";
+
+      const left = document.createElement("div");
+      left.className = "team-photoCol";
 
       const portrait = document.createElement("div");
       portrait.className = "team-portrait";
@@ -733,16 +387,10 @@
       };
 
       portrait.appendChild(img);
-      slide.appendChild(portrait);
-      return slide;
-    }
+      left.appendChild(portrait);
 
-    function makeTextSlide(member){
-      const slide = document.createElement("div");
-      slide.className = "team-slide";
-
-      const wrap = document.createElement("div");
-      wrap.className = "team-panelWrap";
+      const right = document.createElement("div");
+      right.className = "team-textCol";
 
       const panel = document.createElement("div");
       panel.className = "team-panel";
@@ -755,14 +403,14 @@
 
       const t = document.createElement("div");
       t.className = "team-text";
-      t.textContent = (rest && rest.trim().length)
-        ? rest
-        : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+      t.textContent = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
 
       panel.appendChild(h);
       panel.appendChild(t);
-      wrap.appendChild(panel);
-      slide.appendChild(wrap);
+      right.appendChild(panel);
+
+      slide.appendChild(left);
+      slide.appendChild(right);
 
       return slide;
     }
@@ -810,7 +458,7 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
-      /* “von rechts rein” (stagger) */
+      // “von rechts rein” (stagger)
       btn.style.opacity = "0";
       btn.style.transform = "translateX(18px)";
       requestAnimationFrame(() => {
@@ -851,13 +499,11 @@
         return a.name.localeCompare(b.name, "de");
       });
 
-      imgTrackEl.innerHTML = "";
-      txtTrackEl.innerHTML = "";
+      trackEl.innerHTML = "";
       tabsEl.innerHTML = "";
 
       members.forEach((m, i) => {
-        imgTrackEl.appendChild(makeImgSlide(m));
-        txtTrackEl.appendChild(makeTextSlide(m));
+        trackEl.appendChild(makeSlide(m));
         tabsEl.appendChild(makeTab(m, i));
       });
 
