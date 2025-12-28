@@ -14,10 +14,13 @@
     --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
 
     /* Blau-Tint */
-    --hero-blue: #0F172A;      /* sehr dunkles Blau */
-    --hero-blue-a1: .75;       /* 60–75% Deckkraft */
+    --hero-blue-a1: .75; /* 60–75% */
     --hero-blue-a2: .62;
     --hero-blue-a3: .45;
+
+    /* Strip Verhalten */
+    --strip-gap: 12px;
+    --thumb-radius: 14px;
   }
 
   .head-wrap{
@@ -46,8 +49,6 @@
     transform: scale(1.02);
     filter: saturate(.92) contrast(.95);
   }
-
-  /* Gradient-Overlay in #0F172A (ca. 60–75% Deckkraft) */
   .hero__tint{
     position:absolute; inset:0;
     background: linear-gradient(
@@ -58,14 +59,12 @@
     );
     mix-blend-mode: multiply;
   }
-
-  /* optionaler, sanfter Dim für Lesbarkeit – sehr dezent */
   .hero__dim{
     position:absolute; inset:0;
     background: rgba(0,0,0,.12);
   }
 
-  /* Strip: 5 Kacheln nebeneinander, gleichmäßige Abstände */
+  /* Modern Strip: edge-to-edge + fade + hover-grow (kein äußerer Kasten) */
   .items-strip{
     margin-top: var(--head-gap);
 
@@ -73,31 +72,60 @@
     min-height:170px;
     max-height:240px;
 
-    border-radius: var(--radius);
-    background:#fff;
-    box-shadow: var(--shadow-soft);
+    background: transparent;
 
-    display:grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap:14px;
-    padding:14px;
+    display:flex;
+    align-items:stretch;
+    gap: var(--strip-gap);
 
     overflow:hidden;
+
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
   }
 
   .item-thumb{
-    width:100%;
+    position:relative;
     height:100%;
-    border-radius:14px;
     overflow:hidden;
+    border-radius: var(--thumb-radius);
     background:#eef1f6;
-    box-shadow:0 6px 18px rgba(0,0,0,.10);
+
+    flex: 1 1 0;
+
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+    transition: flex .22s ease, transform .22s ease, box-shadow .22s ease, filter .22s ease;
+    filter: saturate(.92) contrast(.98);
+    cursor: pointer;
   }
+
   .item-thumb img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
+    transform: scale(1.01);
+    transition: transform .22s ease;
+  }
+
+  .item-thumb:hover{
+    flex: 3 1 0;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(0,0,0,.18);
+    filter: saturate(1) contrast(1);
+  }
+  .item-thumb:hover img{
+    transform: scale(1.06);
+  }
+
+  @media (hover: none){
+    .item-thumb:hover{
+      flex: 1 1 0;
+      transform: none;
+      box-shadow: 0 10px 24px rgba(0,0,0,.12);
+      filter: saturate(.92) contrast(.98);
+    }
+    .item-thumb:hover img{ transform: scale(1.01); }
   }
 
   @media (max-width:700px){
@@ -106,9 +134,10 @@
       --logo-pad-left: 16px;
       --nav-pad-right: 16px;
       --head-gap: 26px;
+      --strip-gap: 10px;
+      --thumb-radius: 12px;
     }
     .hero{ height:46vh; min-height:300px; }
-    .items-strip{ gap:12px; padding:12px; }
   }
 
   @media (max-width:560px){
@@ -117,8 +146,10 @@
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
       --head-gap: 22px;
+      --strip-gap: 8px;
+      --thumb-radius: 12px;
     }
-    .items-strip{ min-height:150px; max-height:210px; gap:10px; padding:10px; }
+    .items-strip{ min-height:150px; max-height:210px; }
     .hero{ min-height:260px; }
   }
 </style>
@@ -160,7 +191,9 @@
     if(!strip) return;
 
     strip.innerHTML = "";
-    const imgs = shuffleUnique(allImages).slice(0, 5); // immer 5 Kacheln
+
+    const count = Math.min(12, allImages.length);
+    const imgs = shuffleUnique(allImages).slice(0, count);
 
     imgs.forEach((src) => {
       const d = document.createElement("div");
@@ -176,7 +209,6 @@
     });
   }
 
-  // Hero
   try{
     const bg = await load(BG_MANIFEST);
     if(Array.isArray(bg) && bg.length){
@@ -185,11 +217,16 @@
     }
   }catch(e){}
 
-  // Items
   try{
     const raw = await load(ITEMS_MANIFEST);
     if(Array.isArray(raw) && raw.length){
       renderStrip(raw);
+
+      let t;
+      window.addEventListener("resize", () => {
+        clearTimeout(t);
+        t = setTimeout(() => renderStrip(raw), 120);
+      }, { passive:true });
     }
   }catch(e){}
 })();
