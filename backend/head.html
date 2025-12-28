@@ -1,28 +1,29 @@
-<!-- backend/head.html | Zonen-Raster:
-     Desktop: Zone A (75%) Slider/Karte + Zone B (25%) Tabs getrennt unten.
-     Mobile: Tabs werden in die aktive Karte integriert (zwischen Bild und Text), Sliden bleibt gleich.
+<!-- backend/head.html | Slider: Text-Panel links + Portrait rechts (getrennte Container)
+     Desktop: Zone A (75%) Slider | Zone B (25%) Tabs unten (ohne zusätzliche Hülle)
+     Mobile: Bild oben, Tabs darunter, Text darunter (alles in Slide), KEIN horizontales Scrollen.
 -->
 
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
+  <!-- Interner Scroll (Head) -->
   <div class="team-scroll" id="teamScroll" aria-label="Team Inhalt">
     <div class="team-stage">
 
-      <!-- Zone A: Scene -->
+      <!-- Zone A -->
       <div class="sceneZone" aria-label="Vorstellung">
         <div class="team-viewport" aria-label="Team Slider">
           <div class="team-track" id="teamTrack"></div>
         </div>
       </div>
 
-      <!-- Zone B: Selector (Desktop) -->
+      <!-- Zone B (Desktop Tabs) -->
       <div class="selectorZone" id="selectorZone" aria-label="Team Auswahl">
         <div class="team-tabs" id="teamTabs"></div>
       </div>
 
-      <!-- Gate (Overlay, nur sichtbar wenn aktiviert) -->
+      <!-- Gate (optional) -->
       <div class="gateZone" id="gateZone" aria-hidden="true">
         <button class="gateBtn" id="gateBtn" type="button">Zum Shop ↓</button>
       </div>
@@ -34,19 +35,15 @@
 <style>
   :root{
     --radius: 18px;
-    --shadow-soft: 0 18px 50px rgba(0,0,0,0.12);
+    --panel-bg: rgba(255,255,255,0.84);
+    --panel-border: rgba(15,23,42,0.10);
+    --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
 
-    /* Zonenhöhen (Desktop) */
     --zoneA: 75%;
     --zoneB: 25%;
 
-    /* Card Limits (Desktop) */
-    --card-max-w: min(1120px, 92%);
-    --card-max-h: 92%;
-
-    /* Card inner split (Desktop) */
-    --text-col: 60%;
-    --img-col: 40%;
+    --text-max-w: min(780px, 60vw);  /* Textpanel max */
+    --img-max: min(420px, 40vw);     /* Bild max */
   }
 
   .team-head{
@@ -73,7 +70,7 @@
     backdrop-filter: blur(10px);
   }
 
-  /* ===== Interner Scroll ===== */
+  /* interner Scroll */
   .team-scroll{
     position:relative;
     z-index:1;
@@ -88,7 +85,6 @@
   .team-scroll{ scrollbar-width:none; }
   .team-scroll::-webkit-scrollbar{ width:0; height:0; }
 
-  /* ===== Stage + Raster ===== */
   .team-stage{
     position:relative;
     width:100%;
@@ -113,11 +109,12 @@
     align-items:flex-start;
     justify-content:center;
     padding-top: 6px;
+    background: transparent;     /* wichtig: kein grauer Balken */
+    box-shadow:none;
   }
 
-  /* ===== Slider ===== */
+  /* slider */
   .team-viewport{
-    position:relative;
     width:100%;
     height:100%;
     overflow:hidden;
@@ -142,29 +139,29 @@
     padding: clamp(12px, 2vw, 26px);
   }
 
-  /* ===== Card ===== */
-  .team-card{
-    width: var(--card-max-w);
-    height: min(var(--card-max-h), 100%);
-    display:grid;
-    grid-template-columns: var(--text-col) var(--img-col);
-    grid-template-areas: "text media";
-    gap: clamp(16px, 3vw, 42px);
+  /* === Slide Layout Desktop: Text links + Bild rechts (getrennt, KEIN gemeinsamer Container) === */
+  .slide-grid{
+    width: min(1200px, 100%);
+    height: 100%;
+    display:flex;
     align-items:center;
-
-    background: rgba(255,255,255,0.66);
-    border: 1px solid rgba(15,23,42,0.10);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(10px);
-    padding: clamp(14px, 2.2vw, 26px);
-    overflow:hidden;
+    justify-content:center;
+    gap: clamp(18px, 3vw, 44px);
   }
 
-  .card-text{ grid-area:text; min-width:0; }
-  .card-media{ grid-area:media; min-width:0; display:flex; align-items:center; justify-content:center; }
+  .textPanel{
+    width: var(--text-max-w);
+    max-height: 75%;
+    overflow:hidden;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px);
+    padding: 22px 22px 18px;
+  }
 
-  .card-title{
+  .textTitle{
     margin:0 0 10px 0;
     font-size: clamp(24px, 2.2vw, 40px);
     line-height:1.02;
@@ -172,8 +169,7 @@
     color:#0f172a;
   }
 
-  /* Desktop: Text nicht "zu tief" -> clamp statt unendlich */
-  .card-body{
+  .textBody{
     font-size: clamp(14px, 1.0vw, 16px);
     line-height:1.65;
     color: rgba(15,23,42,0.78);
@@ -181,18 +177,27 @@
 
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 10;
+    -webkit-line-clamp: 10; /* Desktop: nicht zu tief */
     overflow: hidden;
   }
 
+  .portraitWrap{
+    width: var(--img-max);
+    max-height: 75%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
   .portrait{
-    width: min(420px, 100%);
+    width: 100%;
+    max-width: var(--img-max);
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
-    background: rgba(255,255,255,0.55);
+    background: rgba(255,255,255,0.60);
     border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.18); /* nur am Bild */
     backdrop-filter: blur(8px);
   }
   .portrait img{
@@ -203,21 +208,15 @@
     transform: scale(1.02);
   }
 
-  /* Tabs-Slot existiert immer, aber:
-     Desktop: unsichtbar (damit NICHTS das Grid verschiebt)
-     Mobile: sichtbar und sitzt zwischen Bild und Text */
-  .tabs-slot{
-    display:none;
-  }
-
-  /* ===== Tabs (ohne extra Wrap) ===== */
+  /* Tabs */
   .team-tabs{
     display:flex;
     gap: 12px;
     align-items:center;
     justify-content:center;
     width: min(1200px, 100%);
-    overflow:hidden;
+    overflow:hidden; /* kein horizontaler Scroll */
+    background: transparent;
   }
 
   .team-tab{
@@ -265,7 +264,7 @@
     letter-spacing:-0.01em;
   }
 
-  /* ===== Gate Overlay ===== */
+  /* Gate */
   .gateZone{
     position:absolute;
     left:50%;
@@ -275,10 +274,7 @@
     display:none;
     pointer-events:none;
   }
-  .gateZone.is-visible{
-    display:block;
-    pointer-events:auto;
-  }
+  .gateZone.is-visible{ display:block; pointer-events:auto; }
   .gateBtn{
     display:inline-flex;
     align-items:center;
@@ -290,7 +286,6 @@
     font-weight: 800;
     letter-spacing:-0.01em;
     color:#0f172a;
-
     background: rgba(31,79,163,0.12);
     border: 1px solid rgba(31,79,163,0.28);
     transition: transform .12s ease, background .12s ease;
@@ -298,69 +293,45 @@
   .gateBtn:hover{ background: rgba(31,79,163,0.18); }
   .gateBtn:active{ transform: scale(0.98); }
 
-  /* ===== Mobile: Tabs in die Karte integrieren ===== */
+  /* ===== Mobile: Bild oben, Tabs, Text ===== */
   @media (max-width: 980px){
     .team-scroll{ padding: 14px 14px 18px; }
-
-    .team-stage{
-      height:auto;
-      min-height:0;
-      gap: 10px;
-    }
-
-    .sceneZone{
-      flex: 0 0 auto;
-      min-height: 0;
-      height: auto;
-      overflow: visible;
-    }
-
-    .selectorZone{ display:none; }
-
-    .team-viewport{
-      height:auto;
-      overflow:hidden;
-      border-radius: 16px;
-    }
+    .team-stage{ height:auto; min-height:0; gap: 10px; }
+    .sceneZone{ flex: 0 0 auto; height:auto; overflow:visible; }
+    .selectorZone{ display:none; } /* Tabs wandern in Slide */
+    .team-viewport{ height:auto; border-radius: 16px; }
     .team-track{ height:auto; }
-    .team-slide{
-      height:auto;
-      padding: 14px;
-      align-items:stretch;
-    }
+    .team-slide{ height:auto; padding: 14px; align-items:stretch; }
 
-    .team-card{
-      width: 100%;
+    .slide-grid{
+      width:100%;
       height:auto;
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "media"
-        "tabs"
-        "text";
+      flex-direction:column;
       gap: 12px;
-      border-radius: 16px;
+      align-items:center;
     }
 
-    .portrait{
-      width: min(260px, 70vw);
-      margin: 0 auto;
-    }
+    .portraitWrap{ width: min(260px, 70vw); max-height:none; }
+    .portrait{ box-shadow: 0 18px 44px rgba(0,0,0,0.16); }
 
-    .tabs-slot{
-      display:block;
-      grid-area: tabs;
+    .mobileTabsSlot{
+      width:100%;
+      display:flex;
+      justify-content:center;
     }
-
     .team-tabs{
       flex-wrap: wrap;
       justify-content:center;
-      overflow:hidden;
       width:100%;
-      margin: 0;
     }
 
-    /* Mobile: etwas mehr Text erlauben */
-    .card-body{
+    .textPanel{
+      width:100%;
+      max-height:none;
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+    }
+    .textBody{
       -webkit-line-clamp: 14;
     }
   }
@@ -443,41 +414,8 @@
       bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
     }
 
-    function setActive(idx){
-      active = idx;
-      trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
-
-      tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
-      const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
-      if (btn) btn.classList.add("is-active");
-
-      placeTabsForLayout();
-      downArmed = false;
-      downCooldown = false;
-      updateGateVisibility();
-    }
-
-    function placeTabsForLayout(){
-      const isMobile = mqMobile.matches;
-      const slides = trackEl.querySelectorAll(".team-slide");
-      const current = slides[active];
-      if (!current) return;
-
-      const slot = current.querySelector(".tabs-slot");
-      if (isMobile){
-        if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
-      }else{
-        if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
-      }
-    }
-
-    function isScrollable(){
-      return scrollEl.scrollHeight > scrollEl.clientHeight + 1;
-    }
-
-    function atBottom(){
-      return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1;
-    }
+    function isScrollable(){ return scrollEl.scrollHeight > scrollEl.clientHeight + 1; }
+    function atBottom(){ return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1; }
 
     function triggerDown(){
       if (downCooldown) return;
@@ -493,15 +431,10 @@
     }
 
     function bindGateLogic(){
-      if (!scrollEl) return;
-
-      if (gateBtn){
-        gateBtn.addEventListener("click", () => triggerDown());
-      }
+      if (gateBtn) gateBtn.addEventListener("click", () => triggerDown());
 
       scrollEl.addEventListener("scroll", () => {
-        if (isScrollable() && atBottom()) downArmed = true;
-        else downArmed = false;
+        downArmed = isScrollable() && atBottom();
         updateGateVisibility();
       }, { passive:true });
 
@@ -509,10 +442,7 @@
         const down = e.deltaY > 0;
 
         if (!isScrollable()){
-          if (down){
-            e.preventDefault();
-            triggerDown();
-          }
+          if (down){ e.preventDefault(); triggerDown(); }
           return;
         }
 
@@ -527,34 +457,58 @@
       }, { passive:false });
     }
 
+    function placeTabs(){
+      const isMobile = mqMobile.matches;
+      const slides = trackEl.querySelectorAll(".team-slide");
+      const current = slides[active];
+      if (!current) return;
+
+      const slot = current.querySelector(".mobileTabsSlot");
+      if (isMobile){
+        if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
+      }else{
+        if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
+      }
+    }
+
+    function setActive(idx){
+      active = idx;
+      trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
+
+      tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
+      const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
+      if (btn) btn.classList.add("is-active");
+
+      placeTabs();
+      downArmed = false;
+      downCooldown = false;
+      updateGateVisibility();
+    }
+
     function makeSlide(member){
       const slide = document.createElement("div");
       slide.className = "team-slide";
 
-      const card = document.createElement("div");
-      card.className = "team-card";
+      const grid = document.createElement("div");
+      grid.className = "slide-grid";
 
-      const textCol = document.createElement("div");
-      textCol.className = "card-text";
+      const textPanel = document.createElement("div");
+      textPanel.className = "textPanel";
 
-      const mediaCol = document.createElement("div");
-      mediaCol.className = "card-media";
-
-      const tabsSlot = document.createElement("div");
-      tabsSlot.className = "tabs-slot";
-      tabsSlot.setAttribute("aria-hidden", "true");
-
-      const { first, rest } = splitFirstSentence(member.text);
-
-      const h = document.createElement("h1");
-      h.className = "card-title";
-      h.textContent = first || "Schön, dass du da bist!";
+      const title = document.createElement("h1");
+      title.className = "textTitle";
 
       const body = document.createElement("div");
-      body.className = "card-body";
+      body.className = "textBody";
+
+      const { first, rest } = splitFirstSentence(member.text);
+      title.textContent = first || "Schön, dass du da bist!";
       body.textContent = (rest && rest.trim().length)
         ? rest
         : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
+
+      const portraitWrap = document.createElement("div");
+      portraitWrap.className = "portraitWrap";
 
       const portrait = document.createElement("div");
       portrait.className = "portrait";
@@ -563,23 +517,25 @@
       img.loading = "lazy";
       img.src = member.img;
       img.alt = member.name;
-      img.onerror = () => {
-        img.removeAttribute("src");
-        img.alt = "";
-      };
+      img.onerror = () => { img.removeAttribute("src"); img.alt = ""; };
 
       portrait.appendChild(img);
-      mediaCol.appendChild(portrait);
+      portraitWrap.appendChild(portrait);
 
-      textCol.appendChild(h);
-      textCol.appendChild(body);
+      const mobileTabsSlot = document.createElement("div");
+      mobileTabsSlot.className = "mobileTabsSlot";
+      mobileTabsSlot.setAttribute("aria-hidden","true");
 
-      // DOM-Reihenfolge ist egal, Grid-Areas bestimmen die Position
-      card.appendChild(textCol);
-      card.appendChild(mediaCol);
-      card.appendChild(tabsSlot);
+      textPanel.appendChild(title);
+      textPanel.appendChild(body);
 
-      slide.appendChild(card);
+      // Desktop: Text + Bild nebeneinander (separate Container)
+      // Mobile: Bild, Tabs, Text (per CSS Flex-Column + placeTabs())
+      grid.appendChild(textPanel);
+      grid.appendChild(portraitWrap);
+      grid.appendChild(mobileTabsSlot);
+
+      slide.appendChild(grid);
       return slide;
     }
 
@@ -601,10 +557,8 @@
       img.onerror = () => {
         av.innerHTML = "";
         const fb = document.createElement("div");
-        fb.style.width="100%";
-        fb.style.height="100%";
-        fb.style.display="grid";
-        fb.style.placeItems="center";
+        fb.style.width="100%"; fb.style.height="100%";
+        fb.style.display="grid"; fb.style.placeItems="center";
         fb.style.fontWeight="900";
         fb.style.color="rgba(15,23,42,0.65)";
         fb.style.background="#e9eef7";
@@ -674,10 +628,10 @@
         tabsEl.appendChild(makeTab(m, i));
       });
 
-      mqMobile.addEventListener?.("change", () => placeTabsForLayout());
+      mqMobile.addEventListener?.("change", () => placeTabs());
 
       if (members.length) setActive(0);
-      placeTabsForLayout();
+      placeTabs();
       updateGateVisibility();
     }
 
