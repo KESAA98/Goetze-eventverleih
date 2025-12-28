@@ -19,10 +19,7 @@
       --muted: #6b7280;
       --primary: #1f4fa3;
 
-      --card: #f8f9fb;
       --radius: 14px;
-      --shadow: 0 12px 40px rgba(0,0,0,.18);
-
       --title-shadow: 0 8px 24px rgba(0,0,0,.12);
     }
 
@@ -33,7 +30,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-base);
-      overflow:hidden; /* Page-Scroll komplett aus */
+      overflow:hidden; /* WICHTIG: kein Page-Scroll */
       -webkit-text-size-adjust: 100%;
       text-rendering: optimizeLegibility;
     }
@@ -57,7 +54,7 @@
     }
     #cookieOverlay.is-visible{ display:block; }
 
-    /* TITEL */
+    /* Titel */
     #title{
       position:fixed;
       top:0; left:0; right:0;
@@ -71,7 +68,7 @@
       box-shadow: var(--title-shadow);
     }
 
-    /* Bühne unter der Titel-Leiste */
+    /* Bühne */
     #stage{
       position:fixed;
       top: var(--title-height);
@@ -80,7 +77,7 @@
       overflow:hidden;
     }
 
-    /* Panels Head + Shop untereinander */
+    /* Panels (Head + Shop) */
     #panels{
       height: 200%;
       transform: translateY(0);
@@ -88,18 +85,11 @@
       will-change: transform;
     }
 
-    /* Head / Shop: nur intern scrollen (scrollbar versteckt, aber aktiv) */
+    /* WICHTIG: NICHT im Index scrollen. Scroll ist in head.html / shop.html */
     #head, #shop{
       height: calc(100vh - var(--title-height));
-      overflow:auto;
-      overscroll-behavior: contain;
-      -webkit-overflow-scrolling: touch;
-    }
-    #head, #shop{ scrollbar-width: none; }
-    #head::-webkit-scrollbar,
-    #shop::-webkit-scrollbar{
-      width:0;
-      height:0;
+      overflow:hidden;
+      position: relative;
     }
 
     /* Shop: Platz für Cart rechts (Desktop) */
@@ -127,6 +117,30 @@
       #cart{ transform:none; }
       #shop{ width:100%; margin-right:0; }
     }
+
+    /* Debug / Fehleranzeige beim Laden */
+    .load-error{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+      color: rgba(15,23,42,0.75);
+      text-align:center;
+    }
+    .load-error > div{
+      max-width: 860px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(15,23,42,0.12);
+      border-radius: 16px;
+      padding: 18px 18px 16px;
+    }
+    .load-error b{ color:#0f172a; }
+    .load-error code{
+      background: rgba(15,23,42,0.06);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
   </style>
 </head>
 
@@ -137,7 +151,7 @@
   <!-- 2) Titel -->
   <header id="title" class="slot" data-src="backend/titel.html"></header>
 
-  <!-- 3/4) Stage: Head + Shop (kein Page-Scroll) -->
+  <!-- 3/4) Stage -->
   <div id="stage">
     <div id="panels">
       <section id="head" class="slot" data-src="backend/head.html"></section>
@@ -176,11 +190,11 @@
       async function loadInto(el, url){
         const res = await fetch(url, { cache: "no-store" });
         if(!res.ok) throw new Error(url + " -> " + res.status);
-        const html = await res.text();
 
+        const html = await res.text();
         el.innerHTML = html;
 
-        /* Scripts aus geladenem HTML ausführen */
+        // Scripts aus geladenem HTML ausführen
         const scripts = Array.from(el.querySelectorAll("script"));
         for(const s of scripts){
           const ns = document.createElement("script");
@@ -192,34 +206,11 @@
         }
       }
 
-      function setupTitleShadow(getScrollEl){
-        const title = document.getElementById("title");
-        if(!title) return;
-
-        const update = () => {
-          const el = getScrollEl();
-          const top = el ? el.scrollTop : 0;
-          if(top > 0) title.classList.add("is-scrolled");
-          else title.classList.remove("is-scrolled");
-        };
-
-        window.__updateTitleShadow = update;
-        update();
-      }
-
-      function setupHeadShopScrollSwitch(){
-        const head   = document.getElementById("head");
-        const shop   = document.getElementById("shop");
+      function setupPanelSwitch(){
         const panels = document.getElementById("panels");
-        if(!head || !shop || !panels) return;
+        if(!panels) return;
 
-        // WICHTIG:
-        // Wenn head.html oder shop.html intern eigene Scroll-Container haben, müssen wir DIE nehmen.
-        // Fallback ist jeweils der Container selbst.
-        const getHeadScrollEl = () => head.querySelector(".team-scroll") || head;
-        const getShopScrollEl = () => shop.querySelector(".shop-scroll") || shop;
-
-        window.__view = "head";  // "head" | "shop"
+        window.__view = "head"; // "head" | "shop"
         let locked = false;
 
         const cookieVisible = () => {
@@ -227,10 +218,8 @@
           return !!(ov && ov.classList.contains("is-visible"));
         };
 
-        const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
-        const atTop    = (el) => el.scrollTop <= 0;
-
         const goShop = () => {
+          if(cookieVisible()) return;
           if(locked || window.__view === "shop") return;
           locked = true;
           window.__view = "shop";
@@ -240,6 +229,7 @@
         };
 
         const goHead = () => {
+          if(cookieVisible()) return;
           if(locked || window.__view === "head") return;
           locked = true;
           window.__view = "head";
@@ -248,76 +238,61 @@
           setTimeout(()=> locked = false, 380);
         };
 
-        // Für Head/Shop-HTML: damit deine Impuls-Skripte (head/shop) wirklich wechseln können
         window.goShop = goShop;
         window.goHead = goHead;
+      }
 
-        // Titel-Schatten an das gerade aktive Scroll-Element koppeln
-        setupTitleShadow(() => (window.__view === "shop" ? getShopScrollEl() : getHeadScrollEl()));
+      function setupTitleShadow(){
+        const title = document.getElementById("title");
+        const head  = document.getElementById("head");
+        const shop  = document.getElementById("shop");
+        if(!title || !head || !shop) return;
 
-        // Scroll-Listener für Shadow (auf beiden Scroll-Elementen, falls intern)
-        const bindScrollShadow = () => {
-          const hs = getHeadScrollEl();
-          const ss = getShopScrollEl();
-          if(hs) hs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
-          if(ss) ss.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
+        // Wir versuchen den "inneren" Scrollcontainer zu finden:
+        // head.html: #teamScroll, shop.html: #shopScroll (falls vorhanden)
+        const getActiveInnerScroll = () => {
+          const v = window.__view || "head";
+          if (v === "shop") return document.getElementById("shopScroll");
+          return document.getElementById("teamScroll");
         };
 
-        // Wheel-Impulse: auf den echten Scrollflächen!
-        const bindWheel = () => {
-          const hs = getHeadScrollEl();
-          const ss = getShopScrollEl();
-
-          // (Falls neu geladen/umgebaut wird) doppelte Listener vermeiden: simpel durch Clone ersetzen
-          // -> wir machen hier keine Clone-Aktion, sondern verlassen uns darauf, dass bindWheel nur 1x läuft.
-
-          hs.addEventListener("wheel", (e) => {
-            if(cookieVisible()) return;
-            if(e.deltaY > 0 && atBottom(hs)){
-              e.preventDefault();
-              goShop();
-            }
-          }, { passive:false });
-
-          ss.addEventListener("wheel", (e) => {
-            if(cookieVisible()) return;
-            if(e.deltaY < 0 && atTop(ss)){
-              e.preventDefault();
-              goHead();
-            }
-          }, { passive:false });
+        const update = () => {
+          const sc = getActiveInnerScroll();
+          const has = sc ? (sc.scrollTop > 0) : false;
+          title.classList.toggle("is-scrolled", !!has);
         };
 
-        // Keyboard-Impulse (optional)
-        window.addEventListener("keydown", (e) => {
-          if(cookieVisible()) return;
+        // Delegiert: wir hören global und aktualisieren bei Scroll in den inneren Containern
+        window.addEventListener("scroll", update, { passive:true, capture:true });
+        window.addEventListener("resize", update, { passive:true });
 
-          const downKeys = ["ArrowDown","PageDown"," "];
-          const upKeys   = ["ArrowUp","PageUp"];
+        window.__updateTitleShadow = update;
+        update();
+      }
 
-          const hs = getHeadScrollEl();
-          const ss = getShopScrollEl();
+      function showLoadError(el, url, err){
+        el.innerHTML = `
+          <div class="load-error">
+            <div>
+              <div style="font-size:18px; font-weight:900; margin-bottom:8px;">Inhalt konnte nicht geladen werden</div>
+              <div style="margin-bottom:10px;">
+                Datei: <b><code>${escapeHtml(url)}</code></b>
+              </div>
+              <div style="opacity:.85;">
+                ${escapeHtml(String(err && err.message ? err.message : err))}
+              </div>
+            </div>
+          </div>
+        `;
+      }
 
-          if(window.__view === "head" && downKeys.includes(e.key) && atBottom(hs)){
-            e.preventDefault(); goShop();
-          }
-          if(window.__view === "shop" && upKeys.includes(e.key) && atTop(ss)){
-            e.preventDefault(); goHead();
-          }
-        }, { passive:false });
-
-        // Nach Laden (und auch nach Resize) sicherstellen, dass wir die richtigen Scroll-Elemente erwischen
-        // (weil head.html erst nachträglich injected wird).
-        const lateBind = () => {
-          bindScrollShadow();
-          bindWheel();
-          window.__updateTitleShadow && window.__updateTitleShadow();
-        };
-
-        // Einmal direkt und einmal kurz danach (falls DOM noch nachzieht)
-        lateBind();
-        setTimeout(lateBind, 120);
-        window.addEventListener("resize", () => setTimeout(lateBind, 60), { passive:true });
+      function escapeHtml(s){
+        return String(s)
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
       }
 
       async function boot(){
@@ -326,18 +301,44 @@
         let accepted = false;
         try { accepted = localStorage.getItem(COOKIE_KEY) === "1"; } catch(e) {}
 
-        /* Titel / Head / Shop / Cart immer laden */
+        // 1) Erst normale Slots laden (ohne CookieOverlay) – ABER robust (allSettled)
         const normalSlots = slots.filter(el => el.id !== "cookieOverlay");
-        await Promise.all(normalSlots.map(el => loadInto(el, el.dataset.src)));
 
-        /* Cookie nur bei Bedarf */
+        const results = await Promise.allSettled(
+          normalSlots.map(async (el) => {
+            const url = el.dataset.src;
+            try{
+              await loadInto(el, url);
+              return { ok:true, el, url };
+            }catch(err){
+              showLoadError(el, url, err);
+              return { ok:false, el, url, err };
+            }
+          })
+        );
+
+        // 2) Cookie nur bei Bedarf laden
         if(!accepted){
           const overlay = document.getElementById("cookieOverlay");
           overlay.classList.add("is-visible");
-          await loadInto(overlay, overlay.dataset.src);
+          try{
+            await loadInto(overlay, overlay.dataset.src);
+          }catch(err){
+            showLoadError(overlay, overlay.dataset.src, err);
+          }
         }
 
-        setupHeadShopScrollSwitch();
+        // 3) Switch + Shadow
+        setupPanelSwitch();
+        setupTitleShadow();
+
+        // Optional: wenn Shop nicht geladen wurde, kann natürlich auch kein Platzhalter erscheinen
+        // -> du siehst dann jetzt aber eine klare Fehlermeldung IM Shop-Panel.
+        results.forEach(r => {
+          if (r.status === "fulfilled" && r.value && r.value.ok === false){
+            console.warn("Load failed:", r.value.url, r.value.err);
+          }
+        });
       }
 
       boot().catch(err => console.error(err));
