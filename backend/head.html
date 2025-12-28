@@ -39,8 +39,8 @@
     --panel-border: rgba(15,23,42,0.10);
     --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
 
-    --zoneA: 75%;
-    --zoneB: 25%;
+    --zoneA: 80%;
+    --zoneB: 20%;
 
     --text-max-w: min(780px, 60vw);  /* Textpanel max */
     --img-max: min(420px, 40vw);     /* Bild max */
@@ -104,7 +104,7 @@
 
   .selectorZone{
     flex: 0 0 var(--zoneB);
-    min-height: 120px;
+    min-height: 96px;
     display:flex;
     align-items:flex-start;
     justify-content:center;
@@ -151,7 +151,7 @@
 
   .textPanel{
     width: var(--text-max-w);
-    max-height: 75%;
+    max-height: 82%;
     overflow:hidden;
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
@@ -170,20 +170,17 @@
   }
 
   .textBody{
+
     font-size: clamp(14px, 1.0vw, 16px);
     line-height:1.65;
     color: rgba(15,23,42,0.78);
     white-space: pre-wrap;
+}
 
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 10; /* Desktop: nicht zu tief */
-    overflow: hidden;
-  }
 
   .portraitWrap{
     width: var(--img-max);
-    max-height: 75%;
+    max-height: 82%;
     display:flex;
     align-items:center;
     justify-content:center;
