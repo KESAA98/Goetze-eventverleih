@@ -33,7 +33,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-base);
-      overflow:hidden;                 /* Page-Scroll komplett aus */
+      overflow:hidden; /* Page-Scroll komplett aus */
       -webkit-text-size-adjust: 100%;
       text-rendering: optimizeLegibility;
     }
@@ -88,15 +88,13 @@
       will-change: transform;
     }
 
-    /* Head / Shop: nur intern scrollen */
+    /* Head / Shop: nur intern scrollen (scrollbar versteckt, aber aktiv) */
     #head, #shop{
       height: calc(100vh - var(--title-height));
       overflow:auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
     }
-
-    /* Scrollbars verstecken (Scroll bleibt aktiv) */
     #head, #shop{ scrollbar-width: none; }
     #head::-webkit-scrollbar,
     #shop::-webkit-scrollbar{
@@ -194,30 +192,19 @@
         }
       }
 
-      function setupTitleShadow(){
+      function setupTitleShadow(getScrollEl){
         const title = document.getElementById("title");
-        const head  = document.getElementById("head");
-        const shop  = document.getElementById("shop");
-        if(!title || !head || !shop) return;
-
-        // Sicht wird in setupHeadShopScrollSwitch gesetzt – wir lesen sie hier global
-        const hasShadow = () => {
-          const v = window.__view || "head";
-          const el = (v === "shop") ? shop : head;
-          return el.scrollTop > 0;
-        };
+        if(!title) return;
 
         const update = () => {
-          if(hasShadow()) title.classList.add("is-scrolled");
+          const el = getScrollEl();
+          const top = el ? el.scrollTop : 0;
+          if(top > 0) title.classList.add("is-scrolled");
           else title.classList.remove("is-scrolled");
         };
 
-        head.addEventListener("scroll", update, { passive:true });
-        shop.addEventListener("scroll", update, { passive:true });
-        window.addEventListener("resize", update, { passive:true });
-
-        update();
         window.__updateTitleShadow = update;
+        update();
       }
 
       function setupHeadShopScrollSwitch(){
@@ -225,6 +212,12 @@
         const shop   = document.getElementById("shop");
         const panels = document.getElementById("panels");
         if(!head || !shop || !panels) return;
+
+        // WICHTIG:
+        // Wenn head.html oder shop.html intern eigene Scroll-Container haben, müssen wir DIE nehmen.
+        // Fallback ist jeweils der Container selbst.
+        const getHeadScrollEl = () => head.querySelector(".team-scroll") || head;
+        const getShopScrollEl = () => shop.querySelector(".shop-scroll") || shop;
 
         window.__view = "head";  // "head" | "shop"
         let locked = false;
@@ -255,41 +248,76 @@
           setTimeout(()=> locked = false, 380);
         };
 
-        // Wheel-Impulse
-        head.addEventListener("wheel", (e) => {
-          if(cookieVisible()) return;
-          if(e.deltaY > 0 && atBottom(head)){
-            e.preventDefault();
-            goShop();
-          }
-        }, { passive:false });
+        // Für Head/Shop-HTML: damit deine Impuls-Skripte (head/shop) wirklich wechseln können
+        window.goShop = goShop;
+        window.goHead = goHead;
 
-        shop.addEventListener("wheel", (e) => {
-          if(cookieVisible()) return;
-          if(e.deltaY < 0 && atTop(shop)){
-            e.preventDefault();
-            goHead();
-          }
-        }, { passive:false });
+        // Titel-Schatten an das gerade aktive Scroll-Element koppeln
+        setupTitleShadow(() => (window.__view === "shop" ? getShopScrollEl() : getHeadScrollEl()));
 
-        // Tastatur-Impulse (optional)
+        // Scroll-Listener für Shadow (auf beiden Scroll-Elementen, falls intern)
+        const bindScrollShadow = () => {
+          const hs = getHeadScrollEl();
+          const ss = getShopScrollEl();
+          if(hs) hs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
+          if(ss) ss.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
+        };
+
+        // Wheel-Impulse: auf den echten Scrollflächen!
+        const bindWheel = () => {
+          const hs = getHeadScrollEl();
+          const ss = getShopScrollEl();
+
+          // (Falls neu geladen/umgebaut wird) doppelte Listener vermeiden: simpel durch Clone ersetzen
+          // -> wir machen hier keine Clone-Aktion, sondern verlassen uns darauf, dass bindWheel nur 1x läuft.
+
+          hs.addEventListener("wheel", (e) => {
+            if(cookieVisible()) return;
+            if(e.deltaY > 0 && atBottom(hs)){
+              e.preventDefault();
+              goShop();
+            }
+          }, { passive:false });
+
+          ss.addEventListener("wheel", (e) => {
+            if(cookieVisible()) return;
+            if(e.deltaY < 0 && atTop(ss)){
+              e.preventDefault();
+              goHead();
+            }
+          }, { passive:false });
+        };
+
+        // Keyboard-Impulse (optional)
         window.addEventListener("keydown", (e) => {
           if(cookieVisible()) return;
 
           const downKeys = ["ArrowDown","PageDown"," "];
           const upKeys   = ["ArrowUp","PageUp"];
 
-          if(window.__view === "head" && downKeys.includes(e.key) && atBottom(head)){
+          const hs = getHeadScrollEl();
+          const ss = getShopScrollEl();
+
+          if(window.__view === "head" && downKeys.includes(e.key) && atBottom(hs)){
             e.preventDefault(); goShop();
           }
-          if(window.__view === "shop" && upKeys.includes(e.key) && atTop(shop)){
+          if(window.__view === "shop" && upKeys.includes(e.key) && atTop(ss)){
             e.preventDefault(); goHead();
           }
         }, { passive:false });
 
-        // Optional: falls jemand per Code wechseln will (shop.html kann später "up" senden etc.)
-        window.goShop = goShop;
-        window.goHead = goHead;
+        // Nach Laden (und auch nach Resize) sicherstellen, dass wir die richtigen Scroll-Elemente erwischen
+        // (weil head.html erst nachträglich injected wird).
+        const lateBind = () => {
+          bindScrollShadow();
+          bindWheel();
+          window.__updateTitleShadow && window.__updateTitleShadow();
+        };
+
+        // Einmal direkt und einmal kurz danach (falls DOM noch nachzieht)
+        lateBind();
+        setTimeout(lateBind, 120);
+        window.addEventListener("resize", () => setTimeout(lateBind, 60), { passive:true });
       }
 
       async function boot(){
@@ -309,7 +337,6 @@
           await loadInto(overlay, overlay.dataset.src);
         }
 
-        setupTitleShadow();
         setupHeadShopScrollSwitch();
       }
 
