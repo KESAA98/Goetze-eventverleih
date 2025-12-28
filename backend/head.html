@@ -1,26 +1,22 @@
-<!-- backend/head.html | Stage passt sich dem #head-Container an (100%), scrollt NUR intern.
-     Desktop: Anker-Punkte (Center) für Text/Bild/Auswahl.
-     Impuls-Logik: Wenn NICHT scrollbar → Wheel-Down triggert goShop().
-                  Wenn scrollbar → erst am Ende "Stop", erst beim nächsten Wheel-Down goShop().
-                  Optionaler Button "Zum Shop ↓" erscheint am Ende. -->
+<!-- backend/head.html | FIX:
+  - Kein Overlap: Text/Bild bekommen harte Max-Breiten + sichere Anker + zusätzlicher Abstand.
+  - Tabs unten: KEIN extra „Pill-Container“ mehr um alle Buttons.
+  - Mobile: KEIN horizontales Scrollen mehr (Track bleibt Slider, keine „rechts scroll“ Seite).
+  - Head scrollt nur intern (#teamScroll), overflow-x ist gesperrt.
+-->
 
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
-  <!-- Dieser Wrapper ist die EINZIGE Scroll-Fläche innerhalb head.html -->
   <div class="team-scroll" id="teamScroll" aria-label="Team Inhalt">
     <div class="team-stage">
-      <!-- Slider -->
       <div class="team-viewport" aria-label="Team Slider">
         <div class="team-track" id="teamTrack"></div>
       </div>
 
-      <!-- Auswahl (Tabs) -->
       <div class="team-tabsAnchor" aria-label="Team Auswahl">
-        <div class="team-tabsWrap">
-          <div class="team-tabs" id="teamTabs"></div>
-        </div>
+        <div class="team-tabs" id="teamTabs"></div>
       </div>
     </div>
   </div>
@@ -31,24 +27,27 @@
     --radius: 18px;
 
     /* Desktop Anker (Center) */
-    --anc-text-x: 40%;
+    --anc-text-x: 38%;
     --anc-text-y: 37.5%;
 
-    --anc-img-x:  80%;
+    --anc-img-x:  76%;
     --anc-img-y:  37.5%;
 
     --anc-tabs-x: 50%;
     --anc-tabs-y: 87%;
 
-    /* Max Größen inkl. Padding */
-    --max-text-w: 60%;
-    --max-text-h: 75%;
+    /* Sicherheits-Abstand Text->Bild */
+    --safe-gap: clamp(18px, 2.2vw, 34px);
 
-    --max-img-w:  40%;
-    --max-img-h:  75%;
+    /* Max Größen (verhindert Überlappung) */
+    --text-max-w: min(52vw, 860px);
+    --text-max-h: 75%;
 
-    --max-tabs-w: 100%;
-    --max-tabs-h: 25%;
+    --img-max-w:  min(28vw, 420px);
+    --img-max-h:  75%;
+
+    --tabs-max-w: min(1200px, 100%);
+    --tabs-max-h: 25%;
 
     --shadow-soft: 0 18px 50px rgba(0,0,0,0.12);
   }
@@ -56,8 +55,8 @@
   .team-head{
     position:relative;
     width:100%;
-    height:100%;          /* <<< passt sich #head an */
-    overflow:hidden;      /* <<< nix nach außen */
+    height:100%;
+    overflow:hidden;
     background:#d9dde3;
   }
 
@@ -77,29 +76,26 @@
     backdrop-filter: blur(10px);
   }
 
-  /* ===== interner Scroll-Container (nur hier) ===== */
+  /* ===== Interner Scroll ===== */
   .team-scroll{
     position:relative;
     z-index:1;
     height:100%;
     width:100%;
-    overflow:auto;                 /* <<< nur innen scrollen */
+    overflow:auto;
+    overflow-x:hidden;            /* <<< wichtig: kein horizontales Scroll */
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-
     padding: 18px 24px;
   }
-
-  /* Scrollbar verstecken (Scroll bleibt aktiv) */
   .team-scroll{ scrollbar-width:none; }
   .team-scroll::-webkit-scrollbar{ width:0; height:0; }
 
-  /* ===== Bühne ===== */
   .team-stage{
     position:relative;
     width:100%;
     height:100%;
-    min-height: 520px; /* Sicherheit, falls Head sehr klein */
+    min-height: 520px;
   }
 
   /* ===== Slider ===== */
@@ -126,26 +122,26 @@
     height:100%;
   }
 
-  /* ===== Cards (absolut über Anker) ===== */
+  /* ===== Cards absolut über Anker ===== */
   .card{
     position:absolute;
     transform: translate(-50%, -50%);
     border-radius: var(--radius);
   }
 
-  /* Textcard (links) */
+  /* Text (links) */
   .card--text{
     left: var(--anc-text-x);
     top:  var(--anc-text-y);
+    width: var(--text-max-w);
+    max-height: var(--text-max-h);
 
-    width: min(var(--max-text-w), 860px);
-    max-height: var(--max-text-h);
-
+    /* harter rechter Rand = verhindert Overlap */
+    right: auto;
     background: rgba(255,255,255,0.84);
     border: 1px solid rgba(15,23,42,0.10);
     box-shadow: var(--shadow-soft);
     backdrop-filter: blur(10px);
-
     padding: 22px 22px 18px;
     overflow:hidden;
   }
@@ -187,24 +183,21 @@
     color:#0f172a;
     font-weight: 800;
     letter-spacing:-0.01em;
-
     transition: transform .12s ease, background .12s ease;
   }
   .team-cta:hover{ background: rgba(31,79,163,0.18); }
   .team-cta:active{ transform: scale(0.98); }
 
-  /* Bildcard (rechts) */
+  /* Bild (rechts) – kleiner + eigener Abstand */
   .card--image{
-    left: var(--anc-img-x);
+    left: calc(var(--anc-img-x) + (var(--safe-gap) / 6));
     top:  var(--anc-img-y);
-
-    width: min(var(--max-img-w), 520px);
-    max-height: var(--max-img-h);
-
+    width: var(--img-max-w);
+    max-height: var(--img-max-h);
     display:flex;
     align-items:center;
     justify-content:center;
-    pointer-events:none; /* rein dekorativ */
+    pointer-events:none;
   }
 
   .team-portrait{
@@ -225,29 +218,18 @@
     transform: scale(1.02);
   }
 
-  /* ===== Tabs (Auswahl) ===== */
+  /* ===== Tabs unten (ohne extra Container) ===== */
   .team-tabsAnchor{
     position:absolute;
     left: var(--anc-tabs-x);
     top:  var(--anc-tabs-y);
     transform: translate(-50%, -50%);
-    width: min(var(--max-tabs-w), 1200px);
-    max-height: var(--max-tabs-h);
+    width: var(--tabs-max-w);
+    max-height: var(--tabs-max-h);
     display:flex;
     justify-content:center;
     align-items:flex-start;
     pointer-events:auto;
-  }
-
-  .team-tabsWrap{
-    width:100%;
-    display:flex;
-    justify-content:center;
-    padding: 6px 8px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.40);
-    border: 1px solid rgba(15,23,42,0.10);
-    backdrop-filter: blur(10px);
   }
 
   .team-tabs{
@@ -304,59 +286,42 @@
     letter-spacing:-0.01em;
   }
 
-  /* ===== Mobile: untereinander (Bild -> Auswahl -> Text) ===== */
+  /* ===== Mobile: KEIN horizontales "rechts scrollen" – Slider bleibt, Inhalt untereinander im Slide ===== */
   @media (max-width: 980px){
-    .team-scroll{
-      padding: 14px 14px 18px;
+    .team-scroll{ padding: 14px 14px 18px; }
+
+    /* Anker werden "zentriert" und Card-Widths auf 100% – kein Überlappen */
+    :root{
+      --anc-text-x: 50%;
+      --anc-text-y: 72%;
+
+      --anc-img-x:  50%;
+      --anc-img-y:  30%;
+
+      --anc-tabs-x: 50%;
+      --anc-tabs-y: 56%;
+
+      --text-max-w: min(92vw, 720px);
+      --img-max-w:  min(60vw, 280px);
+      --tabs-max-w: min(92vw, 920px);
     }
 
-    .team-stage{
-      min-height: 0;
-      height: auto;     /* untereinander fließen */
-    }
+    .team-viewport{ overflow:hidden; } /* wichtig: Track darf nicht "rausgucken" */
 
-    .team-viewport{
-      height: auto;
-      overflow: visible;
-      border-radius: 16px;
-    }
-
-    .team-track{
-      height: auto;
-    }
-
-    .team-slide{
-      height: auto;
-      padding-bottom: 14px;
-    }
-
-    /* Karten werden statisch, damit sie untereinander stehen */
-    .card{
-      position:static;
-      transform:none;
-      border-radius: 16px;
-    }
-
-    /* Reihenfolge: Bild, Tabs, Text */
-    .card--image{ width:100%; max-height:none; margin-bottom: 12px; }
-    .team-portrait{ width: min(280px, 70vw); margin: 0 auto; }
-
-    .team-tabsAnchor{
-      position:static;
-      transform:none;
-      width:100%;
+    .card--image{
+      width: var(--img-max-w);
       max-height:none;
-      margin-bottom: 12px;
     }
+    .team-portrait{ width:100%; }
 
     .team-tabs{
       flex-wrap: wrap;
       justify-content:center;
-      overflow: visible;
+      overflow:hidden;
     }
 
     .card--text{
-      width:100%;
+      width: var(--text-max-w);
       max-height:none;
       padding: 18px 18px 14px;
     }
@@ -368,10 +333,10 @@
     const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
-    const bgEl    = document.getElementById("teamBg");
-    const trackEl = document.getElementById("teamTrack");
-    const tabsEl  = document.getElementById("teamTabs");
-    const scrollEl= document.getElementById("teamScroll");
+    const bgEl     = document.getElementById("teamBg");
+    const trackEl  = document.getElementById("teamTrack");
+    const tabsEl   = document.getElementById("teamTabs");
+    const scrollEl = document.getElementById("teamScroll");
 
     let members = [];
     let active = 0;
@@ -443,7 +408,6 @@
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
 
-      // Impuls-Zustand beim Wechsel zurücksetzen
       downArmed = false;
       downCooldown = false;
       updateCtaVisibility();
@@ -460,9 +424,7 @@
     function triggerDown(){
       if (downCooldown) return;
       downCooldown = true;
-
       if (typeof window.goShop === "function") window.goShop();
-
       setTimeout(() => { downCooldown = false; }, 500);
     }
 
@@ -472,7 +434,6 @@
       const ctaRow = slide.querySelector(".team-ctaRow");
       if (!ctaRow) return;
 
-      // CTA nur, wenn scrollbar UND am Ende
       if (isScrollable() && atBottom()) ctaRow.classList.add("is-visible");
       else ctaRow.classList.remove("is-visible");
     }
@@ -481,12 +442,8 @@
       if (!scrollEl) return;
 
       scrollEl.addEventListener("scroll", () => {
-        // Wenn scrollbar: am Ende CTA zeigen + downArmed setzen
-        if (isScrollable() && atBottom()){
-          downArmed = true;
-        }else{
-          downArmed = false;
-        }
+        if (isScrollable() && atBottom()) downArmed = true;
+        else downArmed = false;
         updateCtaVisibility();
       }, { passive:true });
 
@@ -502,14 +459,12 @@
           return;
         }
 
-        // Fall B: scrollbar
+        // Fall B: scrollbar -> am Ende erst „Stop“, dann zweiter Impuls
         if (down && atBottom()){
-          // "Stop" beim ersten Mal am Ende, erst beim nächsten Wheel-Down
           if (downArmed){
             e.preventDefault();
             triggerDown();
           }else{
-            // falls jemand exakt ans Ende wheel't: erstmal nur scharf schalten
             downArmed = true;
           }
         }
@@ -611,18 +566,13 @@
       btn.appendChild(av);
       btn.appendChild(name);
 
-      const open = () => {
-        setActive(idx);
-        // Scroll-Position beibehalten, aber CTA updaten
-        updateCtaVisibility();
-      };
-
+      const open = () => { setActive(idx); updateCtaVisibility(); };
       btn.addEventListener("click", open);
       btn.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
-      // “von rechts rein” (stagger)
+      // Stagger rein
       btn.style.opacity = "0";
       btn.style.transform = "translateX(18px)";
       requestAnimationFrame(() => {
@@ -672,8 +622,6 @@
       });
 
       if (members.length) setActive(0);
-
-      // initial CTA-State
       updateCtaVisibility();
     }
 
