@@ -58,7 +58,7 @@
     }
     #cookieOverlay.is-visible{ display:block; }
 
-    /* TITEL (neu) */
+    /* TITEL */
     #title{
       position: sticky;
       top: 0;
@@ -66,15 +66,25 @@
       height: var(--title-height);
       background: #fff;
       display: block;
-      box-shadow: none;              /* oben auf Head: kein Schatten */
+      box-shadow: none;
     }
     #title.is-scrolled{
-      box-shadow: var(--title-shadow); /* sobald gescrollt: Schatten */
+      box-shadow: var(--title-shadow);
     }
 
-    /* Head: unter der Titel-Leiste, nimmt den Rest der Viewporthöhe */
+    /* Head: unter der Titel-Leiste, bekommt eine echte Höhe (wichtig für %/Flex in head.html) */
     #head{
+      height: calc(100vh - var(--title-height));
       min-height: calc(100vh - var(--title-height));
+      overflow: auto;              /* Head kann intern scrollen, falls Inhalt zu hoch */
+      overscroll-behavior: contain;
+    }
+
+    /* Shop */
+    #shop{
+      min-height:100vh;
+      width:calc(100% - var(--cart-width));
+      margin-right:var(--cart-width);
     }
 
     /* Cart */
@@ -91,22 +101,10 @@
       transition: transform .22s ease;
     }
 
-    /* Shop */
-    #shop{
-      min-height:100vh;
-      width:calc(100% - var(--cart-width));
-      margin-right:var(--cart-width);
-    }
-
     @media (max-width: 900px){
       :root{ --cart-width: 0px; }
-
       #cart{ transform:none; }
-
-      #shop{
-        width:100%;
-        margin-right:0;
-      }
+      #shop{ width:100%; margin-right:0; }
     }
   </style>
 </head>
@@ -115,7 +113,7 @@
   <!-- 1) Cookies -->
   <div id="cookieOverlay" class="slot" data-src="backend/cookie.html"></div>
 
-  <!-- 2) Titel (neu) -->
+  <!-- 2) Titel -->
   <header id="title" class="slot" data-src="backend/titel.html"></header>
 
   <!-- 3) Head -->
@@ -184,48 +182,95 @@
         window.addEventListener("scroll", update, { passive:true });
       }
 
-      function setupFirstScrollJump(){
-        let jumped = false;
+      function setupHeadShopScrollSwitch(){
+        const head = document.getElementById("head");
+        const shop = document.getElementById("shop");
+        if(!head || !shop) return;
 
         const cookieVisible = () => {
           const ov = document.getElementById("cookieOverlay");
           return !!(ov && ov.classList.contains("is-visible"));
         };
 
-        const jumpToShop = () => {
-          if(jumped) return;
-          if(cookieVisible()) return;
+        const headScrollable = () => head.scrollHeight > head.clientHeight + 1;
+        const headAtBottom = () => head.scrollTop + head.clientHeight >= head.scrollHeight - 1;
 
-          const shop = document.getElementById("shop");
-          if(!shop) return;
+        const shopAtTop = () => {
+          const r = shop.getBoundingClientRect();
+          return r.top >= -1;
+        };
 
-          jumped = true;
+        const scrollToShop = () => {
           const y = shop.getBoundingClientRect().top + window.scrollY;
           window.scrollTo({ top: y, behavior: "smooth" });
         };
 
-        // Maus / Trackpad
-        window.addEventListener("wheel", (e) => {
-          if(jumped) return;
-          if(cookieVisible()) return;
-          if(window.scrollY !== 0) return;
+        const scrollToHead = (toBottom = false) => {
+          const y = head.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: y, behavior: "smooth" });
+          setTimeout(() => {
+            if(headScrollable()){
+              head.scrollTop = toBottom ? (head.scrollHeight - head.clientHeight) : 0;
+            }else{
+              head.scrollTop = 0;
+            }
+          }, 250);
+        };
 
-          if(e.deltaY > 0){
+        // Wheel: Wechsel Head -> Shop (runter), Shop -> Head (hoch)
+        window.addEventListener("wheel", (e) => {
+          if(cookieVisible()) return;
+
+          const down = e.deltaY > 0;
+          const up   = e.deltaY < 0;
+
+          const inHeadView = shop.getBoundingClientRect().top > 1;
+
+          if(down && inHeadView){
+            if(headScrollable()){
+              if(headAtBottom()){
+                e.preventDefault();
+                scrollToShop();
+              }
+            }else{
+              e.preventDefault();
+              scrollToShop();
+            }
+          }
+
+          if(up && shopAtTop()){
             e.preventDefault();
-            jumpToShop();
+            scrollToHead(true);
           }
         }, { passive:false });
 
-        // Tastatur (Down / PageDown / Space)
+        // Tastatur
         window.addEventListener("keydown", (e) => {
-          if(jumped) return;
           if(cookieVisible()) return;
-          if(window.scrollY !== 0) return;
 
-          const keys = ["ArrowDown","PageDown"," "];
-          if(keys.includes(e.key)){
+          const downKeys = ["ArrowDown","PageDown"," "];
+          const upKeys   = ["ArrowUp","PageUp"];
+
+          const isDown = downKeys.includes(e.key);
+          const isUp   = upKeys.includes(e.key);
+
+          const inHeadView = shop.getBoundingClientRect().top > 1;
+
+          if(isDown && inHeadView){
+            if(headScrollable()){
+              if(headAtBottom()){
+                e.preventDefault();
+                scrollToShop();
+              }
+            }else{
+              e.preventDefault();
+              scrollToShop();
+            }
+          }
+
+          if(isUp && shopAtTop()){
             e.preventDefault();
-            jumpToShop();
+            scrollToHead(true);
           }
         }, { passive:false });
       }
@@ -248,7 +293,7 @@
         }
 
         setupTitleShadow();
-        setupFirstScrollJump();
+        setupHeadShopScrollSwitch();
       }
 
       boot().catch(err => console.error(err));
