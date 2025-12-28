@@ -13,14 +13,14 @@
     --radius: 18px;
     --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
 
-    /* Blau-Tint */
+    /* Blau-Tint (#0F172A) */
     --hero-blue-a1: .75; /* 60–75% */
     --hero-blue-a2: .62;
     --hero-blue-a3: .45;
 
-    /* Strip Verhalten */
-    --strip-gap: 12px;
-    --thumb-radius: 14px;
+    /* Mosaic */
+    --mosaic-gap: 12px;
+    --tile-radius: 16px;
   }
 
   .head-wrap{
@@ -64,8 +64,10 @@
     background: rgba(0,0,0,.12);
   }
 
-  /* Modern Strip: edge-to-edge + fade + hover-grow (kein äußerer Kasten) */
-  .items-strip{
+  /* =========================
+     Mosaic Strip (ohne äußeren Kasten)
+     ========================= */
+  .mosaic-wrap{
     margin-top: var(--head-gap);
 
     height:25vh;
@@ -73,59 +75,83 @@
     max-height:240px;
 
     background: transparent;
-
-    display:flex;
-    align-items:stretch;
-    gap: var(--strip-gap);
-
-    overflow:hidden;
-
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0%, #000 7%, #000 93%, transparent 100%);
-  }
-
-  .item-thumb{
     position:relative;
-    height:100%;
-    overflow:hidden;
-    border-radius: var(--thumb-radius);
-    background:#eef1f6;
-
-    flex: 1 1 0;
-
-    box-shadow: 0 10px 24px rgba(0,0,0,.12);
-    transition: flex .22s ease, transform .22s ease, box-shadow .22s ease, filter .22s ease;
-    filter: saturate(.92) contrast(.98);
-    cursor: pointer;
   }
 
-  .item-thumb img{
+  /* Soft Fade an den Seiten (modern, ohne harten Abschluss) */
+  .mosaic{
+    width:100%;
+    height:100%;
+
+    display:grid;
+    grid-template-columns: repeat(48, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
+    gap: var(--mosaic-gap);
+
+    overflow:hidden;
+
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  }
+
+  .m-tile{
+    position:relative;
+    border-radius: var(--tile-radius);
+    overflow:hidden;
+    background:#eef1f6;
+    box-shadow: 0 10px 26px rgba(0,0,0,.12);
+    transform: translateZ(0);
+  }
+
+  .m-tile img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
     transform: scale(1.01);
-    transition: transform .22s ease;
+    transition: transform .22s ease, filter .22s ease;
+    filter: saturate(.94) contrast(.98);
   }
 
-  .item-thumb:hover{
-    flex: 3 1 0;
-    transform: translateY(-2px);
-    box-shadow: 0 16px 40px rgba(0,0,0,.18);
+  /* Hover: subtil, hochwertig */
+  .m-tile:hover img{
+    transform: scale(1.05);
     filter: saturate(1) contrast(1);
   }
-  .item-thumb:hover img{
-    transform: scale(1.06);
+
+  /* =========================
+     Smooth Loading (einmalig einblenden wenn fertig)
+     ========================= */
+  .head-wrap.is-loading .hero,
+  .head-wrap.is-loading .mosaic-wrap{
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .hero, .mosaic-wrap{
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity .28s ease, transform .28s ease;
   }
 
-  @media (hover: none){
-    .item-thumb:hover{
-      flex: 1 1 0;
-      transform: none;
-      box-shadow: 0 10px 24px rgba(0,0,0,.12);
-      filter: saturate(.92) contrast(.98);
-    }
-    .item-thumb:hover img{ transform: scale(1.01); }
+  /* Skeleton (sichtbar während loading) */
+  .head-skeleton{
+    display:none;
+    margin-top: var(--head-gap);
+    height:25vh;
+    min-height:170px;
+    max-height:240px;
+    border-radius: var(--radius);
+    background: linear-gradient(90deg, #f2f4f8 0%, #e9edf4 35%, #f2f4f8 70%, #f2f4f8 100%);
+    background-size: 220% 100%;
+    box-shadow: 0 10px 26px rgba(0,0,0,.08);
+    animation: shimmer 1.15s ease-in-out infinite;
+  }
+  @keyframes shimmer{
+    0%{ background-position: 0% 0; }
+    100%{ background-position: 100% 0; }
+  }
+  .head-wrap.is-loading .head-skeleton{
+    display:block;
   }
 
   @media (max-width:700px){
@@ -134,8 +160,8 @@
       --logo-pad-left: 16px;
       --nav-pad-right: 16px;
       --head-gap: 26px;
-      --strip-gap: 10px;
-      --thumb-radius: 12px;
+      --mosaic-gap: 10px;
+      --tile-radius: 14px;
     }
     .hero{ height:46vh; min-height:300px; }
   }
@@ -146,28 +172,50 @@
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
       --head-gap: 22px;
-      --strip-gap: 8px;
-      --thumb-radius: 12px;
+      --mosaic-gap: 8px;
+      --tile-radius: 14px;
     }
-    .items-strip{ min-height:150px; max-height:210px; }
+    .mosaic-wrap{ min-height:150px; max-height:210px; }
     .hero{ min-height:260px; }
   }
 </style>
 
-<section class="head-wrap" aria-label="Header-Bereich">
+<section class="head-wrap is-loading" id="headWrap" aria-label="Header-Bereich">
   <div class="hero">
     <div class="hero__bg" id="heroBg"></div>
     <div class="hero__tint"></div>
     <div class="hero__dim"></div>
   </div>
 
-  <div class="items-strip" id="itemsStrip" aria-label="Zufällige Artikelbilder"></div>
+  <div class="head-skeleton" aria-hidden="true"></div>
+
+  <div class="mosaic-wrap" aria-label="Zufällige Artikelbilder">
+    <div class="mosaic" id="mosaic"></div>
+  </div>
 </section>
 
 <script>
 (async function(){
   const BG_MANIFEST    = "image/hintergrund/manifest.json";
   const ITEMS_MANIFEST = "Items/manifest.json";
+
+  // Layout-Schablone (48x8) – komplett gefüllt, keine Lücken.
+  // Wir variieren nur, welches Bild in welchen Slot kommt.
+  const TEMPLATE_48x8 = [
+    {x:0,  y:0, w:16, h:4},
+    {x:16, y:0, w:16, h:4},
+    {x:32, y:0, w:8,  h:4},
+    {x:40, y:0, w:6,  h:2},
+    {x:46, y:0, w:2,  h:2},
+    {x:40, y:2, w:8,  h:4},
+    {x:0,  y:4, w:8,  h:4},
+    {x:8,  y:4, w:16, h:4},
+    {x:24, y:4, w:10, h:4},
+    {x:34, y:4, w:4,  h:4},
+    {x:38, y:4, w:2,  h:2},
+    {x:38, y:6, w:8,  h:2},
+    {x:46, y:6, w:2,  h:2},
+  ];
 
   const load = async (p) => {
     const r = await fetch(p, { cache: "no-store" });
@@ -186,48 +234,83 @@
     return uniq;
   }
 
-  function renderStrip(allImages){
-    const strip = document.getElementById("itemsStrip");
-    if(!strip) return;
+  // Preload helper (damit wir erst einblenden, wenn ready / timeout)
+  function preloadImage(src){
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = src;
+    });
+  }
 
-    strip.innerHTML = "";
+  function renderMosaic(allImages){
+    const el = document.getElementById("mosaic");
+    if(!el) return [];
 
-    const count = Math.min(12, allImages.length);
-    const imgs = shuffleUnique(allImages).slice(0, count);
+    el.innerHTML = "";
 
-    imgs.forEach((src) => {
+    const needed = TEMPLATE_48x8.length;
+    const imgs = shuffleUnique(allImages).slice(0, Math.max(needed, 1));
+
+    const used = [];
+    TEMPLATE_48x8.forEach((slot, i) => {
+      const src = imgs[i % imgs.length];
+
       const d = document.createElement("div");
-      d.className = "item-thumb";
+      d.className = "m-tile";
+      d.style.gridColumn = (slot.x + 1) + " / span " + slot.w;
+      d.style.gridRow    = (slot.y + 1) + " / span " + slot.h;
 
       const img = document.createElement("img");
-      img.loading = "lazy";
+      img.loading = "eager"; // wir steuern Einblendung über Preload
       img.alt = "";
       img.src = src;
 
       d.appendChild(img);
-      strip.appendChild(d);
+      el.appendChild(d);
+
+      used.push(src);
     });
+
+    return used;
   }
 
+  const headWrap = document.getElementById("headWrap");
+
+  // 1) Hero-Hintergrund wählen
+  let heroUrl = null;
   try{
     const bg = await load(BG_MANIFEST);
     if(Array.isArray(bg) && bg.length){
-      document.getElementById("heroBg").style.backgroundImage =
-        "url('image/hintergrund/" + pick(bg) + "')";
+      heroUrl = "image/hintergrund/" + pick(bg);
+      document.getElementById("heroBg").style.backgroundImage = "url('" + heroUrl + "')";
     }
   }catch(e){}
 
+  // 2) Mosaic befüllen
+  let usedImages = [];
   try{
     const raw = await load(ITEMS_MANIFEST);
     if(Array.isArray(raw) && raw.length){
-      renderStrip(raw);
-
-      let t;
-      window.addEventListener("resize", () => {
-        clearTimeout(t);
-        t = setTimeout(() => renderStrip(raw), 120);
-      }, { passive:true });
+      usedImages = renderMosaic(raw);
     }
   }catch(e){}
+
+  // 3) Smooth reveal: warten bis Bilder geladen ODER Timeout
+  const preloadList = [];
+  if(heroUrl) preloadList.push(preloadImage(heroUrl));
+  usedImages.forEach((src) => preloadList.push(preloadImage(src)));
+
+  const timeoutMs = 1100;
+  const timeout = new Promise((resolve) => setTimeout(resolve, timeoutMs));
+
+  try{
+    await Promise.race([Promise.allSettled(preloadList), timeout]);
+  }catch(e){}
+
+  if(headWrap){
+    headWrap.classList.remove("is-loading");
+  }
 })();
 </script>
