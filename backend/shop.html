@@ -1,0 +1,66 @@
+<section class="shop-placeholder">
+  <div class="shop-scroll" id="shopScroll">
+    <div class="shop-inner">
+      <h1>Hier entsteht der Shop</h1>
+      <p>Der Shop befindet sich aktuell im Aufbau.</p>
+      <p>Produkte, Kategorien und Buchung folgen hier.</p>
+
+      <!-- Platz füllen, damit Scroll existiert -->
+      <div style="height:120vh"></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .shop-placeholder{
+    height:100%;
+    width:100%;
+    background:#fff;
+  }
+
+  .shop-scroll{
+    height:100%;
+    overflow-y:auto;
+    overflow-x:hidden;
+    overscroll-behavior: contain;
+    padding: 48px 24px;
+  }
+
+  .shop-inner{
+    max-width: 900px;
+    margin: 0 auto;
+    text-align:center;
+  }
+</style>
+
+<script>
+  (function(){
+    const el = document.getElementById("shopScroll");
+    let upArmed = false;
+
+    function atTop(){
+      return el.scrollTop <= 1;
+    }
+
+    el.addEventListener("wheel", (e) => {
+      const up = e.deltaY < 0;
+
+      if (!up) return;
+
+      if (atTop()){
+        if (upArmed){
+          e.preventDefault();
+          if (typeof window.goHead === "function") window.goHead();
+        } else {
+          upArmed = true;
+        }
+      } else {
+        upArmed = false;
+      }
+    }, { passive:false });
+
+    el.addEventListener("scroll", () => {
+      if (!atTop()) upArmed = false;
+    }, { passive:true });
+  })();
+</script>
