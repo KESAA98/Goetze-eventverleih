@@ -1,8 +1,7 @@
-<!-- backend/head.html | FIX:
-  - Kein Overlap: Text/Bild bekommen harte Max-Breiten + sichere Anker + zusätzlicher Abstand.
-  - Tabs unten: KEIN extra „Pill-Container“ mehr um alle Buttons.
-  - Mobile: KEIN horizontales Scrollen mehr (Track bleibt Slider, keine „rechts scroll“ Seite).
-  - Head scrollt nur intern (#teamScroll), overflow-x ist gesperrt.
+<!-- backend/head.html | Zonen-Raster:
+     Desktop: Zone A (75%) Slider/Karte + Zone B (25%) Tabs getrennt unten.
+     Mobile: Tabs werden in die aktive Karte integriert (zwischen Bild und Text), Sliden bleibt gleich.
+     Head scrollt nur intern (#teamScroll), overflow-x ist gesperrt.
 -->
 
 <section class="team-head" aria-label="Team">
@@ -11,13 +10,24 @@
 
   <div class="team-scroll" id="teamScroll" aria-label="Team Inhalt">
     <div class="team-stage">
-      <div class="team-viewport" aria-label="Team Slider">
-        <div class="team-track" id="teamTrack"></div>
+
+      <!-- Zone A: Scene -->
+      <div class="sceneZone" aria-label="Vorstellung">
+        <div class="team-viewport" aria-label="Team Slider">
+          <div class="team-track" id="teamTrack"></div>
+        </div>
       </div>
 
-      <div class="team-tabsAnchor" aria-label="Team Auswahl">
+      <!-- Zone B: Selector (Desktop) -->
+      <div class="selectorZone" id="selectorZone" aria-label="Team Auswahl">
         <div class="team-tabs" id="teamTabs"></div>
       </div>
+
+      <!-- Gate (Overlay, nur sichtbar wenn aktiviert) -->
+      <div class="gateZone" id="gateZone" aria-hidden="true">
+        <button class="gateBtn" id="gateBtn" type="button">Zum Shop ↓</button>
+      </div>
+
     </div>
   </div>
 </section>
@@ -25,31 +35,19 @@
 <style>
   :root{
     --radius: 18px;
-
-    /* Desktop Anker (Center) */
-    --anc-text-x: 38%;
-    --anc-text-y: 37.5%;
-
-    --anc-img-x:  76%;
-    --anc-img-y:  37.5%;
-
-    --anc-tabs-x: 50%;
-    --anc-tabs-y: 87%;
-
-    /* Sicherheits-Abstand Text->Bild */
-    --safe-gap: clamp(18px, 2.2vw, 34px);
-
-    /* Max Größen (verhindert Überlappung) */
-    --text-max-w: min(52vw, 860px);
-    --text-max-h: 75%;
-
-    --img-max-w:  min(28vw, 420px);
-    --img-max-h:  75%;
-
-    --tabs-max-w: min(1200px, 100%);
-    --tabs-max-h: 25%;
-
     --shadow-soft: 0 18px 50px rgba(0,0,0,0.12);
+
+    /* Zonenhöhen (Desktop) */
+    --zoneA: 75%;
+    --zoneB: 25%;
+
+    /* Card Limits (Desktop) */
+    --card-max-w: min(1100px, 92%);
+    --card-max-h: 92%;
+
+    /* Card inner split (Desktop) */
+    --text-col: 60%;
+    --img-col: 40%;
   }
 
   .team-head{
@@ -83,7 +81,7 @@
     height:100%;
     width:100%;
     overflow:auto;
-    overflow-x:hidden;            /* <<< wichtig: kein horizontales Scroll */
+    overflow-x:hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     padding: 18px 24px;
@@ -91,11 +89,31 @@
   .team-scroll{ scrollbar-width:none; }
   .team-scroll::-webkit-scrollbar{ width:0; height:0; }
 
+  /* ===== Stage + Raster ===== */
   .team-stage{
     position:relative;
     width:100%;
     height:100%;
     min-height: 520px;
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .sceneZone{
+    flex: 0 0 var(--zoneA);
+    min-height: 320px;
+    border-radius: var(--radius);
+    overflow:hidden;
+  }
+
+  .selectorZone{
+    flex: 0 0 var(--zoneB);
+    min-height: 120px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top: 6px;
   }
 
   /* ===== Slider ===== */
@@ -117,36 +135,37 @@
   }
 
   .team-slide{
-    position:relative;
     flex: 0 0 100%;
     height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: clamp(14px, 2.4vw, 32px);
   }
 
-  /* ===== Cards absolut über Anker ===== */
-  .card{
-    position:absolute;
-    transform: translate(-50%, -50%);
-    border-radius: var(--radius);
-  }
+  /* ===== Card (Desktop) ===== */
+  .team-card{
+    width: var(--card-max-w);
+    height: min(var(--card-max-h), 100%);
+    display:grid;
+    grid-template-columns: var(--text-col) var(--img-col);
+    gap: clamp(16px, 3vw, 42px);
+    align-items:center;
 
-  /* Text (links) */
-  .card--text{
-    left: var(--anc-text-x);
-    top:  var(--anc-text-y);
-    width: var(--text-max-w);
-    max-height: var(--text-max-h);
-
-    /* harter rechter Rand = verhindert Overlap */
-    right: auto;
-    background: rgba(255,255,255,0.84);
+    background: rgba(255,255,255,0.66);
     border: 1px solid rgba(15,23,42,0.10);
+    border-radius: var(--radius);
     box-shadow: var(--shadow-soft);
     backdrop-filter: blur(10px);
-    padding: 22px 22px 18px;
+    padding: clamp(14px, 2.4vw, 26px);
     overflow:hidden;
   }
 
-  .team-title{
+  .card-text{
+    min-width:0;
+  }
+
+  .card-title{
     margin:0 0 10px 0;
     font-size: clamp(24px, 2.2vw, 40px);
     line-height:1.02;
@@ -154,54 +173,22 @@
     color:#0f172a;
   }
 
-  .team-text{
+  .card-body{
     font-size: clamp(14px, 1.0vw, 16px);
     line-height:1.65;
     color: rgba(15,23,42,0.78);
     white-space: pre-wrap;
   }
 
-  /* CTA erscheint nur wenn am Ende */
-  .team-ctaRow{
-    margin-top: 14px;
-    display:none;
-    justify-content:flex-end;
-  }
-  .team-ctaRow.is-visible{ display:flex; }
-
-  .team-cta{
-    display:inline-flex;
-    align-items:center;
-    gap: 10px;
-    padding: 10px 14px;
-    border-radius: 999px;
-    cursor:pointer;
-    user-select:none;
-
-    background: rgba(31,79,163,0.12);
-    border: 1px solid rgba(31,79,163,0.28);
-    color:#0f172a;
-    font-weight: 800;
-    letter-spacing:-0.01em;
-    transition: transform .12s ease, background .12s ease;
-  }
-  .team-cta:hover{ background: rgba(31,79,163,0.18); }
-  .team-cta:active{ transform: scale(0.98); }
-
-  /* Bild (rechts) – kleiner + eigener Abstand */
-  .card--image{
-    left: calc(var(--anc-img-x) + (var(--safe-gap) / 6));
-    top:  var(--anc-img-y);
-    width: var(--img-max-w);
-    max-height: var(--img-max-h);
+  .card-media{
+    min-width:0;
     display:flex;
     align-items:center;
     justify-content:center;
-    pointer-events:none;
   }
 
-  .team-portrait{
-    width: 100%;
+  .portrait{
+    width: min(420px, 100%);
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
@@ -210,7 +197,7 @@
     box-shadow: 0 22px 60px rgba(0,0,0,0.18);
     backdrop-filter: blur(8px);
   }
-  .team-portrait img{
+  .portrait img{
     width:100%;
     height:100%;
     object-fit:cover;
@@ -218,26 +205,13 @@
     transform: scale(1.02);
   }
 
-  /* ===== Tabs unten (ohne extra Container) ===== */
-  .team-tabsAnchor{
-    position:absolute;
-    left: var(--anc-tabs-x);
-    top:  var(--anc-tabs-y);
-    transform: translate(-50%, -50%);
-    width: var(--tabs-max-w);
-    max-height: var(--tabs-max-h);
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    pointer-events:auto;
-  }
-
+  /* ===== Tabs (ohne extra Wrap) ===== */
   .team-tabs{
     display:flex;
     gap: 12px;
     align-items:center;
     justify-content:center;
-    width:100%;
+    width: min(1200px, 100%);
     overflow:hidden;
   }
 
@@ -286,44 +260,92 @@
     letter-spacing:-0.01em;
   }
 
-  /* ===== Mobile: KEIN horizontales "rechts scrollen" – Slider bleibt, Inhalt untereinander im Slide ===== */
+  /* ===== Gate Overlay ===== */
+  .gateZone{
+    position:absolute;
+    left:50%;
+    bottom: 10px;
+    transform: translateX(-50%);
+    z-index: 5;
+    display:none;
+    pointer-events:none;
+  }
+  .gateZone.is-visible{
+    display:block;
+    pointer-events:auto;
+  }
+  .gateBtn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor:pointer;
+    user-select:none;
+    font-weight: 800;
+    letter-spacing:-0.01em;
+    color:#0f172a;
+
+    background: rgba(31,79,163,0.12);
+    border: 1px solid rgba(31,79,163,0.28);
+    transition: transform .12s ease, background .12s ease;
+  }
+  .gateBtn:hover{ background: rgba(31,79,163,0.18); }
+  .gateBtn:active{ transform: scale(0.98); }
+
+  /* ===== Mobile: Tabs in die Karte integrieren, SelectorZone ausblenden ===== */
   @media (max-width: 980px){
     .team-scroll{ padding: 14px 14px 18px; }
 
-    /* Anker werden "zentriert" und Card-Widths auf 100% – kein Überlappen */
-    :root{
-      --anc-text-x: 50%;
-      --anc-text-y: 72%;
-
-      --anc-img-x:  50%;
-      --anc-img-y:  30%;
-
-      --anc-tabs-x: 50%;
-      --anc-tabs-y: 56%;
-
-      --text-max-w: min(92vw, 720px);
-      --img-max-w:  min(60vw, 280px);
-      --tabs-max-w: min(92vw, 920px);
+    .team-stage{
+      height:auto;
+      min-height:0;
+      gap: 10px;
     }
 
-    .team-viewport{ overflow:hidden; } /* wichtig: Track darf nicht "rausgucken" */
-
-    .card--image{
-      width: var(--img-max-w);
-      max-height:none;
+    /* Scene darf wachsen, Selector wird im Card integriert */
+    .sceneZone{
+      flex: 0 0 auto;
+      min-height: 0;
+      height: auto;
+      overflow: visible;
     }
-    .team-portrait{ width:100%; }
+
+    .selectorZone{
+      display:none; /* Tabs wandern in die aktive Karte */
+    }
+
+    .team-viewport{
+      height:auto;
+      overflow:hidden;
+      border-radius: 16px;
+    }
+    .team-track{ height:auto; }
+    .team-slide{
+      height:auto;
+      padding: 14px;
+      align-items:stretch;
+    }
+
+    .team-card{
+      width: 100%;
+      height:auto;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      border-radius: 16px;
+    }
+
+    .portrait{
+      width: min(260px, 70vw);
+      margin: 0 auto;
+    }
 
     .team-tabs{
       flex-wrap: wrap;
       justify-content:center;
       overflow:hidden;
-    }
-
-    .card--text{
-      width: var(--text-max-w);
-      max-height:none;
-      padding: 18px 18px 14px;
+      width:100%;
+      margin: 2px 0 4px;
     }
   }
 </style>
@@ -333,15 +355,20 @@
     const BG_MANIFEST_URL   = "image/hintergrund/manifest.json";
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
-    const bgEl     = document.getElementById("teamBg");
-    const trackEl  = document.getElementById("teamTrack");
-    const tabsEl   = document.getElementById("teamTabs");
-    const scrollEl = document.getElementById("teamScroll");
+    const bgEl       = document.getElementById("teamBg");
+    const trackEl    = document.getElementById("teamTrack");
+    const tabsEl     = document.getElementById("teamTabs");
+    const selectorEl = document.getElementById("selectorZone");
+    const scrollEl   = document.getElementById("teamScroll");
+    const gateZone   = document.getElementById("gateZone");
+    const gateBtn    = document.getElementById("gateBtn");
+
+    const mqMobile = window.matchMedia("(max-width: 980px)");
 
     let members = [];
     let active = 0;
 
-    // Impuls-Handling
+    // Gate / Impuls
     let downArmed = false;
     let downCooldown = false;
 
@@ -408,9 +435,29 @@
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
 
+      // bei Mobile Tabs in aktive Card einhängen
+      placeTabsForLayout();
+
+      // Gate-Status reset
       downArmed = false;
       downCooldown = false;
-      updateCtaVisibility();
+      updateGateVisibility();
+    }
+
+    function placeTabsForLayout(){
+      const isMobile = mqMobile.matches;
+      const slides = trackEl.querySelectorAll(".team-slide");
+      const current = slides[active];
+      if (!current) return;
+
+      const slot = current.querySelector(".tabs-slot");
+      if (isMobile){
+        // Tabs in den Slot der aktiven Karte
+        if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
+      }else{
+        // Tabs zurück in SelectorZone
+        if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
+      }
     }
 
     function isScrollable(){
@@ -424,33 +471,36 @@
     function triggerDown(){
       if (downCooldown) return;
       downCooldown = true;
+
       if (typeof window.goShop === "function") window.goShop();
+
       setTimeout(() => { downCooldown = false; }, 500);
     }
 
-    function updateCtaVisibility(){
-      const slide = trackEl.querySelectorAll(".team-slide")[active];
-      if (!slide) return;
-      const ctaRow = slide.querySelector(".team-ctaRow");
-      if (!ctaRow) return;
+    function updateGateVisibility(){
+      if (!gateZone) return;
 
-      if (isScrollable() && atBottom()) ctaRow.classList.add("is-visible");
-      else ctaRow.classList.remove("is-visible");
+      const show = isScrollable() && atBottom();
+      gateZone.classList.toggle("is-visible", !!show);
     }
 
-    function bindImpulseLogic(){
+    function bindGateLogic(){
       if (!scrollEl) return;
+
+      if (gateBtn){
+        gateBtn.addEventListener("click", () => triggerDown());
+      }
 
       scrollEl.addEventListener("scroll", () => {
         if (isScrollable() && atBottom()) downArmed = true;
         else downArmed = false;
-        updateCtaVisibility();
+        updateGateVisibility();
       }, { passive:true });
 
       scrollEl.addEventListener("wheel", (e) => {
         const down = e.deltaY > 0;
 
-        // Fall A: NICHT scrollbar -> erster Down triggert direkt
+        // Fall A: nicht scrollbar -> erster Down triggert direkt
         if (!isScrollable()){
           if (down){
             e.preventDefault();
@@ -459,7 +509,7 @@
           return;
         }
 
-        // Fall B: scrollbar -> am Ende erst „Stop“, dann zweiter Impuls
+        // Fall B: scrollbar -> am Ende erst Stop, dann zweiter Impuls
         if (down && atBottom()){
           if (downArmed){
             e.preventDefault();
@@ -475,41 +525,41 @@
       const slide = document.createElement("div");
       slide.className = "team-slide";
 
-      // TEXT (links)
-      const textCard = document.createElement("div");
-      textCard.className = "card card--text";
+      const card = document.createElement("div");
+      card.className = "team-card";
+
+      const textCol = document.createElement("div");
+      textCol.className = "card-text";
+
+      const mediaCol = document.createElement("div");
+      mediaCol.className = "card-media";
 
       const { first, rest } = splitFirstSentence(member.text);
 
       const h = document.createElement("h1");
-      h.className = "team-title";
+      h.className = "card-title";
       h.textContent = first || "Schön, dass du da bist!";
 
-      const t = document.createElement("div");
-      t.className = "team-text";
-      t.textContent = (rest && rest.trim().length)
+      const body = document.createElement("div");
+      body.className = "card-body";
+      body.textContent = (rest && rest.trim().length)
         ? rest
         : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
 
-      const ctaRow = document.createElement("div");
-      ctaRow.className = "team-ctaRow";
-      const cta = document.createElement("button");
-      cta.type = "button";
-      cta.className = "team-cta";
-      cta.textContent = "Zum Shop ↓";
-      cta.addEventListener("click", () => triggerDown());
-      ctaRow.appendChild(cta);
+      // Mobile Slot für Tabs (wird per JS befüllt)
+      const tabsSlot = document.createElement("div");
+      tabsSlot.className = "tabs-slot";
+      tabsSlot.setAttribute("aria-hidden", "true");
 
-      textCard.appendChild(h);
-      textCard.appendChild(t);
-      textCard.appendChild(ctaRow);
+      textCol.appendChild(h);
 
-      // BILD (rechts)
-      const imgCard = document.createElement("div");
-      imgCard.className = "card card--image";
+      // Mobile: Reihenfolge Bild -> Tabs -> Text
+      // Wir legen TabsSlot in die Card; per CSS/DOM-Reihenfolge ist es auf Mobile zwischen Bild und Text sichtbar,
+      // auf Desktop bleibt es leer (Tabs liegen unten).
+      textCol.appendChild(body);
 
       const portrait = document.createElement("div");
-      portrait.className = "team-portrait";
+      portrait.className = "portrait";
 
       const img = document.createElement("img");
       img.loading = "lazy";
@@ -521,11 +571,19 @@
       };
 
       portrait.appendChild(img);
-      imgCard.appendChild(portrait);
+      mediaCol.appendChild(portrait);
 
-      slide.appendChild(textCard);
-      slide.appendChild(imgCard);
+      // Card zusammensetzen:
+      // Desktop Grid: Text | Bild
+      // Mobile Grid: Bild, TabsSlot, Text (wir hängen TabsSlot separat in die Card ein)
+      card.appendChild(textCol);
+      card.appendChild(mediaCol);
 
+      // TabsSlot kommt als eigener Block in die Card (CSS macht ihn auf Desktop unsichtbar, auf Mobile sichtbar)
+      // Auf Desktop ist TabsSlot leer und ohne Layoutwirkung.
+      card.insertBefore(tabsSlot, textCol.nextSibling);
+
+      slide.appendChild(card);
       return slide;
     }
 
@@ -566,7 +624,7 @@
       btn.appendChild(av);
       btn.appendChild(name);
 
-      const open = () => { setActive(idx); updateCtaVisibility(); };
+      const open = () => setActive(idx);
       btn.addEventListener("click", open);
       btn.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
@@ -621,11 +679,15 @@
         tabsEl.appendChild(makeTab(m, i));
       });
 
+      // TabsSlot auf Desktop ohne Einfluss; auf Mobile wird tabsEl in Slot der aktiven Card bewegt
+      mqMobile.addEventListener?.("change", () => placeTabsForLayout());
+
       if (members.length) setActive(0);
-      updateCtaVisibility();
+      placeTabsForLayout();
+      updateGateVisibility();
     }
 
-    bindImpulseLogic();
+    bindGateLogic();
     load().catch(() => {});
   })();
 </script>
