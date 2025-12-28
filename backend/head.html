@@ -1,36 +1,20 @@
-<!-- backend/head.html | 3-Kachel-Layout (1 Text | 2 Portrait | 3 Tabs oben), keine Scrolls, “Blättern”-Animation, Mobile: 2 > 3 > 1 -->
+<!-- backend/head.html | 2-Zonen (oben 3/4 Slider | unten 1/4 Tabs), horizontales Verschieben (translateX), pro Slide: Bild 2/5 links + Text 3/5 rechts -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
 
   <div class="team-head__inner">
-    <div class="team-grid">
-      <!-- Kachel 1: Text (zentriert) -->
-      <div class="tile tile--text">
-        <div class="tile-center">
-          <div class="team-panel" id="teamPanel" aria-live="polite">
-            <div class="team-panel__slide" id="panelSlide">
-              <h1 class="team-title" id="teamTitle">Wir sind das Team.</h1>
-              <div class="team-text" id="teamText">
-                Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
-              </div>
-            </div>
-          </div>
+    <div class="team-shell">
+      <!-- OBEN (3/4): Slider -->
+      <div class="team-top">
+        <div class="team-viewport" aria-label="Team Slider">
+          <div class="team-track" id="teamTrack"></div>
         </div>
       </div>
 
-      <!-- Kachel 2: Bild (zentriert) -->
-      <div class="tile tile--portrait" aria-hidden="true">
-        <div class="tile-center">
-          <div class="team-portrait" id="portraitFrame">
-            <img id="teamPortrait" alt="" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Kachel 3: Auswahl oben (mittig zentriert) -->
-      <div class="tile tile--tabs" aria-label="Team Auswahl">
-        <div class="tabs-top">
+      <!-- UNTEN (1/4): Tabs (weiter oben ausgerichtet) -->
+      <div class="team-bottom" aria-label="Team Auswahl">
+        <div class="team-tabsWrap">
           <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
@@ -49,13 +33,10 @@
 
     --title-height: 70px;
 
-    /* feste Höhenverhältnisse (Desktop) */
-    --h-tabs: 22%;
-    --h-main: 78%;
+    --top-h: 75%;
+    --bottom-h: 25%;
 
-    /* safe widths */
-    --panel-max: 720px;
-    --portrait-max: 460px;
+    --radius: 18px;
   }
 
   .team-head{
@@ -63,7 +44,6 @@
     width:100%;
     height: calc(100vh - var(--title-height));
     min-height: calc(100vh - var(--title-height));
-    border-radius:0;
     overflow:hidden;
     background:#d9dde3;
   }
@@ -91,45 +71,127 @@
     padding-left: var(--edge-left);
     padding-right: var(--edge-right);
     padding-top: 20px;
-    padding-bottom: 24px;
+    padding-bottom: 18px;
   }
 
-  /* ===== 3-Kachel-Grid =====
-     oben (Kachel 3) über volle Breite
-     unten: links Text (Kachel 1) | rechts Portrait (Kachel 2)
-  */
-  .team-grid{
+  .team-shell{
     height:100%;
-    display:grid;
-    grid-template-rows: var(--h-tabs) var(--h-main);
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "tabs tabs"
-      "text portrait";
-    gap: 18px 36px;
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
   }
 
-  .tile{ min-width:0; min-height:0; }
-  .tile--tabs{ grid-area: tabs; }
-  .tile--text{ grid-area: text; }
-  .tile--portrait{ grid-area: portrait; }
+  .team-top{
+    flex: 0 0 var(--top-h);
+    min-height:0;
+  }
 
-  .tile-center{
+  .team-bottom{
+    flex: 0 0 var(--bottom-h);
+    min-height:0;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start; /* weiter oben */
+    padding-top: 6px;
+  }
+
+  /* ===== Slider ===== */
+  .team-viewport{
+    height:100%;
     width:100%;
+    overflow:hidden;
+    border-radius: var(--radius);
+  }
+
+  .team-track{
+    height:100%;
+    display:flex;            /* Slides nebeneinander */
+    width:100%;
+    transform: translateX(0%);
+    transition: transform .55s cubic-bezier(.22,.9,.18,1);
+    will-change: transform;
+  }
+
+  .team-slide{
+    flex: 0 0 100%;          /* volle Breite pro Slide */
     height:100%;
     display:flex;
     align-items:center;
     justify-content:center;
+    gap: clamp(16px, 3vw, 42px);
+    padding: clamp(14px, 2.4vw, 32px);
   }
 
-  /* Kachel 3: Tabs oben, mittig */
-  .tabs-top{
+  .team-photoCol{
+    flex: 0 0 40%;           /* 2/5 */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+  }
+
+  .team-textCol{
+    flex: 0 0 60%;           /* 3/5 */
+    min-width:0;
+    display:flex;
+    justify-content:flex-start;
+  }
+
+  .team-portrait{
+    width: min(420px, 100%);
+    aspect-ratio: 1 / 1;
+    border-radius: 999px;
+    overflow:hidden;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(15,23,42,0.10);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
+    backdrop-filter: blur(8px);
+  }
+  .team-portrait img{
     width:100%;
     height:100%;
+    object-fit:cover;
+    display:block;
+    transform: scale(1.02);
+  }
+
+  /* Text Panel (nur EIN Shadow -> kein Container-in-Container Problem) */
+  .team-panel{
+    width: 100%;
+    max-width: 780px;
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(15,23,42,0.10);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+    backdrop-filter: blur(10px);
+    padding: 22px 22px 18px;
+    overflow:hidden; /* kein Scroll */
+  }
+
+  .team-title{
+    margin:0 0 10px 0;
+    font-size: clamp(24px, 2.2vw, 40px);
+    line-height:1.02;
+    letter-spacing:-0.02em;
+    color:#0f172a;
+  }
+
+  .team-text{
+    font-size: clamp(14px, 1.0vw, 16px);
+    line-height:1.65;
+    color: rgba(15,23,42,0.78);
+    white-space: pre-wrap;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10; /* kein Scroll */
+    overflow: hidden;
+  }
+
+  /* ===== Tabs unten ===== */
+  .team-tabsWrap{
+    width:100%;
     display:flex;
-    align-items:flex-start;
     justify-content:center;
-    padding-top: 6px;
   }
 
   .team-tabs{
@@ -139,10 +201,9 @@
     justify-content:center;
     max-width: min(1100px, 100%);
     padding: 6px 8px;
-    overflow:hidden; /* keine Scrolls */
+    overflow:hidden; /* kein Scroll */
   }
 
-  /* Pill Tabs (ohne Shadow) */
   .team-tab{
     display:flex;
     align-items:center;
@@ -188,126 +249,48 @@
     letter-spacing:-0.01em;
   }
 
-  /* Kachel 1: Text Panel (keine Scrolls -> Text wird ggf. gekürzt) */
-  .team-panel{
-    width: min(var(--panel-max), 100%);
-    background: rgba(255,255,255,0.84);
-    border: 1px solid rgba(15,23,42,0.10);
-    border-radius: 18px;
-    box-shadow: 0 18px 50px rgba(0,0,0,0.12);
-    backdrop-filter: blur(10px);
-    padding: 22px 22px 18px;
-    overflow:hidden; /* keine Scrolls */
-    position:relative;
-  }
-
-  .team-panel__slide{
-    position:relative;
-    will-change: transform, opacity;
-  }
-
-  .team-title{
-    margin:0 0 10px 0;
-    font-size: clamp(24px, 2.3vw, 40px);
-    line-height:1.02;
-    letter-spacing:-0.02em;
-    color:#0f172a;
-  }
-
-  .team-text{
-    font-size: clamp(14px, 1.0vw, 16px);
-    line-height:1.65;
-    color: rgba(15,23,42,0.78);
-    white-space: pre-wrap;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 10; /* kein Scroll: clamp */
-    overflow: hidden;
-  }
-
-  /* Kachel 2: Portrait */
-  .team-portrait{
-    width: min(var(--portrait-max), 100%);
-    aspect-ratio: 1 / 1;
-    border-radius: 999px;
-    overflow:hidden;
-    background: rgba(255,255,255,0.55);
-    border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
-    backdrop-filter: blur(8px);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    position:relative;
-  }
-
-  .team-portrait img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    display:block;
-    transform: scale(1.02);
-    will-change: transform, opacity;
-  }
-
-  /* ===== Blätter-Animation (Text + Bild) ===== */
-  .slide-out-left  { animation: slideOutLeft  .26s ease forwards; }
-  .slide-out-right { animation: slideOutRight .26s ease forwards; }
-  .slide-in-left   { animation: slideInLeft   .30s ease forwards; }
-  .slide-in-right  { animation: slideInRight  .30s ease forwards; }
-
-  @keyframes slideOutLeft  { to { transform: translateX(-26px); opacity: 0; } }
-  @keyframes slideOutRight { to { transform: translateX( 26px); opacity: 0; } }
-  @keyframes slideInLeft   { from { transform: translateX(-26px); opacity: 0; } to { transform: translateX(0); opacity:1; } }
-  @keyframes slideInRight  { from { transform: translateX( 26px); opacity: 0; } to { transform: translateX(0); opacity:1; } }
-
-  /* ===== Mobile: Reihenfolge 2 > 3 > 1 ===== */
+  /* Mobile: oben/unten bleibt, aber Inhalt untereinander im Slide */
   @media (max-width: 980px){
     .team-head__inner{
       padding-left: 22px;
       padding-right: 22px;
       padding-top: 16px;
-      padding-bottom: 20px;
+      padding-bottom: 16px;
     }
 
-    .team-grid{
-      grid-template-rows: auto auto 1fr;
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "portrait"
-        "tabs"
-        "text";
+    :root{
+      --top-h: 78%;
+      --bottom-h: 22%;
+    }
+
+    .team-slide{
+      flex-direction:column;
       gap: 14px;
+      padding: 14px;
     }
-
-    .tabs-top{
-      align-items:center;
-      padding-top: 0;
+    .team-photoCol, .team-textCol{
+      flex: 0 0 auto;
+      width:100%;
+      justify-content:center;
+    }
+    .team-portrait{
+      width: min(280px, 70vw);
+    }
+    .team-panel{
+      max-width: 100%;
+      border-radius: 16px;
+      padding: 18px 18px 14px;
     }
 
     .team-tabs{
       flex-wrap: wrap;
       justify-content:center;
-      overflow:hidden; /* kein Scroll */
-    }
-
-    .team-panel{
-      width: 100%;
-      border-radius: 16px;
-    }
-
-    .team-portrait{
-      width: min(280px, 70vw);
-      margin: 0 auto;
-    }
-
-    .team-text{
-      -webkit-line-clamp: 12;
     }
   }
 
   @media (max-width: 560px){
     .team-title{ font-size: 30px; }
+    .team-text{ -webkit-line-clamp: 12; }
   }
 </style>
 
@@ -317,16 +300,11 @@
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
     const bgEl = document.getElementById("teamBg");
-    const titleEl = document.getElementById("teamTitle");
-    const textEl  = document.getElementById("teamText");
-    const portraitEl = document.getElementById("teamPortrait");
+    const trackEl = document.getElementById("teamTrack");
     const tabsEl = document.getElementById("teamTabs");
-    const panelSlide = document.getElementById("panelSlide");
-    const portraitFrame = document.getElementById("portraitFrame");
 
     let members = [];
-    let activeIndex = 0;
-    let isAnimating = false;
+    let active = 0;
 
     function parseFolder(folder){
       const parts = String(folder).split("_");
@@ -380,64 +358,61 @@
       bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
     }
 
-    function setPortrait(src, alt){
-      portraitEl.src = src;
-      portraitEl.alt = alt || "";
-      portraitEl.onerror = () => {
-        portraitEl.removeAttribute("src");
-        portraitEl.alt = "";
-      };
-    }
+    function setActive(idx){
+      active = idx;
+      trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
 
-    function setActiveTab(idx){
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
     }
 
-    function animateFlip(toIndex){
-      if (isAnimating || toIndex === activeIndex) return;
-      isAnimating = true;
+    function makeSlide(member){
+      const slide = document.createElement("div");
+      slide.className = "team-slide";
 
-      const dir = (toIndex > activeIndex) ? "right" : "left";
+      const left = document.createElement("div");
+      left.className = "team-photoCol";
 
-      // OUT
-      panelSlide.classList.remove("slide-in-left","slide-in-right","slide-out-left","slide-out-right");
-      portraitFrame.classList.remove("slide-in-left","slide-in-right","slide-out-left","slide-out-right");
+      const portrait = document.createElement("div");
+      portrait.className = "team-portrait";
 
-      panelSlide.classList.add(dir === "right" ? "slide-out-left" : "slide-out-right");
-      portraitFrame.classList.add(dir === "right" ? "slide-out-left" : "slide-out-right");
-
-      const outDone = () => {
-        panelSlide.removeEventListener("animationend", outDone);
-
-        // swap content
-        activeIndex = toIndex;
-        const m = members[activeIndex];
-        const { first, rest } = splitFirstSentence(m.text);
-
-        titleEl.textContent = first || "Wir sind das Team.";
-        textEl.textContent  = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
-        setPortrait(m.img, m.name);
-        setActiveTab(activeIndex);
-
-        // IN
-        panelSlide.classList.remove("slide-out-left","slide-out-right");
-        portraitFrame.classList.remove("slide-out-left","slide-out-right");
-
-        panelSlide.classList.add(dir === "right" ? "slide-in-right" : "slide-in-left");
-        portraitFrame.classList.add(dir === "right" ? "slide-in-right" : "slide-in-left");
-
-        const inDone = () => {
-          panelSlide.removeEventListener("animationend", inDone);
-          panelSlide.classList.remove("slide-in-left","slide-in-right");
-          portraitFrame.classList.remove("slide-in-left","slide-in-right");
-          isAnimating = false;
-        };
-        panelSlide.addEventListener("animationend", inDone, { once:true });
+      const img = document.createElement("img");
+      img.loading = "lazy";
+      img.src = member.img;
+      img.alt = member.name;
+      img.onerror = () => {
+        img.removeAttribute("src");
+        img.alt = "";
       };
 
-      panelSlide.addEventListener("animationend", outDone, { once:true });
+      portrait.appendChild(img);
+      left.appendChild(portrait);
+
+      const right = document.createElement("div");
+      right.className = "team-textCol";
+
+      const panel = document.createElement("div");
+      panel.className = "team-panel";
+
+      const { first, rest } = splitFirstSentence(member.text);
+
+      const h = document.createElement("h1");
+      h.className = "team-title";
+      h.textContent = first || "Wir sind das Team.";
+
+      const t = document.createElement("div");
+      t.className = "team-text";
+      t.textContent = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+
+      panel.appendChild(h);
+      panel.appendChild(t);
+      right.appendChild(panel);
+
+      slide.appendChild(left);
+      slide.appendChild(right);
+
+      return slide;
     }
 
     function makeTab(member, idx){
@@ -477,7 +452,7 @@
       btn.appendChild(av);
       btn.appendChild(name);
 
-      const open = () => animateFlip(idx);
+      const open = () => setActive(idx);
       btn.addEventListener("click", open);
       btn.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
@@ -524,24 +499,17 @@
         return a.name.localeCompare(b.name, "de");
       });
 
+      trackEl.innerHTML = "";
       tabsEl.innerHTML = "";
-      members.forEach((m, i) => tabsEl.appendChild(makeTab(m, i)));
 
-      if (members.length){
-        activeIndex = 0;
-        const m = members[0];
-        const { first, rest } = splitFirstSentence(m.text);
+      members.forEach((m, i) => {
+        trackEl.appendChild(makeSlide(m));
+        tabsEl.appendChild(makeTab(m, i));
+      });
 
-        titleEl.textContent = first || "Wir sind das Team.";
-        textEl.textContent  = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
-        setPortrait(m.img, m.name);
-        setActiveTab(0);
-      }
+      if (members.length) setActive(0);
     }
 
-    load().catch(() => {
-      titleEl.textContent = "Wir sind das Team.";
-      textEl.textContent  = "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
-    });
+    load().catch(() => {});
   })();
 </script>
