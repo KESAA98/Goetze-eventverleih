@@ -23,7 +23,6 @@
       --radius: 14px;
       --shadow: 0 12px 40px rgba(0,0,0,.18);
 
-      /* Shadow für Titel-Leiste (nur nach Scroll) */
       --title-shadow: 0 8px 24px rgba(0,0,0,.12);
     }
 
@@ -34,7 +33,7 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-base);
-      overflow-x:hidden;
+      overflow:hidden;                 /* Page-Scroll komplett aus */
       -webkit-text-size-adjust: 100%;
       text-rendering: optimizeLegibility;
     }
@@ -60,29 +59,53 @@
 
     /* TITEL */
     #title{
-      position: sticky;
-      top: 0;
-      z-index: 2000;
+      position:fixed;
+      top:0; left:0; right:0;
+      z-index:2000;
       height: var(--title-height);
-      background: #fff;
-      display: block;
-      box-shadow: none;
+      background:#fff;
+      display:block;
+      box-shadow:none;
     }
     #title.is-scrolled{
       box-shadow: var(--title-shadow);
     }
 
-    /* Head: unter der Titel-Leiste, bekommt eine echte Höhe (wichtig für %/Flex in head.html) */
-    #head{
+    /* Bühne unter der Titel-Leiste */
+    #stage{
+      position:fixed;
+      top: var(--title-height);
+      left:0; right:0;
       height: calc(100vh - var(--title-height));
-      min-height: calc(100vh - var(--title-height));
-      overflow: auto;              /* Head kann intern scrollen, falls Inhalt zu hoch */
-      overscroll-behavior: contain;
+      overflow:hidden;
     }
 
-    /* Shop */
+    /* Panels Head + Shop untereinander */
+    #panels{
+      height: 200%;
+      transform: translateY(0);
+      transition: transform .35s ease;
+      will-change: transform;
+    }
+
+    /* Head / Shop: nur intern scrollen */
+    #head, #shop{
+      height: calc(100vh - var(--title-height));
+      overflow:auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Scrollbars verstecken (Scroll bleibt aktiv) */
+    #head, #shop{ scrollbar-width: none; }
+    #head::-webkit-scrollbar,
+    #shop::-webkit-scrollbar{
+      width:0;
+      height:0;
+    }
+
+    /* Shop: Platz für Cart rechts (Desktop) */
     #shop{
-      min-height:100vh;
       width:calc(100% - var(--cart-width));
       margin-right:var(--cart-width);
     }
@@ -116,11 +139,13 @@
   <!-- 2) Titel -->
   <header id="title" class="slot" data-src="backend/titel.html"></header>
 
-  <!-- 3) Head -->
-  <section id="head" class="slot" data-src="backend/head.html"></section>
-
-  <!-- 4) Shop -->
-  <main id="shop" class="slot" data-src="backend/shop.html"></main>
+  <!-- 3/4) Stage: Head + Shop (kein Page-Scroll) -->
+  <div id="stage">
+    <div id="panels">
+      <section id="head" class="slot" data-src="backend/head.html"></section>
+      <main id="shop" class="slot" data-src="backend/shop.html"></main>
+    </div>
+  </div>
 
   <!-- 5) Cart -->
   <aside id="cart" class="slot" data-src="backend/cart.html"></aside>
@@ -171,108 +196,100 @@
 
       function setupTitleShadow(){
         const title = document.getElementById("title");
-        if(!title) return;
+        const head  = document.getElementById("head");
+        const shop  = document.getElementById("shop");
+        if(!title || !head || !shop) return;
+
+        // Sicht wird in setupHeadShopScrollSwitch gesetzt – wir lesen sie hier global
+        const hasShadow = () => {
+          const v = window.__view || "head";
+          const el = (v === "shop") ? shop : head;
+          return el.scrollTop > 0;
+        };
 
         const update = () => {
-          if(window.scrollY > 0) title.classList.add("is-scrolled");
+          if(hasShadow()) title.classList.add("is-scrolled");
           else title.classList.remove("is-scrolled");
         };
 
+        head.addEventListener("scroll", update, { passive:true });
+        shop.addEventListener("scroll", update, { passive:true });
+        window.addEventListener("resize", update, { passive:true });
+
         update();
-        window.addEventListener("scroll", update, { passive:true });
+        window.__updateTitleShadow = update;
       }
 
       function setupHeadShopScrollSwitch(){
-        const head = document.getElementById("head");
-        const shop = document.getElementById("shop");
-        if(!head || !shop) return;
+        const head   = document.getElementById("head");
+        const shop   = document.getElementById("shop");
+        const panels = document.getElementById("panels");
+        if(!head || !shop || !panels) return;
+
+        window.__view = "head";  // "head" | "shop"
+        let locked = false;
 
         const cookieVisible = () => {
           const ov = document.getElementById("cookieOverlay");
           return !!(ov && ov.classList.contains("is-visible"));
         };
 
-        const headScrollable = () => head.scrollHeight > head.clientHeight + 1;
-        const headAtBottom = () => head.scrollTop + head.clientHeight >= head.scrollHeight - 1;
+        const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+        const atTop    = (el) => el.scrollTop <= 0;
 
-        const shopAtTop = () => {
-          const r = shop.getBoundingClientRect();
-          return r.top >= -1;
+        const goShop = () => {
+          if(locked || window.__view === "shop") return;
+          locked = true;
+          window.__view = "shop";
+          panels.style.transform = "translateY(-100%)";
+          window.__updateTitleShadow && window.__updateTitleShadow();
+          setTimeout(()=> locked = false, 380);
         };
 
-        const scrollToShop = () => {
-          const y = shop.getBoundingClientRect().top + window.scrollY;
-          window.scrollTo({ top: y, behavior: "smooth" });
+        const goHead = () => {
+          if(locked || window.__view === "head") return;
+          locked = true;
+          window.__view = "head";
+          panels.style.transform = "translateY(0)";
+          window.__updateTitleShadow && window.__updateTitleShadow();
+          setTimeout(()=> locked = false, 380);
         };
 
-        const scrollToHead = (toBottom = false) => {
-          const y = head.getBoundingClientRect().top + window.scrollY;
-          window.scrollTo({ top: y, behavior: "smooth" });
-          setTimeout(() => {
-            if(headScrollable()){
-              head.scrollTop = toBottom ? (head.scrollHeight - head.clientHeight) : 0;
-            }else{
-              head.scrollTop = 0;
-            }
-          }, 250);
-        };
-
-        // Wheel: Wechsel Head -> Shop (runter), Shop -> Head (hoch)
-        window.addEventListener("wheel", (e) => {
+        // Wheel-Impulse
+        head.addEventListener("wheel", (e) => {
           if(cookieVisible()) return;
-
-          const down = e.deltaY > 0;
-          const up   = e.deltaY < 0;
-
-          const inHeadView = shop.getBoundingClientRect().top > 1;
-
-          if(down && inHeadView){
-            if(headScrollable()){
-              if(headAtBottom()){
-                e.preventDefault();
-                scrollToShop();
-              }
-            }else{
-              e.preventDefault();
-              scrollToShop();
-            }
-          }
-
-          if(up && shopAtTop()){
+          if(e.deltaY > 0 && atBottom(head)){
             e.preventDefault();
-            scrollToHead(true);
+            goShop();
           }
         }, { passive:false });
 
-        // Tastatur
+        shop.addEventListener("wheel", (e) => {
+          if(cookieVisible()) return;
+          if(e.deltaY < 0 && atTop(shop)){
+            e.preventDefault();
+            goHead();
+          }
+        }, { passive:false });
+
+        // Tastatur-Impulse (optional)
         window.addEventListener("keydown", (e) => {
           if(cookieVisible()) return;
 
           const downKeys = ["ArrowDown","PageDown"," "];
           const upKeys   = ["ArrowUp","PageUp"];
 
-          const isDown = downKeys.includes(e.key);
-          const isUp   = upKeys.includes(e.key);
-
-          const inHeadView = shop.getBoundingClientRect().top > 1;
-
-          if(isDown && inHeadView){
-            if(headScrollable()){
-              if(headAtBottom()){
-                e.preventDefault();
-                scrollToShop();
-              }
-            }else{
-              e.preventDefault();
-              scrollToShop();
-            }
+          if(window.__view === "head" && downKeys.includes(e.key) && atBottom(head)){
+            e.preventDefault(); goShop();
           }
-
-          if(isUp && shopAtTop()){
-            e.preventDefault();
-            scrollToHead(true);
+          if(window.__view === "shop" && upKeys.includes(e.key) && atTop(shop)){
+            e.preventDefault(); goHead();
           }
         }, { passive:false });
+
+        // Optional: falls jemand per Code wechseln will (shop.html kann später "up" senden etc.)
+        window.goShop = goShop;
+        window.goHead = goHead;
       }
 
       async function boot(){
