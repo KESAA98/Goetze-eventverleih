@@ -1,343 +1,605 @@
-<!-- backend/head.html -->
+<!-- backend/head.html (modern V1) -->
 <style>
   :root{
-    --title-pad-x: 72px;
-    --logo-pad-left: 32px;
-    --nav-pad-right: 32px;
-
-    --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
-    --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
-
-    --head-gap: 34px;
-
-    --radius: 18px;
-    --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
-
-    /* Blau-Tint (#0F172A) */
-    --hero-blue-a1: .75;
-    --hero-blue-a2: .62;
-    --hero-blue-a3: .45;
-
-    /* Mosaic */
-    --mosaic-gap: 12px;
-    --tile-radius: 16px;
-
-    /* Fade (statt mask, damit Schatten nicht abgeschnitten wird) */
-    --fadeW: 64px;
+    --edge-left:  calc(var(--title-pad-x,72px) + var(--logo-pad-left,32px));
+    --edge-right: calc(var(--title-pad-x,72px) + var(--nav-pad-right,32px));
+    --radius: 20px;
+    --radius-lg: 28px;
+    --shadow-soft: 0 14px 42px rgba(0,0,0,.14);
+    --shadow-card: 0 10px 26px rgba(0,0,0,.10);
+    --text: #0f172a;
+    --muted: #475569;
+    --muted-2: #64748b;
+    --line: rgba(15, 23, 42, .10);
+    --glass: rgba(255,255,255,.82);
+    --glass-strong: rgba(255,255,255,.90);
   }
 
+  /* Wrapper inside the already-fullscreen #head container */
   .head-wrap{
     width:100%;
     padding-left:  var(--edge-left);
     padding-right: var(--edge-right);
-    padding-top:   var(--head-gap);
-    padding-bottom:var(--head-gap);
+    padding-top:   clamp(14px, 2.3vh, 26px);
+    padding-bottom:clamp(18px, 3vh, 32px);
+    display:flex;
+    flex-direction:column;
+    gap: clamp(14px, 2.2vh, 24px);
   }
 
   .hero{
     width:100%;
-    height:52vh;
-    min-height:360px;
-    max-height:620px;
-    border-radius: var(--radius);
+    height: min(56vh, 620px);
+    min-height: 380px;
+    border-radius: var(--radius-lg);
     overflow:hidden;
     position:relative;
     background:#d9dde3;
     box-shadow: var(--shadow-soft);
+    isolation:isolate;
   }
-  .hero__bg{
+
+  .hero-bg{
     position:absolute; inset:0;
-    background-size:cover;
-    background-position:center;
+    background-size: cover;
+    background-position: center;
     transform: scale(1.02);
-    filter: saturate(.92) contrast(.95);
+    filter: saturate(1.02) contrast(1.02);
   }
-  .hero__tint{
+
+  .hero-shade{
     position:absolute; inset:0;
-    background: linear-gradient(
-      135deg,
-      rgba(15, 23, 42, var(--hero-blue-a1)) 0%,
-      rgba(15, 23, 42, var(--hero-blue-a2)) 52%,
-      rgba(15, 23, 42, var(--hero-blue-a3)) 100%
-    );
-    mix-blend-mode: multiply;
+    background:
+      radial-gradient(1100px 680px at 18% 30%, rgba(255,255,255,.55) 0%, rgba(255,255,255,.12) 50%, rgba(255,255,255,0) 70%),
+      radial-gradient(900px 520px at 70% 28%, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 62%),
+      linear-gradient(180deg, rgba(15,23,42,.08) 0%, rgba(15,23,42,.18) 55%, rgba(15,23,42,.30) 100%);
+    z-index:1;
   }
-  .hero__dim{
+
+  .hero-inner{
     position:absolute; inset:0;
-    background: rgba(0,0,0,.12);
-  }
-
-  /* =========================
-     Mosaic Strip (ohne äußeren Kasten)
-     Fixes:
-     - KEIN transparenter Übergang per mask -> stattdessen Overlay-Fade
-     - Schatten wird nicht abgeschnitten (overflow sichtbar + Innenpadding)
-     - Bilder wirken nicht „zu breit“ -> contain statt cover
-     ========================= */
-  .mosaic-wrap{
-    margin-top: var(--head-gap);
-
-    height:25vh;
-    min-height:170px;
-    max-height:240px;
-
-    background: transparent;
-    position:relative;
-
-    /* Platz für Schatten */
-    padding: 8px 0 14px;
-    overflow: visible;
-  }
-
-  .mosaic{
-    width:100%;
-    height:100%;
-
+    padding: clamp(16px, 3.2vw, 34px);
     display:grid;
-    grid-template-columns: repeat(48, minmax(0, 1fr));
-    grid-template-rows: repeat(8, minmax(0, 1fr));
-    gap: var(--mosaic-gap);
-
-    /* wichtig: Schatten nicht kappen */
-    overflow: visible;
+    grid-template-columns: 1.2fr .8fr;
+    gap: clamp(14px, 2.4vw, 26px);
+    align-items:end;
+    z-index:2;
   }
 
-  /* Seiten-Fade als Overlay (nicht transparent, nicht „ausmaskieren“) */
-  .mosaic-wrap::before,
-  .mosaic-wrap::after{
-    content:"";
-    position:absolute;
-    top: 8px;
-    bottom: 14px;
-    width: var(--fadeW);
-    pointer-events:none;
-    z-index: 5;
-  }
-  .mosaic-wrap::before{
-    left: 0;
-    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
-  }
-  .mosaic-wrap::after{
-    right: 0;
-    background: linear-gradient(270deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+  .hero-copy{
+    align-self:stretch;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    gap: 12px;
+    max-width: 760px;
   }
 
-  .m-tile{
+  .hero-kicker{
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.70);
+    border: 1px solid rgba(255,255,255,.65);
+    color: var(--text);
+    font-weight: 650;
+    letter-spacing: .2px;
+    width: fit-content;
+    backdrop-filter: blur(10px);
+  }
+  .hero-kicker .dot{
+    width: 9px; height: 9px; border-radius: 999px;
+    background: rgba(16,185,129,.95);
+    box-shadow: 0 0 0 6px rgba(16,185,129,.18);
+  }
+
+  .hero-title{
+    margin:0;
+    font-size: clamp(28px, 4.1vw, 52px);
+    line-height: 1.02;
+    letter-spacing: -0.8px;
+    color: var(--text);
+    text-wrap: balance;
+  }
+
+  .hero-sub{
+    margin:0;
+    font-size: clamp(14px, 1.35vw, 18px);
+    line-height: 1.5;
+    color: rgba(15,23,42,.80);
+    max-width: 62ch;
+  }
+
+  .hero-cta{
+    display:flex;
+    gap: 10px;
+    flex-wrap:wrap;
+    margin-top: 6px;
+  }
+
+  .btn{
+    appearance:none;
+    border:0;
+    border-radius: 999px;
+    padding: 11px 14px;
+    font-weight: 650;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    transition: transform .12s ease, filter .12s ease, background .12s ease;
+    user-select:none;
+  }
+  .btn:active{ transform: translateY(1px); }
+
+  .btn-primary{
+    background: rgba(15,23,42,.92);
+    color: #fff;
+    box-shadow: 0 12px 22px rgba(15,23,42,.20);
+  }
+  .btn-primary:hover{ filter: brightness(1.06); }
+
+  .btn-ghost{
+    background: rgba(255,255,255,.72);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,.65);
+    backdrop-filter: blur(10px);
+  }
+  .btn-ghost:hover{ background: rgba(255,255,255,.82); }
+
+  .btn .icon{
+    width: 18px; height: 18px;
+    display:inline-block;
+  }
+
+  .hero-panel{
+    align-self:stretch;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+  }
+
+  .glass{
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,.65);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .spotlight{
+    padding: 14px;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+  }
+
+  .spotlight h3{
+    margin:0;
+    font-size: 14px;
+    color: rgba(15,23,42,.82);
+    letter-spacing: .2px;
+    display:flex;
+    align-items:center;
+    gap: 8px;
+  }
+
+  .spot-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .spot{
     position:relative;
-    border-radius: var(--tile-radius);
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
     overflow:hidden;
-
-    background: #f3f5f9; /* „Letterbox“-Hintergrund für contain */
-    box-shadow: 0 10px 26px rgba(0,0,0,.12);
-    transform: translateZ(0);
+    background: rgba(148,163,184,.24);
+    border: 1px solid rgba(15,23,42,.10);
   }
-
-  .m-tile img{
-    width:100%;
-    height:100%;
+  .spot img{
+    width:100%; height:100%;
+    object-fit:cover;
     display:block;
-
-    /* zeigt ganze Produkte / Hochformatbilder komplett */
-    object-fit: contain;
-    object-position: center;
-
-    padding: 6px; /* etwas Luft, wirkt „Katalog“ statt abgeschnitten */
-    transition: transform .22s ease, filter .22s ease;
-    filter: saturate(.96) contrast(.99);
+    transform: scale(1.02);
+  }
+  .spot::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,.26) 100%);
+    opacity:.65;
   }
 
-  .m-tile:hover img{
-    transform: scale(1.03);
-    filter: saturate(1) contrast(1);
+  /* Sections below hero */
+  .row{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap: clamp(12px, 2.2vh, 18px);
   }
 
-  /* Smooth Loading */
-  .head-wrap.is-loading .hero,
-  .head-wrap.is-loading .mosaic-wrap{
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  .hero, .mosaic-wrap{
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity .28s ease, transform .28s ease;
+  .section{
+    border-radius: var(--radius-lg);
+    overflow:hidden;
+    background: var(--glass-strong);
+    border: 1px solid rgba(15,23,42,.10);
+    box-shadow: var(--shadow-card);
   }
 
-  .head-skeleton{
-    display:none;
-    margin-top: var(--head-gap);
-    height:25vh;
-    min-height:170px;
-    max-height:240px;
-    border-radius: var(--radius);
-    background: linear-gradient(90deg, #f2f4f8 0%, #e9edf4 35%, #f2f4f8 70%, #f2f4f8 100%);
+  .section-head{
+    padding: 16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 12px;
+    border-bottom: 1px solid rgba(15,23,42,.08);
+  }
+
+  .section-title{
+    margin:0;
+    font-size: 15px;
+    letter-spacing: .2px;
+    color: rgba(15,23,42,.88);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    font-weight: 750;
+  }
+
+  .section-sub{
+    margin:0;
+    font-size: 13px;
+    color: rgba(71,85,105,.95);
+  }
+
+  .section-body{ padding: 16px 18px 18px; }
+
+  .team-grid{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .member{
+    border-radius: 18px;
+    overflow:hidden;
+    border: 1px solid rgba(15,23,42,.10);
+    background: rgba(255,255,255,.70);
+    transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+    min-height: 188px;
+    position:relative;
+  }
+  .member:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(15,23,42,.14);
+    background: rgba(255,255,255,.84);
+  }
+
+  .member .pic{
+    height: 124px;
+    background: rgba(148,163,184,.22);
+    position:relative;
+  }
+  .member .pic img{
+    width:100%; height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .member .pic::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(15,23,42,0) 0%, rgba(15,23,42,.22) 100%);
+    opacity:.7;
+  }
+
+  .member .meta{
+    padding: 12px 12px 14px;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+  }
+
+  .member .name{
+    margin:0;
+    font-weight: 850;
+    color: var(--text);
+    font-size: 16px;
+    letter-spacing: .2px;
+  }
+  .member .hint{
+    margin: 3px 0 0;
+    color: rgba(71,85,105,.92);
+    font-size: 12px;
+  }
+  .badge{
+    flex:0 0 auto;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(15,23,42,.08);
+    border: 1px solid rgba(15,23,42,.10);
+    color: rgba(15,23,42,.85);
+    font-weight: 800;
+    font-size: 12px;
+  }
+
+  .skeleton{
+    background: linear-gradient(90deg, rgba(148,163,184,.20) 0%, rgba(148,163,184,.34) 50%, rgba(148,163,184,.20) 100%);
     background-size: 220% 100%;
-    box-shadow: 0 10px 26px rgba(0,0,0,.08);
-    animation: shimmer 1.15s ease-in-out infinite;
+    animation: shimmer 1.4s ease infinite;
   }
   @keyframes shimmer{
-    0%{ background-position: 0% 0; }
-    100%{ background-position: 100% 0; }
-  }
-  .head-wrap.is-loading .head-skeleton{ display:block; }
-
-  @media (max-width:700px){
-    :root{
-      --title-pad-x: 40px;
-      --logo-pad-left: 16px;
-      --nav-pad-right: 16px;
-      --head-gap: 26px;
-      --mosaic-gap: 10px;
-      --tile-radius: 14px;
-      --fadeW: 44px;
-    }
-    .hero{ height:46vh; min-height:300px; }
+    0%{ background-position: 200% 0; }
+    100%{ background-position: -200% 0; }
   }
 
-  @media (max-width:560px){
-    :root{
-      --title-pad-x: 22px;
-      --logo-pad-left: 10px;
-      --nav-pad-right: 10px;
-      --head-gap: 22px;
-      --mosaic-gap: 8px;
-      --tile-radius: 14px;
-      --fadeW: 34px;
-    }
-    .mosaic-wrap{ min-height:150px; max-height:210px; }
-    .hero{ min-height:260px; }
+  /* Responsive */
+  @media (max-width: 1100px){
+    .hero-inner{ grid-template-columns: 1fr; }
+    .hero-panel{ align-self:end; }
+    .spot-grid{ grid-template-columns: repeat(6, 1fr); }
+    .team-grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 820px){
+    .head-wrap{ padding-left: 16px; padding-right: 16px; }
+    .spot-grid{ grid-template-columns: repeat(3, 1fr); }
+    .team-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 460px){
+    .team-grid{ grid-template-columns: 1fr; }
   }
 </style>
 
-<section class="head-wrap is-loading" id="headWrap" aria-label="Header-Bereich">
-  <div class="hero">
-    <div class="hero__bg" id="heroBg"></div>
-    <div class="hero__tint"></div>
-    <div class="hero__dim"></div>
-  </div>
+<div class="head-wrap" id="headModern">
+  <!-- HERO -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero-bg" id="heroBg"></div>
+    <div class="hero-shade"></div>
 
-  <div class="head-skeleton" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-kicker">
+          <span class="dot" aria-hidden="true"></span>
+          <span>LG Eventverleih</span>
+        </div>
 
-  <div class="mosaic-wrap" aria-label="Zufällige Artikelbilder">
-    <div class="mosaic" id="mosaic"></div>
+        <h1 class="hero-title">Feiern leicht gemacht.</h1>
+        <p class="hero-sub">
+          Moderne Ausstattung, saubere Abwicklung, zuverlässiger Aufbau – damit du dich um das Wichtigste kümmern kannst.
+        </p>
+
+        <div class="hero-cta">
+          <button class="btn btn-primary" type="button" data-scroll="shop">
+            <span class="icon" aria-hidden="true">🛒</span>
+            <span>Zum Shop</span>
+          </button>
+          <button class="btn btn-ghost" type="button" data-scroll="kontakt">
+            <span class="icon" aria-hidden="true">✉️</span>
+            <span>Kontakt</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="glass spotlight" aria-label="Highlights">
+          <h3><span aria-hidden="true">✨</span> Beliebte Artikel</h3>
+          <div class="spot-grid" id="spotGrid">
+            <!-- images injected -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <div class="row">
+    <section class="section" aria-label="Team">
+      <div class="section-head">
+        <div>
+          <p class="section-title"><span aria-hidden="true">👥</span> Unser Team</p>
+          <p class="section-sub">Die Gesichter hinter Planung, Aufbau und Service.</p>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="team-grid" id="teamGrid">
+          <!-- team cards injected -->
+        </div>
+      </div>
+    </section>
   </div>
-</section>
+</div>
 
 <script>
-(async function(){
-  const BG_MANIFEST    = "image/hintergrund/manifest.json";
-  const ITEMS_MANIFEST = "Items/manifest.json";
+(() => {
+  const heroBg = document.getElementById('heroBg');
+  const spotGrid = document.getElementById('spotGrid');
+  const teamGrid = document.getElementById('teamGrid');
 
-  // Neues Template: weniger „super-breit“, mehr ausgewogene Formen.
-  // (48x8 vollständig gefüllt, keine Lücken)
-  const TEMPLATE_48x8 = [
-    {x:0,  y:0, w:12, h:4},   // groß
-    {x:12, y:0, w:12, h:4},   // groß
-    {x:24, y:0, w:8,  h:4},   // medium
-    {x:32, y:0, w:8,  h:2},   // medium
-    {x:40, y:0, w:8,  h:2},   // medium
-    {x:32, y:2, w:6,  h:2},   // klein
-    {x:38, y:2, w:10, h:2},   // medium
-
-    {x:0,  y:4, w:8,  h:4},   // medium
-    {x:8,  y:4, w:12, h:4},   // groß
-    {x:20, y:4, w:10, h:4},   // medium
-    {x:30, y:4, w:6,  h:4},   // hoch/medium
-    {x:36, y:4, w:6,  h:2},   // klein
-    {x:42, y:4, w:6,  h:2},   // klein
-    {x:36, y:6, w:12, h:2},   // medium
-  ];
-
-  const load = async (p) => {
-    const r = await fetch(p, { cache: "no-store" });
-    if(!r.ok) throw new Error(p + " -> " + r.status);
-    return await r.json();
+  const pickRandom = (arr, n) => {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy.slice(0, n);
   };
 
-  const pick = (a) => a[Math.floor(Math.random() * a.length)];
-
-  function shuffleUnique(arr){
-    const uniq = Array.from(new Set(arr));
-    for(let i = uniq.length - 1; i > 0; i--){
-      const j = Math.floor(Math.random() * (i + 1));
-      [uniq[i], uniq[j]] = [uniq[j], uniq[i]];
-    }
-    return uniq;
+  async function fetchJson(url){
+    const res = await fetch(url, { cache: "no-store" });
+    if(!res.ok) throw new Error(url + " (" + res.status + ")");
+    return await res.json();
   }
 
-  function preloadImage(src){
-    return new Promise((resolve) => {
+  function safeSetBg(url){
+    heroBg.style.backgroundImage = `url("${url}")`;
+  }
+
+  // Try a list of filenames in a folder, resolve with the first that exists.
+  function probeImage(url){
+    return new Promise((resolve, reject) => {
       const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.src = src;
+      img.onload = () => resolve(url);
+      img.onerror = reject;
+      img.src = url;
     });
   }
 
-  function renderMosaic(allImages){
-    const el = document.getElementById("mosaic");
-    if(!el) return [];
+  async function firstExistingImage(folder, candidates){
+    for (const fn of candidates){
+      const url = `${folder}/${fn}`;
+      try {
+        const ok = await probeImage(url);
+        return ok;
+      } catch(_){}
+    }
+    return null;
+  }
 
-    el.innerHTML = "";
+  function makeSpot(url){
+    const el = document.createElement('div');
+    el.className = 'spot';
+    const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.alt = '';
+    img.src = url;
+    el.appendChild(img);
+    return el;
+  }
 
-    const needed = TEMPLATE_48x8.length;
-    const imgs = shuffleUnique(allImages).slice(0, Math.max(needed, 1));
+  function memberCard({index, imgUrl}){
+    const card = document.createElement('div');
+    card.className = 'member';
+    const pic = document.createElement('div');
+    pic.className = 'pic' + (imgUrl ? '' : ' skeleton');
 
-    const used = [];
-    TEMPLATE_48x8.forEach((slot, i) => {
-      const src = imgs[i % imgs.length];
+    if(imgUrl){
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.alt = '';
+      img.src = imgUrl;
+      pic.appendChild(img);
+    }
 
-      const d = document.createElement("div");
-      d.className = "m-tile";
-      d.style.gridColumn = (slot.x + 1) + " / span " + slot.w;
-      d.style.gridRow    = (slot.y + 1) + " / span " + slot.h;
+    const meta = document.createElement('div');
+    meta.className = 'meta';
 
-      const img = document.createElement("img");
-      img.loading = "eager";
-      img.alt = "";
-      img.src = src;
+    const left = document.createElement('div');
+    const name = document.createElement('p');
+    name.className = 'name';
+    name.textContent = `Teammitglied ${index}`;
+    const hint = document.createElement('p');
+    hint.className = 'hint';
+    hint.textContent = '—';
 
-      d.appendChild(img);
-      el.appendChild(d);
+    left.appendChild(name);
+    left.appendChild(hint);
 
-      used.push(src);
+    const badge = document.createElement('div');
+    badge.className = 'badge';
+    badge.textContent = `#${index}`;
+
+    meta.appendChild(left);
+    meta.appendChild(badge);
+
+    card.appendChild(pic);
+    card.appendChild(meta);
+    return card;
+  }
+
+  async function initHeroBackground(){
+    try{
+      const bgList = await fetchJson('image/hintergrund/manifest.json');
+      if(Array.isArray(bgList) && bgList.length){
+        const file = bgList[Math.floor(Math.random() * bgList.length)];
+        safeSetBg(`image/hintergrund/${file}`);
+      }
+    } catch(e){
+      // keep default background
+    }
+  }
+
+  async function initSpotlightItems(){
+    // use random product images in the hero panel
+    try{
+      const items = await fetchJson('Items/manifest.json');
+      if(Array.isArray(items) && items.length){
+        const picks = pickRandom(items, 6);
+        spotGrid.innerHTML = '';
+        picks.forEach(p => spotGrid.appendChild(makeSpot(p)));
+      }
+    } catch(e){
+      // fallback: show empty placeholders
+      spotGrid.innerHTML = '';
+      for(let i=0;i<6;i++){
+        const el = document.createElement('div');
+        el.className = 'spot skeleton';
+        spotGrid.appendChild(el);
+      }
+    }
+  }
+
+  async function initTeam(){
+    // Team/manifest.json contains folders (Name_1, Name_2, ...)
+    try{
+      const team = await fetchJson('Team/manifest.json');
+      const members = team?.members || [];
+      teamGrid.innerHTML = '';
+
+      const candidates = [
+        'profil.jpg','profil.png',
+        'profile.jpg','profile.png',
+        'portrait.jpg','portrait.png',
+        'main.jpg','main.png',
+        '1.jpg','1.jpeg','1.png','1.webp',
+        '0.jpg','0.jpeg','0.png','0.webp'
+      ];
+
+      // Render cards in manifest order (1..n)
+      for(let i=0; i<members.length; i++){
+        const idx = i + 1;
+        const folder = members[i]?.folder;
+        let imgUrl = null;
+        if(folder){
+          imgUrl = await firstExistingImage(`Team/${folder}`, candidates);
+        }
+        teamGrid.appendChild(memberCard({ index: idx, imgUrl }));
+      }
+
+      // If no members: show a calm placeholder
+      if(!members.length){
+        const empty = document.createElement('div');
+        empty.style.color = 'rgba(71,85,105,.9)';
+        empty.style.fontSize = '14px';
+        empty.textContent = 'Noch keine Teammitglieder hinterlegt.';
+        teamGrid.appendChild(empty);
+      }
+    } catch(e){
+      // On error, show a tiny hint and keep layout clean
+      teamGrid.innerHTML = '';
+      const empty = document.createElement('div');
+      empty.style.color = 'rgba(71,85,105,.9)';
+      empty.style.fontSize = '14px';
+      empty.textContent = 'Team konnte nicht geladen werden.';
+      teamGrid.appendChild(empty);
+    }
+  }
+
+  // Bind scroll buttons (works with your existing global smooth-scroller too)
+  function bindScrollButtons(){
+    document.querySelectorAll('#headModern [data-scroll]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-scroll');
+        const el = document.getElementById(target);
+        if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     });
-
-    return used;
   }
 
-  const headWrap = document.getElementById("headWrap");
-
-  let heroUrl = null;
-  try{
-    const bg = await load(BG_MANIFEST);
-    if(Array.isArray(bg) && bg.length){
-      heroUrl = "image/hintergrund/" + pick(bg);
-      document.getElementById("heroBg").style.backgroundImage = "url('" + heroUrl + "')";
-    }
-  }catch(e){}
-
-  let usedImages = [];
-  try{
-    const raw = await load(ITEMS_MANIFEST);
-    if(Array.isArray(raw) && raw.length){
-      usedImages = renderMosaic(raw);
-    }
-  }catch(e){}
-
-  const preloadList = [];
-  if(heroUrl) preloadList.push(preloadImage(heroUrl));
-  usedImages.forEach((src) => preloadList.push(preloadImage(src)));
-
-  const timeoutMs = 1100;
-  const timeout = new Promise((resolve) => setTimeout(resolve, timeoutMs));
-
-  try{
-    await Promise.race([Promise.allSettled(preloadList), timeout]);
-  }catch(e){}
-
-  if(headWrap){
-    headWrap.classList.remove("is-loading");
-  }
+  bindScrollButtons();
+  initHeroBackground();
+  initSpotlightItems();
+  initTeam();
 })();
 </script>
