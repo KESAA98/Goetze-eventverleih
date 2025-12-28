@@ -1,29 +1,38 @@
-<!-- backend/head.html | Slider: Text-Panel links + Portrait rechts (getrennte Container)
-     Desktop: Zone A (75%) Slider | Zone B (25%) Tabs unten (ohne zusätzliche Hülle)
-     Mobile: Bild oben, Tabs darunter, Text darunter (alles in Slide), KEIN horizontales Scrollen.
+<!-- backend/head.html | Team-Header (responsive)
+     Desktop: oben 75% (Text links + Bild rechts, beide sliden gemeinsam), unten 25% Tabs (fix, sliden NICHT)
+     Mobile: Bild oben, Tabs Mitte, Text unten (Bild+Text sliden gemeinsam; Tabs bleiben fix)
+     Wichtig: KEIN eigener Scroll-Container hier – Scroll kommt vom Parent (#head) in index.html
 -->
-
 <section class="team-head" aria-label="Team">
-  <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
-  <div class="team-head__veil" aria-hidden="true"></div>
+  <div class="team-bg" id="teamBg" aria-hidden="true"></div>
+  <div class="team-veil" aria-hidden="true"></div>
 
-  <!-- Interner Scroll (Head) -->
-  <div class="team-scroll" id="teamScroll" aria-label="Team Inhalt">
+  <div class="team-inner">
     <div class="team-stage">
 
-      <!-- Zone A -->
-      <div class="sceneZone" aria-label="Vorstellung">
-        <div class="team-viewport" aria-label="Team Slider">
-          <div class="team-track" id="teamTrack"></div>
+      <!-- TOP (slidend): Desktop = 2 Spalten | Mobile = erst Portrait, später Text -->
+      <div class="topZone" aria-label="Vorstellung">
+        <!-- Text (Track) -->
+        <div class="textZone" aria-label="Text">
+          <div class="textViewport" aria-hidden="true">
+            <div class="textTrack" id="textTrack"></div>
+          </div>
+        </div>
+
+        <!-- Portrait (Track) -->
+        <div class="portraitZone" aria-label="Bild">
+          <div class="portraitViewport" aria-hidden="true">
+            <div class="portraitTrack" id="portraitTrack"></div>
+          </div>
         </div>
       </div>
 
-      <!-- Zone B (Desktop Tabs) -->
-      <div class="selectorZone" id="selectorZone" aria-label="Team Auswahl">
+      <!-- Tabs (fix, nicht im Track) -->
+      <div class="selectorZone" aria-label="Team Auswahl">
         <div class="team-tabs" id="teamTabs"></div>
       </div>
 
-      <!-- Gate (optional) -->
+      <!-- Gate (optional, wird nur per JS sichtbar geschaltet) -->
       <div class="gateZone" id="gateZone" aria-hidden="true">
         <button class="gateBtn" id="gateBtn" type="button">Zum Shop ↓</button>
       </div>
@@ -35,26 +44,27 @@
 <style>
   :root{
     --radius: 18px;
-    --panel-bg: rgba(255,255,255,0.84);
-    --panel-border: rgba(15,23,42,0.10);
-    --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
+    --shadow-soft: 0 18px 50px rgba(0,0,0,0.12);
 
-    --zoneA: 80%;
-    --zoneB: 20%;
+    /* Desktop-Proportionen */
+    --top-h: 75%;
+    --bottom-h: 25%;
 
-    --text-max-w: min(780px, 60vw);  /* Textpanel max */
-    --img-max: min(420px, 40vw);     /* Bild max */
+    /* Inhalte */
+    --text-max-w: 860px;
+    --portrait-max: 420px;
   }
 
   .team-head{
     position:relative;
     width:100%;
     height:100%;
-    overflow:hidden;
+    min-height:100%;
+    overflow:hidden; /* Hintergrund + Overlay sauber */
     background:#d9dde3;
   }
 
-  .team-head__bg{
+  .team-bg{
     position:absolute; inset:0;
     background-size:cover;
     background-position:center;
@@ -62,7 +72,7 @@
     filter:saturate(.98) contrast(.98);
   }
 
-  .team-head__veil{
+  .team-veil{
     position:absolute; inset:0;
     background:
       radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
@@ -70,93 +80,95 @@
     backdrop-filter: blur(10px);
   }
 
-  /* interner Scroll */
-  .team-scroll{
+  .team-inner{
     position:relative;
     z-index:1;
     height:100%;
     width:100%;
-    overflow:auto;
-    overflow-x:hidden;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
     padding: 18px 24px;
+    display:flex;
   }
-  .team-scroll{ scrollbar-width:none; }
-  .team-scroll::-webkit-scrollbar{ width:0; height:0; }
 
   .team-stage{
-    position:relative;
-    width:100%;
     height:100%;
-    min-height: 520px;
+    width:100%;
     display:flex;
     flex-direction:column;
-    gap: 12px;
+    gap: 14px;
+    min-height:0;
   }
 
-  .sceneZone{
-    flex: 0 0 var(--zoneA);
+  /* ===== Top + Bottom Zonen ===== */
+  .topZone{
+    flex: 0 0 var(--top-h);
     min-height: 320px;
     border-radius: var(--radius);
     overflow:hidden;
+    display:flex;
+    gap: clamp(16px, 3vw, 42px);
+    align-items:center;
+    justify-content:center;
+    padding: clamp(14px, 2.4vw, 26px);
+    background: rgba(255,255,255,0.50);
+    border: 1px solid rgba(15,23,42,0.08);
+    backdrop-filter: blur(10px);
   }
 
   .selectorZone{
-    flex: 0 0 var(--zoneB);
-    min-height: 96px;
+    flex: 0 0 var(--bottom-h);
+    min-height: 120px;
     display:flex;
     align-items:flex-start;
     justify-content:center;
-    padding-top: 6px;
-    background: transparent;     /* wichtig: kein grauer Balken */
-    box-shadow:none;
   }
 
-  /* slider */
-  .team-viewport{
+  /* ===== Tracks: beide werden identisch translateX'd ===== */
+  .textZone, .portraitZone{
+    min-width:0;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .textZone{ flex: 0 0 60%; }
+  .portraitZone{ flex: 0 0 40%; }
+
+  .textViewport, .portraitViewport{
     width:100%;
     height:100%;
     overflow:hidden;
     border-radius: var(--radius);
+    display:flex;
+    align-items:center;
+    justify-content:center;
   }
 
-  .team-track{
+  .textTrack, .portraitTrack{
     height:100%;
-    display:flex;
     width:100%;
+    display:flex;
     transform: translateX(0%);
     transition: transform .55s cubic-bezier(.22,.9,.18,1);
     will-change: transform;
   }
 
-  .team-slide{
+  .textItem, .portraitItem{
     flex: 0 0 100%;
     height:100%;
     display:flex;
     align-items:center;
     justify-content:center;
-    padding: clamp(12px, 2vw, 26px);
+    padding: 0; /* TopZone hat schon padding */
   }
 
-  /* === Slide Layout Desktop: Text links + Bild rechts (getrennt, KEIN gemeinsamer Container) === */
-  .slide-grid{
-    width: min(1200px, 100%);
-    height: 100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap: clamp(18px, 3vw, 44px);
-  }
-
-  .textPanel{
-    width: var(--text-max-w);
-    max-height: 82%;
-    overflow:hidden;
-    background: var(--panel-bg);
-    border: 1px solid var(--panel-border);
+  /* ===== Text-Card (EIN Shadow, nichts doppelt) ===== */
+  .textCard{
+    width: min(var(--text-max-w), 100%);
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(15,23,42,0.10);
     border-radius: var(--radius);
-    box-shadow: var(--panel-shadow);
+    box-shadow: var(--shadow-soft);
     backdrop-filter: blur(10px);
     padding: 22px 22px 18px;
   }
@@ -170,33 +182,23 @@
   }
 
   .textBody{
-
     font-size: clamp(14px, 1.0vw, 16px);
     line-height:1.65;
     color: rgba(15,23,42,0.78);
     white-space: pre-wrap;
-}
-
-
-  .portraitWrap{
-    width: var(--img-max);
-    max-height: 82%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
   }
 
+  /* ===== Portrait (einzeln, ohne Shadow-Orgien) ===== */
   .portrait{
-    width: 100%;
-    max-width: var(--img-max);
+    width: min(var(--portrait-max), 100%);
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
-    background: rgba(255,255,255,0.60);
+    background: rgba(255,255,255,0.55);
     border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 22px 60px rgba(0,0,0,0.18); /* nur am Bild */
     backdrop-filter: blur(8px);
   }
+
   .portrait img{
     width:100%;
     height:100%;
@@ -205,15 +207,15 @@
     transform: scale(1.02);
   }
 
-  /* Tabs */
+  /* ===== Tabs (fix, kein extra „Band“) ===== */
   .team-tabs{
     display:flex;
     gap: 12px;
     align-items:center;
     justify-content:center;
     width: min(1200px, 100%);
-    overflow:hidden; /* kein horizontaler Scroll */
-    background: transparent;
+    padding: 6px 8px;
+    overflow:hidden;
   }
 
   .team-tab{
@@ -224,16 +226,16 @@
     border-radius: 999px;
     background: rgba(255,255,255,0.62);
     border: 1px solid rgba(15,23,42,0.12);
+    box-shadow:none;
     cursor:pointer;
     user-select:none;
-    transition: background .14s ease, border-color .14s ease, transform .14s ease;
+    transition: background .14s ease, border-color .14s ease;
     white-space:nowrap;
     flex: 0 0 auto;
   }
   .team-tab:hover{
     background: rgba(255,255,255,0.78);
     border-color: rgba(31,79,163,0.22);
-    transform: translateY(-1px);
   }
   .team-tab.is-active{
     background: rgba(255,255,255,0.92);
@@ -248,6 +250,8 @@
     background:#e9eef7;
     border: 1px solid rgba(15,23,42,0.10);
     flex: 0 0 auto;
+    display:grid;
+    place-items:center;
   }
   .team-tab__avatar img{
     width:100%;
@@ -255,81 +259,95 @@
     object-fit:cover;
     display:block;
   }
+
   .team-tab__name{
     font-weight: 760;
     color:#0f172a;
     letter-spacing:-0.01em;
   }
 
-  /* Gate */
+  /* ===== Gate ===== */
   .gateZone{
     position:absolute;
-    left:50%;
-    bottom: 10px;
-    transform: translateX(-50%);
-    z-index: 5;
+    left:0; right:0;
+    bottom: 18px;
     display:none;
+    justify-content:center;
     pointer-events:none;
   }
-  .gateZone.is-visible{ display:block; pointer-events:auto; }
+  .gateZone.is-visible{ display:flex; }
   .gateBtn{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
+    pointer-events:auto;
+    border:0;
+    cursor:pointer;
     padding: 10px 14px;
     border-radius: 999px;
-    cursor:pointer;
-    user-select:none;
-    font-weight: 800;
-    letter-spacing:-0.01em;
-    color:#0f172a;
-    background: rgba(31,79,163,0.12);
-    border: 1px solid rgba(31,79,163,0.28);
-    transition: transform .12s ease, background .12s ease;
+    background: rgba(31,79,163,0.92);
+    color:#fff;
+    font-weight:800;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.18);
   }
-  .gateBtn:hover{ background: rgba(31,79,163,0.18); }
-  .gateBtn:active{ transform: scale(0.98); }
 
-  /* ===== Mobile: Bild oben, Tabs, Text ===== */
+  /* ===== Mobile: Bild -> Tabs -> Text ===== */
   @media (max-width: 980px){
-    .team-scroll{ padding: 14px 14px 18px; }
-    .team-stage{ height:auto; min-height:0; gap: 10px; }
-    .sceneZone{ flex: 0 0 auto; height:auto; overflow:visible; }
-    .selectorZone{ display:none; } /* Tabs wandern in Slide */
-    .team-viewport{ height:auto; border-radius: 16px; }
-    .team-track{ height:auto; }
-    .team-slide{ height:auto; padding: 14px; align-items:stretch; }
-
-    .slide-grid{
-      width:100%;
-      height:auto;
-      flex-direction:column;
-      gap: 12px;
-      align-items:center;
+    .team-inner{
+      padding: 16px 16px;
     }
 
-    .portraitWrap{ width: min(260px, 70vw); max-height:none; }
-    .portrait{ box-shadow: 0 18px 44px rgba(0,0,0,0.16); }
+    /* Zone-Höhen werden „natürlich“: Top beinhaltet nur Bild, Text kommt unten */
+    .topZone{
+      flex: 0 0 auto;
+      min-height: 260px;
+      padding: 14px;
+      flex-direction: column;
+      gap: 14px;
+      background: transparent;
+      border-color: transparent;
+      backdrop-filter: none;
+    }
 
-    .mobileTabsSlot{
+    .textZone{
+      order: 3;
+      flex: 0 0 auto;
       width:100%;
-      display:flex;
-      justify-content:center;
+    }
+    .portraitZone{
+      order: 1;
+      flex: 0 0 auto;
+      width:100%;
+    }
+
+    /* Portrait-Track bleibt (sliden), aber nur „sichtbar“ oben */
+    .portrait{
+      width: min(280px, 70vw);
+    }
+
+    /* Tabs bleiben fix in selectorZone */
+    .selectorZone{
+      flex: 0 0 auto;
+      min-height: 0;
+      align-items:center;
     }
     .team-tabs{
       flex-wrap: wrap;
       justify-content:center;
-      width:100%;
     }
 
-    .textPanel{
-      width:100%;
-      max-height:none;
-      border-radius: 16px;
-      padding: 18px 18px 14px;
+    /* Text unten: eigene Zone unter Tabs */
+    .textViewport{
+      height:auto;
+      overflow:visible;
     }
-    .textBody{
-      -webkit-line-clamp: 14;
+    .textTrack{
+      height:auto;
+    }
+    .textItem{
+      height:auto;
+    }
+    .textCard{
+      width:100%;
+      padding: 18px 18px 14px;
+      border-radius: 16px;
     }
   }
 </style>
@@ -340,19 +358,16 @@
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
     const bgEl       = document.getElementById("teamBg");
-    const trackEl    = document.getElementById("teamTrack");
+    const textTrack  = document.getElementById("textTrack");
+    const portTrack  = document.getElementById("portraitTrack");
     const tabsEl     = document.getElementById("teamTabs");
-    const selectorEl = document.getElementById("selectorZone");
-    const scrollEl   = document.getElementById("teamScroll");
     const gateZone   = document.getElementById("gateZone");
     const gateBtn    = document.getElementById("gateBtn");
-
-    const mqMobile = window.matchMedia("(max-width: 980px)");
 
     let members = [];
     let active = 0;
 
-    // Gate / Impuls
+    // Gate / Impuls (wir feuern später window.goShop(), wenn vorhanden)
     let downArmed = false;
     let downCooldown = false;
 
@@ -370,27 +385,26 @@
 
     function splitFirstSentence(text){
       const t = (text || "").trim();
-      if (!t) return {
-        first: "Schön, dass du da bist!",
-        rest:  "Wir sind LG Eventverleih – ein kleines, engagiertes Team mit einer großen Leidenschaft für besondere Momente."
-      };
+      if (!t) return { title: "Schön, dass du da bist!", body: "Wir sind ein kleines, engagiertes Team – zuverlässig, unkompliziert und mit viel Liebe zum Detail." };
 
+      // Erst Zeile 1 als Titel, Rest als Body (dein Format)
       const nl = t.indexOf("\n");
       if (nl > 0){
-        const first = t.slice(0, nl).trim();
-        const rest = t.slice(nl + 1).trim();
-        return { first: first || "Schön, dass du da bist!", rest };
+        const title = t.slice(0, nl).trim();
+        const body  = t.slice(nl + 1).trim();
+        return { title: title || "Schön, dass du da bist!", body: body || "" };
       }
 
+      // Sonst: erster Satz als Titel
       const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
       if (m && m[0]){
         const cut = m[0].length;
-        const first = t.slice(0, cut).trim();
-        const rest = t.slice(cut).trim();
-        return { first: first || "Schön, dass du da bist!", rest };
+        const title = t.slice(0, cut).trim();
+        const body  = t.slice(cut).trim();
+        return { title: title || "Schön, dass du da bist!", body: body || "" };
       }
 
-      return { first: t, rest: "" };
+      return { title: t, body: "" };
     }
 
     async function fetchJson(url){
@@ -411,129 +425,72 @@
       bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
     }
 
-    function isScrollable(){ return scrollEl.scrollHeight > scrollEl.clientHeight + 1; }
-    function atBottom(){ return scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 1; }
-
-    function triggerDown(){
-      if (downCooldown) return;
-      downCooldown = true;
-      if (typeof window.goShop === "function") window.goShop();
-      setTimeout(() => { downCooldown = false; }, 500);
-    }
-
-    function updateGateVisibility(){
-      if (!gateZone) return;
-      const show = isScrollable() && atBottom();
-      gateZone.classList.toggle("is-visible", !!show);
-    }
-
-    function bindGateLogic(){
-      if (gateBtn) gateBtn.addEventListener("click", () => triggerDown());
-
-      scrollEl.addEventListener("scroll", () => {
-        downArmed = isScrollable() && atBottom();
-        updateGateVisibility();
-      }, { passive:true });
-
-      scrollEl.addEventListener("wheel", (e) => {
-        const down = e.deltaY > 0;
-
-        if (!isScrollable()){
-          if (down){ e.preventDefault(); triggerDown(); }
-          return;
-        }
-
-        if (down && atBottom()){
-          if (downArmed){
-            e.preventDefault();
-            triggerDown();
-          }else{
-            downArmed = true;
-          }
-        }
-      }, { passive:false });
-    }
-
-    function placeTabs(){
-      const isMobile = mqMobile.matches;
-      const slides = trackEl.querySelectorAll(".team-slide");
-      const current = slides[active];
-      if (!current) return;
-
-      const slot = current.querySelector(".mobileTabsSlot");
-      if (isMobile){
-        if (slot && tabsEl.parentNode !== slot) slot.appendChild(tabsEl);
-      }else{
-        if (selectorEl && tabsEl.parentNode !== selectorEl) selectorEl.appendChild(tabsEl);
-      }
-    }
-
     function setActive(idx){
       active = idx;
-      trackEl.style.transform = "translateX(" + (-idx * 100) + "%)";
+      const x = (-idx * 100);
+      textTrack.style.transform = "translateX(" + x + "%)";
+      portTrack.style.transform = "translateX(" + x + "%)";
 
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
       const btn = tabsEl.querySelector('[data-index="' + idx + '"]');
       if (btn) btn.classList.add("is-active");
-
-      placeTabs();
-      downArmed = false;
-      downCooldown = false;
-      updateGateVisibility();
     }
 
-    function makeSlide(member){
-      const slide = document.createElement("div");
-      slide.className = "team-slide";
+    function makeTextItem(member){
+      const item = document.createElement("div");
+      item.className = "textItem";
 
-      const grid = document.createElement("div");
-      grid.className = "slide-grid";
+      const card = document.createElement("div");
+      card.className = "textCard";
 
-      const textPanel = document.createElement("div");
-      textPanel.className = "textPanel";
+      const { title, body } = splitFirstSentence(member.text);
 
-      const title = document.createElement("h1");
-      title.className = "textTitle";
+      const h = document.createElement("h1");
+      h.className = "textTitle";
+      h.textContent = title || "Schön, dass du da bist!";
 
-      const body = document.createElement("div");
-      body.className = "textBody";
+      const t = document.createElement("div");
+      t.className = "textBody";
+      t.textContent = body && body.trim().length
+        ? body
+        : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
 
-      const { first, rest } = splitFirstSentence(member.text);
-      title.textContent = first || "Schön, dass du da bist!";
-      body.textContent = (rest && rest.trim().length)
-        ? rest
-        : "Wir helfen dir, dein Event unkompliziert, stilvoll und zuverlässig auszustatten – damit du dich ganz aufs Feiern konzentrieren kannst.";
+      card.appendChild(h);
+      card.appendChild(t);
+      item.appendChild(card);
+      return item;
+    }
 
-      const portraitWrap = document.createElement("div");
-      portraitWrap.className = "portraitWrap";
+    function makePortraitItem(member){
+      const item = document.createElement("div");
+      item.className = "portraitItem";
 
-      const portrait = document.createElement("div");
-      portrait.className = "portrait";
+      const wrap = document.createElement("div");
+      wrap.className = "portrait";
 
       const img = document.createElement("img");
       img.loading = "lazy";
       img.src = member.img;
       img.alt = member.name;
-      img.onerror = () => { img.removeAttribute("src"); img.alt = ""; };
+      img.onerror = () => {
+        // Fallback: Initialen statt Bild
+        wrap.innerHTML = "";
+        const fb = document.createElement("div");
+        fb.style.width = "100%";
+        fb.style.height = "100%";
+        fb.style.display = "grid";
+        fb.style.placeItems = "center";
+        fb.style.fontWeight = "900";
+        fb.style.color = "rgba(15,23,42,0.65)";
+        fb.style.background = "#e9eef7";
+        fb.style.fontSize = "38px";
+        fb.textContent = member.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+        wrap.appendChild(fb);
+      };
 
-      portrait.appendChild(img);
-      portraitWrap.appendChild(portrait);
-
-      const mobileTabsSlot = document.createElement("div");
-      mobileTabsSlot.className = "mobileTabsSlot";
-      mobileTabsSlot.setAttribute("aria-hidden","true");
-
-      textPanel.appendChild(title);
-      textPanel.appendChild(body);
-
-      // Desktop: Text + Bild nebeneinander (separate Container)
-      // Mobile: Bild, Tabs, Text (per CSS Flex-Column + placeTabs())
-      grid.appendChild(textPanel);
-      grid.appendChild(portraitWrap);
-      grid.appendChild(mobileTabsSlot);
-
-      slide.appendChild(grid);
-      return slide;
+      wrap.appendChild(img);
+      item.appendChild(wrap);
+      return item;
     }
 
     function makeTab(member, idx){
@@ -554,8 +511,10 @@
       img.onerror = () => {
         av.innerHTML = "";
         const fb = document.createElement("div");
-        fb.style.width="100%"; fb.style.height="100%";
-        fb.style.display="grid"; fb.style.placeItems="center";
+        fb.style.width="100%";
+        fb.style.height="100%";
+        fb.style.display="grid";
+        fb.style.placeItems="center";
         fb.style.fontWeight="900";
         fb.style.color="rgba(15,23,42,0.65)";
         fb.style.background="#e9eef7";
@@ -577,16 +536,58 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
+      // leichter „rein“-Effekt
       btn.style.opacity = "0";
-      btn.style.transform = "translateX(18px)";
+      btn.style.transform = "translateX(14px)";
       requestAnimationFrame(() => {
-        btn.style.transition = "opacity .28s ease, transform .28s ease";
-        btn.style.transitionDelay = (idx * 45) + "ms";
+        btn.style.transition = "opacity .22s ease, transform .22s ease";
+        btn.style.transitionDelay = (idx * 40) + "ms";
         btn.style.opacity = "1";
         btn.style.transform = "translateX(0)";
       });
 
       return btn;
+    }
+
+    function updateGate(){
+      gateZone.classList.remove("is-visible");
+      gateZone.setAttribute("aria-hidden", "true");
+    }
+
+    function fireDown(){
+      if (downCooldown) return;
+      downCooldown = true;
+      setTimeout(() => downCooldown = false, 500);
+
+      if (typeof window.goShop === "function") window.goShop();
+    }
+
+    function armDownIfWanted(){
+      if (!downArmed){
+        downArmed = true;
+        gateZone.classList.add("is-visible");
+        gateZone.setAttribute("aria-hidden", "false");
+        setTimeout(() => { downArmed = false; updateGate(); }, 900);
+        return;
+      }
+      fireDown();
+    }
+
+    function wireGate(){
+      if (!gateBtn) return;
+      gateBtn.addEventListener("click", () => fireDown());
+    }
+
+    function wireWheelImpulse(){
+      const root = document.querySelector(".team-head");
+      if (!root) return;
+
+      root.addEventListener("wheel", (e) => {
+        if (e.deltaY <= 0) return;
+        if (typeof window.goShop === "function") {
+          armDownIfWanted();
+        }
+      }, { passive:true });
     }
 
     async function load(){
@@ -617,22 +618,23 @@
         return a.name.localeCompare(b.name, "de");
       });
 
-      trackEl.innerHTML = "";
+      textTrack.innerHTML = "";
+      portTrack.innerHTML = "";
       tabsEl.innerHTML = "";
 
       members.forEach((m, i) => {
-        trackEl.appendChild(makeSlide(m));
+        textTrack.appendChild(makeTextItem(m));
+        portTrack.appendChild(makePortraitItem(m));
         tabsEl.appendChild(makeTab(m, i));
       });
 
-      mqMobile.addEventListener?.("change", () => placeTabs());
-
       if (members.length) setActive(0);
-      placeTabs();
-      updateGateVisibility();
+
+      updateGate();
+      wireGate();
+      wireWheelImpulse();
     }
 
-    bindGateLogic();
     load().catch(() => {});
   })();
 </script>
