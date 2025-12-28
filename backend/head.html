@@ -1,362 +1,287 @@
-<!-- backend/head.html  | Idee B: Editorial Cards + Overlay  | nutzt volle Head-Höhe aus index -->
-<section class="team-hero" aria-label="Team">
-  <div class="team-hero__bg" id="teamHeroBg" aria-hidden="true"></div>
-  <div class="team-hero__veil" aria-hidden="true"></div>
+<!-- backend/head.html  | Team Head: links Text + rechts großes rundes Bild + unten Tabs -->
+<section class="team-head" aria-label="Team">
+  <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
+  <div class="team-head__veil" aria-hidden="true"></div>
 
-  <div class="team-hero__inner">
-    <!-- Links: Editorial Intro (ohne Branding-Block, ohne Button) -->
-    <div class="team-hero__left">
-      <h1 class="team-hero__title">Wir sind das Team.</h1>
-      <p class="team-hero__lead">
-        Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details,
-        damit euer Event entspannt bleibt.
-      </p>
-      <p class="team-hero__micro">Tippen/klicken für die ganze Vorstellung.</p>
-    </div>
-
-    <!-- Rechts: Editorial Cards -->
-    <div class="team-hero__right">
-      <div class="team-grid" id="teamGrid"></div>
-      <div class="team-empty" id="teamEmpty" hidden>Team-Daten konnten nicht geladen werden.</div>
-    </div>
-  </div>
-
-  <!-- Overlay (öffnet beim Klick auf Card) -->
-  <div class="team-modal" id="teamModal" hidden>
-    <div class="team-modal__backdrop" id="teamModalBackdrop" aria-hidden="true"></div>
-
-    <div class="team-modal__panel" role="dialog" aria-modal="true" aria-label="Team Vorstellung">
-      <div class="team-modal__head">
-        <div class="team-modal__avatar" id="teamModalAvatar"></div>
-        <div class="team-modal__meta">
-          <div class="team-modal__name" id="teamModalName"></div>
-          <div class="team-modal__pos" id="teamModalPos"></div>
-        </div>
-        <button class="team-modal__close" id="teamModalClose" type="button" aria-label="Schließen">✕</button>
+  <div class="team-head__inner">
+    <div class="team-head__main">
+      <!-- Links: Text -->
+      <div class="team-head__left">
+        <h1 class="team-head__title" id="teamTitle">Wir sind das Team.</h1>
+        <p class="team-head__lead" id="teamLead">
+          Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.
+        </p>
       </div>
-      <div class="team-modal__text" id="teamModalText"></div>
+
+      <!-- Rechts: großes rundes Bild -->
+      <div class="team-head__right" aria-hidden="true">
+        <div class="team-head__portrait">
+          <img id="teamPortrait" alt="" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Unten: Tabs -->
+    <div class="team-tabs" id="teamTabs" aria-label="Team Auswahl">
+      <!-- wird per JS befüllt -->
     </div>
   </div>
 </section>
 
 <style>
-  /* ==== Full Head Area (fixed size comes from index: #head { min-height: calc(100vh - var(--title-h)); } ) ==== */
-  .team-hero{
+  /* nutzt die "edge" Abstände aus deinem Head/Titel-Konzept */
+  :root{
+    --title-pad-x: 72px;
+    --logo-pad-left: 32px;
+    --nav-pad-right: 32px;
+
+    --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
+    --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
+
+    --radius: 18px;
+    --shadow-soft: 0 12px 34px rgba(0,0,0,.14);
+  }
+
+  .team-head{
     position:relative;
     width:100%;
     height:100%;
     min-height:100%;
-    border-radius: var(--radius, 14px);
+    border-radius: var(--radius);
     overflow:hidden;
-    box-shadow: var(--shadow, 0 10px 28px rgba(0,0,0,.08));
-    background: #e9edf3;
+    box-shadow: var(--shadow-soft);
+    background:#d9dde3;
   }
 
-  /* Background layers */
-  .team-hero__bg{
+  .team-head__bg{
     position:absolute; inset:0;
     background-size: cover;
     background-position: center;
     transform: scale(1.04);
     filter: saturate(0.95) contrast(0.98);
   }
-  .team-hero__veil{
+  .team-head__veil{
     position:absolute; inset:0;
     background:
-      radial-gradient(1200px 600px at 18% 40%, rgba(255,255,255,0.78), rgba(255,255,255,0.10) 60%, rgba(255,255,255,0.0) 75%),
-      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 34%, rgba(255,255,255,0.24) 62%, rgba(255,255,255,0.12) 100%);
+      radial-gradient(1200px 600px at 16% 42%, rgba(255,255,255,0.82), rgba(255,255,255,0.10) 60%, rgba(255,255,255,0.0) 74%),
+      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.72) 38%, rgba(255,255,255,0.22) 66%, rgba(255,255,255,0.10) 100%);
     backdrop-filter: blur(10px);
   }
 
-  .team-hero__inner{
+  .team-head__inner{
     position:relative;
     z-index:1;
-    width:100%;
     height:100%;
-    display:grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: clamp(16px, 3vw, 38px);
-    padding: clamp(18px, 3.2vw, 44px);
-    align-items:center;
-  }
-
-  /* Left Editorial */
-  .team-hero__left{
     display:flex;
     flex-direction:column;
-    gap: 12px;
+    justify-content:space-between;
+
+    /* gleiches Padding links/rechts wie Titel/Logo-Edges */
+    padding-left:  var(--edge-left);
+    padding-right: var(--edge-right);
+
+    /* oben/unten gleichmäßig */
+    padding-top: 34px;
+    padding-bottom: 34px;
+    gap: 18px;
+  }
+
+  .team-head__main{
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: clamp(18px, 3vw, 44px);
+    align-items:center;
+    min-height: 0;
+  }
+
+  .team-head__left{
+    display:flex;
+    flex-direction:column;
+    gap: 14px;
     min-width:0;
   }
-  .team-hero__title{
+
+  .team-head__title{
     margin:0;
-    font-size: clamp(26px, 3.2vw, 46px);
-    line-height: 1.05;
+    font-size: clamp(28px, 3.3vw, 54px);
+    line-height: 1.02;
     letter-spacing: -0.02em;
-    color: var(--text, #0f172a);
+    color: #0f172a;
   }
-  .team-hero__lead{
+
+  .team-head__lead{
     margin:0;
-    max-width: 52ch;
-    font-size: clamp(14px, 1.1vw, 16px);
-    line-height: 1.58;
+    max-width: 62ch;
+    font-size: clamp(14px, 1.15vw, 17px);
+    line-height: 1.6;
     color: rgba(15,23,42,0.78);
   }
-  .team-hero__micro{
-    margin: 2px 0 0 0;
-    font-size: 13px;
-    color: rgba(15,23,42,0.55);
-  }
 
-  /* Right Grid */
-  .team-hero__right{
+  .team-head__right{
+    display:flex;
+    justify-content:center;
+    align-items:center;
     min-width:0;
   }
 
-  .team-grid{
-    display:grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    max-height: 72vh; /* bleibt im Head */
-    overflow:auto;
-    padding-right: 6px;
+  .team-head__portrait{
+    width: min(360px, 34vw);
+    aspect-ratio: 1 / 1;
+    border-radius: 999px;
+    overflow:hidden;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid rgba(15,23,42,0.10);
+    box-shadow: 0 22px 60px rgba(0,0,0,0.18);
+    backdrop-filter: blur(8px);
   }
 
-  .team-grid::-webkit-scrollbar{ width: 10px; }
-  .team-grid::-webkit-scrollbar-track{ background: transparent; }
-  .team-grid::-webkit-scrollbar-thumb{
+  .team-head__portrait img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    transform: scale(1.02);
+  }
+
+  /* Tabs */
+  .team-tabs{
+    display:flex;
+    gap: 12px;
+    overflow:auto;
+    padding: 10px 0 2px;
+    align-items:stretch;
+  }
+
+  .team-tabs::-webkit-scrollbar{ height: 10px; }
+  .team-tabs::-webkit-scrollbar-track{ background: transparent; }
+  .team-tabs::-webkit-scrollbar-thumb{
     background: rgba(15,23,42,0.14);
     border-radius: 999px;
     border: 3px solid transparent;
     background-clip: padding-box;
   }
 
-  /* Editorial Card */
-  .team-card{
-    display:flex;
-    flex-direction:column;
-    gap: 10px;
-    padding: 12px;
-    border-radius: calc(var(--radius, 14px) - 2px);
-    background: rgba(255,255,255,0.78);
-    border: 1px solid rgba(15,23,42,0.08);
-    box-shadow: 0 12px 26px rgba(0,0,0,0.06);
-    cursor:pointer;
-    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease, background .16s ease;
-    min-width:0;
-  }
-  .team-card:hover{
-    transform: translateY(-2px);
-    border-color: rgba(31,79,163,0.20);
-    box-shadow: 0 16px 34px rgba(0,0,0,0.10);
-    background: rgba(255,255,255,0.86);
-  }
-
-  .team-card__top{
+  .team-tab{
     display:flex;
     align-items:center;
     gap: 10px;
-    min-width:0;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.70);
+    border: 1px solid rgba(15,23,42,0.10);
+    box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+    cursor:pointer;
+    user-select:none;
+    transition: transform .14s ease, background .14s ease, border-color .14s ease;
+    flex: 0 0 auto;
+    min-width: 180px;
   }
 
-  .team-card__avatar{
-    width: 52px;
-    height: 52px;
-    border-radius: 16px;
+  .team-tab:hover{
+    transform: translateY(-1px);
+    background: rgba(255,255,255,0.82);
+    border-color: rgba(31,79,163,0.22);
+  }
+
+  .team-tab.is-active{
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(31,79,163,0.30);
+  }
+
+  .team-tab__avatar{
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
     overflow:hidden;
     background:#e9eef7;
+    border: 1px solid rgba(15,23,42,0.10);
     flex: 0 0 auto;
   }
-  .team-card__avatar img{
+
+  .team-tab__avatar img{
     width:100%;
     height:100%;
     object-fit:cover;
     display:block;
   }
 
-  .team-card__meta{
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    gap: 2px;
-  }
-  .team-card__name{
+  .team-tab__name{
     font-weight: 750;
-    color: var(--text, #0f172a);
+    color:#0f172a;
     letter-spacing: -0.01em;
     white-space: nowrap;
     overflow:hidden;
     text-overflow: ellipsis;
   }
-  .team-card__pos{
-    font-size: 12px;
-    color: rgba(15,23,42,0.55);
-  }
-
-  .team-card__text{
-    font-size: 13px;
-    line-height: 1.55;
-    color: rgba(15,23,42,0.70);
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow:hidden;
-    min-height: calc(1.55em * 4);
-  }
-
-  .team-empty{
-    padding: 14px;
-    border-radius: calc(var(--radius, 14px) - 2px);
-    background: rgba(255,255,255,0.75);
-    border: 1px solid rgba(15,23,42,0.06);
-    color: rgba(15,23,42,0.7);
-    font-size: 13px;
-  }
-
-  /* Modal */
-  .team-modal{
-    position:fixed;
-    inset:0;
-    z-index: 999;
-  }
-  .team-modal__backdrop{
-    position:absolute; inset:0;
-    background: rgba(10, 14, 24, 0.45);
-    backdrop-filter: blur(6px);
-  }
-  .team-modal__panel{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform: translate(-50%, -50%);
-    width: min(760px, calc(100vw - 24px));
-    max-height: min(80vh, 760px);
-    overflow:auto;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.92);
-    border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 26px 70px rgba(0,0,0,0.30);
-    padding: 16px 16px 14px;
-  }
-
-  .team-modal__head{
-    display:flex;
-    align-items:center;
-    gap: 12px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(15,23,42,0.08);
-  }
-
-  .team-modal__avatar{
-    width: 62px;
-    height: 62px;
-    border-radius: 18px;
-    overflow:hidden;
-    background:#e9eef7;
-    flex: 0 0 auto;
-  }
-
-  .team-modal__meta{
-    min-width:0;
-    display:flex;
-    flex-direction:column;
-    gap: 3px;
-  }
-
-  .team-modal__name{
-    font-weight: 800;
-    color: var(--text, #0f172a);
-    letter-spacing: -0.02em;
-    font-size: 18px;
-    white-space: nowrap;
-    overflow:hidden;
-    text-overflow: ellipsis;
-  }
-
-  .team-modal__pos{
-    font-size: 12px;
-    color: rgba(15,23,42,0.55);
-  }
-
-  .team-modal__close{
-    margin-left:auto;
-    width: 40px;
-    height: 40px;
-    border: 1px solid rgba(15,23,42,0.10);
-    background: rgba(255,255,255,0.70);
-    border-radius: 12px;
-    cursor:pointer;
-    box-shadow: 0 10px 22px rgba(0,0,0,0.06);
-  }
-  .team-modal__close:hover{
-    background: rgba(255,255,255,0.90);
-  }
-
-  .team-modal__text{
-    padding-top: 12px;
-    font-size: 14px;
-    line-height: 1.7;
-    color: rgba(15,23,42,0.78);
-    white-space: pre-wrap;
-  }
 
   /* Responsive */
   @media (max-width: 980px){
-    .team-hero__inner{
+    .team-head__inner{
+      padding-left: 24px;
+      padding-right: 24px;
+      padding-top: 22px;
+      padding-bottom: 22px;
+    }
+    .team-head__main{
       grid-template-columns: 1fr;
-      align-items:start;
-      padding: 18px;
+      gap: 18px;
     }
-    .team-grid{
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      max-height: 46vh;
+    .team-head__right{
+      justify-content:flex-start;
     }
-  }
-  @media (max-width: 560px){
-    .team-grid{ grid-template-columns: 1fr; }
+    .team-head__portrait{
+      width: min(300px, 62vw);
+    }
   }
 </style>
 
 <script>
   (function(){
-    // Manifeste
-    const BG_MANIFEST_URL   = "image/hintergrund/manifest.json"; // enthält nur Dateinamen
-    const TEAM_MANIFEST_URL = "Team/manifest.json";              // enthält Ordnerliste
+    const BG_MANIFEST_URL   = "image/hintergrund/manifest.json"; // Dateinamen
+    const TEAM_MANIFEST_URL = "Team/manifest.json";              // {members:[{folder:"Lisa_2"}]}
 
-    const bgEl   = document.getElementById("teamHeroBg");
-    const gridEl = document.getElementById("teamGrid");
-    const emptyEl= document.getElementById("teamEmpty");
+    const bgEl = document.getElementById("teamBg");
 
-    // Modal refs
-    const modal         = document.getElementById("teamModal");
-    const modalBackdrop = document.getElementById("teamModalBackdrop");
-    const modalClose    = document.getElementById("teamModalClose");
-    const modalAvatar   = document.getElementById("teamModalAvatar");
-    const modalName     = document.getElementById("teamModalName");
-    const modalPos      = document.getElementById("teamModalPos");
-    const modalText     = document.getElementById("teamModalText");
+    const titleEl = document.getElementById("teamTitle");
+    const leadEl  = document.getElementById("teamLead");
+    const portraitEl = document.getElementById("teamPortrait");
+    const tabsEl = document.getElementById("teamTabs");
 
     function parseFolder(folder){
-      // Name_Position (Position optional)
       const parts = String(folder).split("_");
       let pos = null;
 
       if (parts.length > 1) {
         const last = parts[parts.length - 1];
         const n = Number(last);
-        if (Number.isFinite(n)) {
-          pos = n;
-          parts.pop();
-        }
+        if (Number.isFinite(n)) { pos = n; parts.pop(); }
       }
       const name = parts.join(" ").trim() || folder;
       return { name, pos };
     }
 
-    function trimText(t){ return (t || "").trim(); }
-    function cardExcerpt(text){
-      const s = trimText(text).replace(/\s+/g, " ");
-      if (!s) return "—";
-      return s.length > 220 ? s.slice(0, 220).trim() + "…" : s;
+    function splitFirstSentence(text){
+      const t = (text || "").trim();
+      if (!t) return { first: "Wir sind das Team.", rest: "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt." };
+
+      // erster Satz bis zum ersten Zeilenumbruch ODER bis zur ersten Satz-Endung
+      const nl = t.indexOf("\n");
+      const cutNl = nl > 0 ? nl : -1;
+
+      let cut = cutNl;
+
+      if (cut === -1) {
+        const m = t.match(/^[\s\S]*?[.!?](?:\s|$)/);
+        cut = m ? m[0].length : -1;
+      }
+
+      if (cut > 0) {
+        const first = t.slice(0, cut).trim();
+        const rest  = t.slice(cut).trim();
+        return { first: first || "Wir sind das Team.", rest: rest || "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt." };
+      }
+
+      return { first: t, rest: "" };
     }
 
     async function fetchJson(url){
@@ -371,172 +296,124 @@
       return await r.text();
     }
 
-    function setRandomBackgroundFromManifest(list){
-      // list enthält Dateinamen wie "bg1.png" -> Pfad: image/hintergrund/<name>
+    function setRandomBackground(list){
       if (!Array.isArray(list) || list.length === 0) return;
       const pick = list[Math.floor(Math.random() * list.length)];
-      const path = "image/hintergrund/" + pick;
-      bgEl.style.backgroundImage = "url('" + path.replace(/'/g, "%27") + "')";
+      bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
     }
 
-    function openModal(member){
-      // Avatar
-      modalAvatar.innerHTML = "";
-      const img = document.createElement("img");
-      img.src = member.img;
-      img.alt = member.name;
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "cover";
-      img.onerror = () => {
-        modalAvatar.innerHTML = "";
-        const fb = document.createElement("div");
-        fb.style.width = "100%";
-        fb.style.height = "100%";
-        fb.style.display = "grid";
-        fb.style.placeItems = "center";
-        fb.style.fontWeight = "900";
-        fb.style.color = "rgba(15,23,42,0.65)";
-        fb.style.background = "#e9eef7";
-        fb.textContent = member.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
-        modalAvatar.appendChild(fb);
+    function setPortrait(src, alt){
+      portraitEl.src = src;
+      portraitEl.alt = alt || "";
+      portraitEl.onerror = () => {
+        portraitEl.removeAttribute("src");
+        portraitEl.alt = "";
+        portraitEl.style.display = "none";
       };
-      modalAvatar.appendChild(img);
-
-      modalName.textContent = member.name;
-      modalPos.textContent  = member.pos ? ("Position: " + member.pos) : "";
-      modalText.textContent = trimText(member.text);
-
-      modal.hidden = false;
-      document.addEventListener("keydown", onKeydown);
+      portraitEl.style.display = "block";
     }
 
-    function closeModal(){
-      modal.hidden = true;
-      document.removeEventListener("keydown", onKeydown);
+    function setActive(member){
+      // active state
+      tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
+      const btn = tabsEl.querySelector('[data-folder="' + CSS.escape(member.folder) + '"]');
+      if (btn) btn.classList.add("is-active");
+
+      const { first, rest } = splitFirstSentence(member.text);
+      titleEl.textContent = first || "Wir sind das Team.";
+      leadEl.textContent  = rest || "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+      setPortrait(member.img, member.name);
     }
 
-    function onKeydown(e){
-      if (e.key === "Escape") closeModal();
-    }
+    function makeTab(member){
+      const btn = document.createElement("div");
+      btn.className = "team-tab";
+      btn.tabIndex = 0;
+      btn.setAttribute("role", "button");
+      btn.dataset.folder = member.folder;
+      btn.setAttribute("aria-label", "Teammitglied: " + member.name);
 
-    modalBackdrop.addEventListener("click", closeModal);
-    modalClose.addEventListener("click", closeModal);
-
-    function makeCard(member){
-      const card = document.createElement("div");
-      card.className = "team-card";
-      card.tabIndex = 0;
-      card.setAttribute("role", "button");
-      card.setAttribute("aria-label", "Teammitglied: " + member.name);
-
-      const top = document.createElement("div");
-      top.className = "team-card__top";
-
-      const avatar = document.createElement("div");
-      avatar.className = "team-card__avatar";
+      const av = document.createElement("div");
+      av.className = "team-tab__avatar";
 
       const img = document.createElement("img");
       img.loading = "lazy";
       img.src = member.img;
       img.alt = member.name;
       img.onerror = () => {
-        avatar.innerHTML = "";
+        av.innerHTML = "";
         const fb = document.createElement("div");
-        fb.style.width = "100%";
-        fb.style.height = "100%";
-        fb.style.display = "grid";
-        fb.style.placeItems = "center";
-        fb.style.fontWeight = "900";
-        fb.style.color = "rgba(15,23,42,0.65)";
-        fb.style.background = "#e9eef7";
+        fb.style.width="100%";
+        fb.style.height="100%";
+        fb.style.display="grid";
+        fb.style.placeItems="center";
+        fb.style.fontWeight="900";
+        fb.style.color="rgba(15,23,42,0.65)";
+        fb.style.background="#e9eef7";
         fb.textContent = member.name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
-        avatar.appendChild(fb);
+        av.appendChild(fb);
       };
-      avatar.appendChild(img);
-
-      const meta = document.createElement("div");
-      meta.className = "team-card__meta";
+      av.appendChild(img);
 
       const name = document.createElement("div");
-      name.className = "team-card__name";
+      name.className = "team-tab__name";
       name.textContent = member.name;
 
-      const pos = document.createElement("div");
-      pos.className = "team-card__pos";
-      pos.textContent = member.pos ? ("Position: " + member.pos) : "";
+      btn.appendChild(av);
+      btn.appendChild(name);
 
-      meta.appendChild(name);
-      meta.appendChild(pos);
-
-      top.appendChild(avatar);
-      top.appendChild(meta);
-
-      const text = document.createElement("div");
-      text.className = "team-card__text";
-      text.textContent = cardExcerpt(member.text);
-
-      card.appendChild(top);
-      card.appendChild(text);
-
-      const open = () => openModal(member);
-      card.addEventListener("click", open);
-      card.addEventListener("keydown", (e) => {
+      const open = () => setActive(member);
+      btn.addEventListener("click", open);
+      btn.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
-      return card;
+      return btn;
     }
 
-    async function loadBackground(){
+    async function load(){
+      // background (best-effort)
       try{
-        const list = await fetchJson(BG_MANIFEST_URL);
-        setRandomBackgroundFromManifest(list);
-      }catch(e){
-        // kein harter Fehler -> bleibt Default Hintergrund
-      }
+        const bg = await fetchJson(BG_MANIFEST_URL);
+        setRandomBackground(bg);
+      }catch(e){}
+
+      // team
+      const manifest = await fetchJson(TEAM_MANIFEST_URL);
+      const folders = (manifest && Array.isArray(manifest.members))
+        ? manifest.members.map(m => m.folder).filter(Boolean)
+        : [];
+
+      const members = await Promise.all(folders.map(async (folder) => {
+        const meta = parseFolder(folder);
+        const base = "Team/" + folder + "/";
+        const img  = base + "image.png";
+        const txt  = base + "team.txt";
+        let text = "";
+        try{ text = await fetchText(txt); }catch(e){ text = ""; }
+        return { folder, name: meta.name, pos: meta.pos, img, text };
+      }));
+
+      // sort by pos ascending (Position 1 zuerst)
+      members.sort((a,b) => {
+        const ap = (a.pos == null) ? 9999 : a.pos;
+        const bp = (b.pos == null) ? 9999 : b.pos;
+        if (ap !== bp) return ap - bp;
+        return a.name.localeCompare(b.name, "de");
+      });
+
+      // tabs render
+      tabsEl.innerHTML = "";
+      members.forEach(m => tabsEl.appendChild(makeTab(m)));
+
+      // default active: Position 1 (first in sort)
+      if (members.length) setActive(members[0]);
     }
 
-    async function loadTeam(){
-      try{
-        const manifest = await fetchJson(TEAM_MANIFEST_URL);
-
-        const folders = (manifest && Array.isArray(manifest.members))
-          ? manifest.members.map(m => m.folder).filter(Boolean)
-          : [];
-
-        if (!folders.length) throw new Error("No team folders");
-
-        const members = await Promise.all(folders.map(async (folder) => {
-          const meta = parseFolder(folder);
-          const base = "Team/" + folder + "/";
-          const img  = base + "image.png";
-          const txt  = base + "team.txt";
-
-          let text = "";
-          try { text = await fetchText(txt); } catch(e){ text = ""; }
-
-          return { folder, name: meta.name, pos: meta.pos, img, text };
-        }));
-
-        // Sortierung nach Position, dann Name
-        members.sort((a,b) => {
-          const ap = (a.pos == null) ? 9999 : a.pos;
-          const bp = (b.pos == null) ? 9999 : b.pos;
-          if (ap !== bp) return ap - bp;
-          return a.name.localeCompare(b.name, "de");
-        });
-
-        gridEl.innerHTML = "";
-        members.forEach(m => gridEl.appendChild(makeCard(m)));
-        emptyEl.hidden = true;
-      }catch(err){
-        gridEl.innerHTML = "";
-        emptyEl.hidden = false;
-      }
-    }
-
-    loadBackground();
-    loadTeam();
+    load().catch(() => {
+      // minimal fallback if manifests missing
+      titleEl.textContent = "Wir sind das Team.";
+      leadEl.textContent  = "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
+    });
   })();
 </script>
