@@ -1,4 +1,4 @@
-<!-- backend/head.html | Fix 1: Head nutzt sicher volle Höhe + Tabs getrennt + nur aktiver Tab “dockt” + Titel kleiner -->
+<!-- backend/head.html | Centered pill-tabs, airier layout (higher + smaller), shadow fix (only panel has shadow) -->
 <section class="team-head" aria-label="Team">
   <div class="team-head__bg" id="teamBg" aria-hidden="true"></div>
   <div class="team-head__veil" aria-hidden="true"></div>
@@ -7,7 +7,6 @@
     <div class="team-head__layout">
       <!-- LEFT -->
       <div class="team-left">
-        <!-- Text-Container -->
         <div class="team-panel" id="teamPanel">
           <h1 class="team-title" id="teamTitle">Wir sind das Team.</h1>
           <div class="team-text" id="teamText">
@@ -15,8 +14,8 @@
           </div>
         </div>
 
-        <!-- Tabs (NICHT im Text-Container) -->
-        <div class="team-tabsWrap" aria-label="Team Auswahl">
+        <!-- CENTERED tabs (screen centered, not tied to panel width) -->
+        <div class="team-tabsOuter" aria-label="Team Auswahl">
           <div class="team-tabs" id="teamTabs"></div>
         </div>
       </div>
@@ -40,15 +39,12 @@
     --edge-left:  calc(var(--title-pad-x) + var(--logo-pad-left));
     --edge-right: calc(var(--title-pad-x) + var(--nav-pad-right));
 
-    /* aus deiner index (Fallback falls nicht vorhanden) */
     --title-height: 70px;
   }
 
-  /* OUTER: full-bleed, NO radius */
   .team-head{
     position:relative;
     width:100%;
-    /* WICHTIG: unabhängig vom Parent, sicher “volle Head-Höhe” */
     height: calc(100vh - var(--title-height));
     min-height: calc(100vh - var(--title-height));
     border-radius:0;
@@ -78,8 +74,8 @@
     height:100%;
     padding-left: var(--edge-left);
     padding-right: var(--edge-right);
-    padding-top: 34px;
-    padding-bottom: 34px;
+    padding-top: 28px;  /* etwas luftiger */
+    padding-bottom: 28px;
     display:flex;
     align-items:stretch;
   }
@@ -88,80 +84,71 @@
     width:100%;
     height:100%;
     display:grid;
-    grid-template-columns: 1.15fr 0.85fr;
+    grid-template-columns: 1.05fr 0.95fr;
     gap: clamp(18px, 3vw, 48px);
-    align-items:stretch;
+    align-items:start; /* höher ausgerichtet */
   }
 
-  /* LEFT nutzt volle Höhe */
+  /* LEFT */
   .team-left{
     min-width:0;
     height:100%;
     display:flex;
     flex-direction:column;
-    gap: 12px;
+    gap: 16px;
+    padding-top: 18px; /* Inhalte höher */
   }
 
-  /* Text Panel füllt die Höhe, Tabs bleiben unten */
+  /* Panel: Höhe passt sich an, mit Limit */
   .team-panel{
     position:relative;
-    flex: 1 1 auto;
+    width: 100%;
+    max-width: 720px; /* etwas kleiner */
     background: rgba(255,255,255,0.84);
     border: 1px solid rgba(15,23,42,0.10);
     border-radius: 18px;
+
+    /* Shadow fix: NUR hier ein Shadow */
     box-shadow: 0 18px 50px rgba(0,0,0,0.12);
     backdrop-filter: blur(10px);
-    overflow:auto;
-    padding: 26px 26px 22px;
 
-    /* Dock-Position für aktiven Tab (wird per JS gesetzt) */
-    --dock-x: 0px;
-    --dock-w: 0px;
+    padding: 22px 22px 18px;
+    max-height: 56vh;          /* nicht riesig leer */
+    overflow: auto;            /* bei langen Texten scrollt nur hier */
   }
 
-  /* Bridge: NUR der aktive Tab “dockt” optisch an den Panel-Boden */
-  .team-panel.has-dock::after{
-    content:"";
-    position:absolute;
-    left: var(--dock-x);
-    width: var(--dock-w);
-    bottom: -12px;
-    height: 12px;
-    background: rgba(255,255,255,0.84);
-    border-left: 1px solid rgba(15,23,42,0.10);
-    border-right: 1px solid rgba(15,23,42,0.10);
-    border-bottom: 1px solid rgba(15,23,42,0.10);
-    border-radius: 0 0 12px 12px;
-  }
-
-  /* Titel kleiner (Laptop) */
   .team-title{
     margin:0 0 10px 0;
-    font-size: clamp(26px, 2.6vw, 44px);
+    font-size: clamp(24px, 2.4vw, 40px); /* kleiner */
     line-height:1.02;
     letter-spacing:-0.02em;
     color:#0f172a;
   }
 
   .team-text{
-    font-size: clamp(14px, 1.05vw, 16px);
+    font-size: clamp(14px, 1.0vw, 16px);
     line-height:1.65;
     color: rgba(15,23,42,0.78);
     white-space: pre-wrap;
   }
 
-  /* Tabs getrennt */
-  .team-tabsWrap{
-    flex: 0 0 auto;
-    padding: 0;
+  /* Tabs: screen-centered */
+  .team-tabsOuter{
+    width: 100vw;                    /* über den ganzen Bildschirm */
+    margin-left: calc(-1 * var(--edge-left));   /* links padding neutralisieren */
+    margin-right: calc(-1 * var(--edge-right)); /* rechts padding neutralisieren */
+    display:flex;
+    justify-content:center;          /* MITTIG im Bildschirm */
+    padding: 0 16px;                 /* etwas Luft am Rand */
   }
 
   .team-tabs{
     display:flex;
-    gap: 10px;
+    gap: 12px;
     overflow:auto;
     align-items:center;
-    padding: 0 0 2px;
+    padding: 6px 8px;
+    max-width: min(1000px, 92vw);
   }
 
   .team-tabs::-webkit-scrollbar{ height: 10px; }
@@ -173,50 +160,47 @@
     background-clip: padding-box;
   }
 
-  /* Tabs: rechteckig mit Radius, KEIN anheben */
+  /* Pill tabs, no shadow (solves nested shadow issue) */
   .team-tab{
     display:flex;
     align-items:center;
     gap: 10px;
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.70);
+    padding: 10px 14px;
+    border-radius: 999px; /* pill */
+    background: rgba(255,255,255,0.62);
     border: 1px solid rgba(15,23,42,0.10);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    box-shadow: none; /* <- wichtig */
     cursor:pointer;
     user-select:none;
-    transition: background .14s ease, border-color .14s ease, box-shadow .14s ease;
-    flex: 0 0 auto; /* keine Mindestbreite */
+    transition: background .14s ease, border-color .14s ease;
+    flex: 0 0 auto; /* Breite nur Inhalt */
+    white-space: nowrap;
   }
 
   .team-tab:hover{
-    background: rgba(255,255,255,0.84);
+    background: rgba(255,255,255,0.78);
     border-color: rgba(31,79,163,0.22);
-    box-shadow: 0 8px 18px rgba(0,0,0,0.10);
   }
 
   .team-tab.is-active{
     background: rgba(255,255,255,0.92);
     border-color: rgba(15,23,42,0.18);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   }
 
-  /* aktiver Tab bekommt Dock-“Kappe” nach oben (ohne anheben) */
+  /* Active connection: subtle underline “bridge” only, no lifting */
   .team-tab.is-active{
     position:relative;
   }
-  .team-tab.is-active::before{
+  .team-tab.is-active::after{
     content:"";
     position:absolute;
-    left: 10px;
-    right: 10px;
-    top: -12px;
-    height: 12px;
-    background: rgba(255,255,255,0.92);
-    border-left: 1px solid rgba(15,23,42,0.10);
-    border-right: 1px solid rgba(15,23,42,0.10);
-    border-top: 1px solid rgba(15,23,42,0.10);
-    border-radius: 12px 12px 0 0;
+    left: 18px;
+    right: 18px;
+    bottom: -8px;
+    height: 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(15,23,42,0.10);
   }
 
   .team-tab__avatar{
@@ -238,23 +222,20 @@
     font-weight: 760;
     color:#0f172a;
     letter-spacing:-0.01em;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    max-width: 240px;
   }
 
-  /* RIGHT: nutzt volle Höhe */
+  /* RIGHT: slightly smaller portrait, a bit higher */
   .team-right{
     height:100%;
     display:flex;
-    align-items:center;
+    align-items:flex-start; /* höher */
     justify-content:center;
+    padding-top: 22px;
     min-width:0;
   }
 
   .team-portrait{
-    width: min(520px, 36vw);
+    width: min(460px, 34vw); /* kleiner */
     aspect-ratio: 1 / 1;
     border-radius: 999px;
     overflow:hidden;
@@ -271,12 +252,8 @@
     transform: scale(1.02);
   }
 
-  /* ===== Mobile ===== */
+  /* Mobile */
   @media (max-width: 980px){
-    .team-head{
-      height: calc(100vh - var(--title-height));
-      min-height: calc(100vh - var(--title-height));
-    }
     .team-head__inner{
       padding-left: 24px;
       padding-right: 24px;
@@ -287,25 +264,37 @@
       grid-template-columns: 1fr;
       gap: 14px;
     }
+    .team-left{
+      padding-top: 0;
+    }
     .team-right{
       justify-content:flex-start;
+      padding-top: 0;
     }
     .team-portrait{
       width: min(280px, 62vw);
     }
     .team-panel{
+      max-width: 100%;
+      max-height: 48vh;
+      padding: 18px 18px 14px;
       border-radius: 16px;
-      padding: 18px 18px 16px;
     }
-    .team-tab__name{
-      max-width: 44vw;
+    .team-tabsOuter{
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      justify-content:flex-start;
+      padding: 0;
+    }
+    .team-tabs{
+      max-width: 100%;
+      padding: 6px 0;
     }
   }
 
   @media (max-width: 560px){
     .team-title{ font-size: 30px; }
-    .team-tab{ padding: 9px 10px; border-radius: 10px; }
-    .team-tab__name{ max-width: 50vw; }
   }
 </style>
 
@@ -315,8 +304,6 @@
     const TEAM_MANIFEST_URL = "Team/manifest.json";
 
     const bgEl = document.getElementById("teamBg");
-    const panelEl = document.getElementById("teamPanel");
-
     const titleEl = document.getElementById("teamTitle");
     const textEl  = document.getElementById("teamText");
     const portraitEl = document.getElementById("teamPortrait");
@@ -383,21 +370,6 @@
       };
     }
 
-    function updateDockBridge(activeTab){
-      if (!activeTab) return;
-
-      const panelRect = panelEl.getBoundingClientRect();
-      const tabRect = activeTab.getBoundingClientRect();
-
-      // Dock mittig über dem aktiven Tab (leicht eingerückt)
-      const x = Math.max(14, (tabRect.left - panelRect.left) + 10);
-      const w = Math.max(60, tabRect.width - 20);
-
-      panelEl.style.setProperty("--dock-x", x + "px");
-      panelEl.style.setProperty("--dock-w", w + "px");
-      panelEl.classList.add("has-dock");
-    }
-
     function setActive(member){
       tabsEl.querySelectorAll(".team-tab").forEach(el => el.classList.remove("is-active"));
       const btn = tabsEl.querySelector('[data-folder="' + CSS.escape(member.folder) + '"]');
@@ -407,9 +379,6 @@
       titleEl.textContent = first || "Wir sind das Team.";
       textEl.textContent  = (rest && rest.trim().length) ? rest : "Persönlich, zuverlässig und unkompliziert – wir kümmern uns um die Details, damit euer Event entspannt bleibt.";
       setPortrait(member.img, member.name);
-
-      // Dock-Bridge neu setzen (nach Layout)
-      requestAnimationFrame(() => updateDockBridge(btn));
     }
 
     function makeTab(member){
@@ -455,6 +424,17 @@
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
       });
 
+      // "von rechts rein" (stagger) – per inline animation delay
+      btn.style.opacity = "0";
+      btn.style.transform = "translateX(18px)";
+      requestAnimationFrame(() => {
+        const i = tabsEl.children.length;
+        btn.style.transition = "opacity .28s ease, transform .28s ease";
+        btn.style.transitionDelay = (i * 40) + "ms";
+        btn.style.opacity = "1";
+        btn.style.transform = "translateX(0)";
+      });
+
       return btn;
     }
 
@@ -490,12 +470,6 @@
       members.forEach(m => tabsEl.appendChild(makeTab(m)));
 
       if (members.length) setActive(members[0]);
-
-      // Dock bei Resize nachziehen
-      window.addEventListener("resize", () => {
-        const active = tabsEl.querySelector(".team-tab.is-active");
-        updateDockBridge(active);
-      });
     }
 
     load().catch(() => {
