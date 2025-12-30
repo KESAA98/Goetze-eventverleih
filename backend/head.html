@@ -151,8 +151,8 @@
 
   .textPanel{
     width: var(--text-max-w);
-    max-height: 82%;
-    overflow:hidden;
+    max-height: none;
+    overflow: visible;
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius);
@@ -329,7 +329,7 @@
       padding: 18px 18px 14px;
     }
     .textBody{
-      -webkit-line-clamp: 14;
+      -webkit-line-clamp: unset;
     }
   }
 </style>
