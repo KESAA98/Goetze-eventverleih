@@ -308,6 +308,11 @@
       align-items:center;
     }
 
+    /* Mobile-Reihenfolge: Bild -> Auswahl -> Text */
+    .portraitWrap{ order: 1; }
+    .mobileTabsSlot{ order: 2; }
+    .textPanel{ order: 3; }
+
     .portraitWrap{ width: min(260px, 70vw); max-height:none; }
     .portrait{ box-shadow: 0 18px 44px rgba(0,0,0,0.16); }
 
