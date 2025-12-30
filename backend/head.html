@@ -292,6 +292,23 @@
 
   /* ===== Mobile: Bild oben, Tabs, Text ===== */
   @media (max-width: 980px){
+    /* Mobile: Head muss die volle Viewport-Höhe bekommen,
+       damit im Head gescrollt werden kann (ohne Page-Scroll/Shop-Snap). */
+    .team-head{ height: 100vh; min-height: 100vh; }
+    .team-scroll{
+      height: 100vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    /* Mobile: Inhalt oben starten (kein "schwebender" Block bei kurzem Text) */
+    .team-slide{ align-items: flex-start; }
+    .slide-grid{ align-items: stretch; justify-content: flex-start; }
+
+    /* Optional: kein zusätzlicher "unsichtbarer" Rand-/Schatteneffekt am Viewport */
+    .team-viewport{ box-shadow: none !important; }
+
     .team-scroll{ padding: 14px 14px 18px; }
     .team-stage{ height:auto; min-height:0; gap: 10px; }
     .sceneZone{ flex: 0 0 auto; height:auto; overflow:visible; }
