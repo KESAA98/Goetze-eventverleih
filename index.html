@@ -294,7 +294,64 @@
           // (Falls neu geladen/umgebaut wird) doppelte Listener vermeiden: simpel durch Clone ersetzen
           // -> wir machen hier keine Clone-Aktion, sondern verlassen uns darauf, dass bindWheel nur 1x läuft.
 
-          hs.addEventListener("wheel", (e) => {
+          hs.
+        // Mobile Pull-up (nur Mobile): am Ende vom Head noch ~24px weiter hochziehen -> Shop
+        const mqMobilePull = window.matchMedia("(max-width: 980px)");
+        let pullActive = false;
+        let pullStartY = 0;
+        let pullDist = 0;
+
+        const resetPull = () => { pullActive = false; pullStartY = 0; pullDist = 0; };
+
+        const canPullFromHead = () => {
+          const el = getHeadScrollEl();
+          if (window.__view !== "head") return false;
+          if (cookieVisible()) return false;
+          if (!el) return false;
+          if (isScrollable(el)) return atBottom(el);
+          return true; // Head passt komplett in den Screen
+        };
+
+        // Wichtig: passive:false bei touchmove, damit preventDefault funktioniert (sonst "rubber band"/Body)
+        document.addEventListener('touchstart', (e) => {
+          if (!mqMobilePull.matches) return;
+          const t = e.touches && e.touches[0];
+          if (!t) return;
+          if (!canPullFromHead()) return;
+
+          pullActive = true;
+          pullStartY = t.clientY;
+          pullDist = 0;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+          if (!mqMobilePull.matches) return;
+          if (!pullActive) return;
+
+          const t = e.touches && e.touches[0];
+          if (!t) return;
+
+          const dy = t.clientY - pullStartY; // negativ = nach oben ziehen
+          if (dy < 0){
+            pullDist = Math.min(90, Math.abs(dy));
+            if (pullDist > 6){
+              e.preventDefault();
+            }
+          } else {
+            resetPull();
+          }
+        }, { passive: false });
+
+        document.addEventListener('touchend', () => {
+          if (!mqMobilePull.matches) return;
+          if (!pullActive) return;
+
+          if (canPullFromHead() && pullDist >= 24){
+            goShop();
+          }
+          resetPull();
+        }, { passive: true });
+addEventListener("wheel", (e) => {
             if(cookieVisible()) return;
             if(e.deltaY > 0 && atBottom(hs)){
               e.preventDefault();
@@ -363,62 +420,33 @@
         setupHeadShopScrollSwitch();
       }
 
-      
-      // Mobile Pull-up (nur Mobile): am Ende vom Head noch ~24px weiter hochziehen -> Shop
-      const mqMobilePull = window.matchMedia("(max-width: 980px)");
-      let pullActive = false;
-      let pullStartY = 0;
-      let pullDist = 0;
-
-      function resetPull(){
-        pullActive = false;
-        pullStartY = 0;
-        pullDist = 0;
-      }
-
-      function canPullFromHead(){
-        if (activePanel !== 'head') return false;
-        if (isScrollable(headEl)) return atBottom(headEl);
-        return true; // Head passt komplett in den Screen
-      }
-
-      headEl.addEventListener('touchstart', (e) => {
-        if (!mqMobilePull.matches) return;
-        const t = e.touches && e.touches[0];
-        if (!t) return;
-        if (!canPullFromHead()) return;
-
-        pullActive = true;
-        pullStartY = t.clientY;
-        pullDist = 0;
-      }, { passive: true });
-
-      headEl.addEventListener('touchmove', (e) => {
-        if (!mqMobilePull.matches) return;
-        if (!pullActive) return;
-        const t = e.touches && e.touches[0];
-        if (!t) return;
-
-        const dy = t.clientY - pullStartY; // negativ = nach oben ziehen
-        if (dy < 0){
-          pullDist = Math.min(80, Math.abs(dy));
-          if (pullDist > 6) e.preventDefault(); // verhindert Rubberband/Body-Scroll
-        } else {
-          resetPull();
-        }
-      }, { passive: false });
-
-      headEl.addEventListener('touchend', () => {
-        if (!mqMobilePull.matches) return;
-        if (!pullActive) return;
-        if (canPullFromHead() && pullDist >= 24){
-          goShop();
-        }
-        resetPull();
-      }, { passive: true });
-
       boot().catch(err => console.error(err));
     })();
-  </script>
+
+        window.addEventListener('touchend', (e) => {
+          const dt = Date.now() - touchT0;
+          if (dt > 700) return; // zu langsam -> ignorieren
+          const changed = (e.changedTouches && e.changedTouches.length) ? e.changedTouches[0] : null;
+          if (!changed) return;
+          const dy = changed.clientY - touchY0;
+
+          // Swipe up (dy negativ) -> nach unten im Inhalt
+          if (dy < -50){
+            if (activePanel === 'head' && isScrollable(headEl) && atBottom(headEl)) {
+              goShop();
+            }
+            if (activePanel === 'head' && !isScrollable(headEl)) {
+              goShop();
+            }
+          }
+
+          // Swipe down (dy positiv) -> nach oben im Inhalt
+          if (dy > 50){
+            if (activePanel === 'shop' && atTop(shopEl)) {
+              goHead();
+            }
+          }
+        }, {passive:true});
+</script>
 </body>
 </html>
