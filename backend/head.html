@@ -25,10 +25,7 @@
 
       <!-- Gate (optional) -->
       <div class="gateZone" id="gateZone" aria-hidden="true">
-        <div class="pullPill" aria-hidden="true">
-          <div class="pullHandle"></div>
-          <div class="pullLabel">Zum Shop</div>
-        </div>
+        <button class="gateBtn" id="gateBtn" type="button">Zum Shop ↓</button>
       </div>
 
     </div>
@@ -277,40 +274,27 @@
     display:none;
     pointer-events:none;
   }
-
-  /* Mobile Pull-Up Hinweis (statt Button) */
-  .pullPill{
-    display:flex;
-    flex-direction:column;
+  .gateZone.is-visible{ display:block; pointer-events:auto; }
+  .gateBtn{
+    display:inline-flex;
     align-items:center;
-    justify-content:center;
-    gap:6px;
-    padding: 10px 16px 12px;
+    gap:10px;
+    padding: 10px 14px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.78);
-    border: 1px solid rgba(15,23,42,0.14);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.14);
-    backdrop-filter: blur(10px);
-  }
-  .pullHandle{
-    width: 44px;
-    height: 5px;
-    border-radius: 999px;
-    background: rgba(15,23,42,0.18);
-  }
-  .pullLabel{
-    font-size: 15px;
-    line-height: 1;
+    cursor:pointer;
+    user-select:none;
     font-weight: 800;
     letter-spacing:-0.01em;
     color:#0f172a;
+    background: rgba(31,79,163,0.12);
+    border: 1px solid rgba(31,79,163,0.28);
+    transition: transform .12s ease, background .12s ease;
   }
-  .gateZone.is-visible{ display:block; pointer-events:auto; }
-  
+  .gateBtn:hover{ background: rgba(31,79,163,0.18); }
+  .gateBtn:active{ transform: scale(0.98); }
+
   /* ===== Mobile: Bild oben, Tabs, Text ===== */
   @media (max-width: 980px){
-    .gateZone{ bottom: 14px; }
-
     /* Mobile: Head muss die volle Viewport-Höhe bekommen,
        damit im Head gescrollt werden kann (ohne Page-Scroll/Shop-Snap). */
     .team-head{ height: calc(var(--vh) * 100); min-height: calc(var(--vh) * 100); }
@@ -406,6 +390,7 @@
     const selectorEl = document.getElementById("selectorZone");
     const scrollEl   = document.getElementById("teamScroll");
     const gateZone   = document.getElementById("gateZone");
+    const gateBtn    = document.getElementById("gateBtn");
 
     const mqMobile = window.matchMedia("(max-width: 980px)");
 
@@ -483,12 +468,14 @@
 
     function updateGateVisibility(){
       if (!gateZone) return;
-      const show = (!isScrollable()) || (isScrollable() && atBottom());
+      const show = isScrollable() && atBottom();
       gateZone.classList.toggle("is-visible", !!show);
     }
 
     function bindGateLogic(){
-scrollEl.addEventListener("scroll", () => {
+      if (gateBtn) gateBtn.addEventListener("click", () => triggerDown());
+
+      scrollEl.addEventListener("scroll", () => {
         downArmed = isScrollable() && atBottom();
         updateGateVisibility();
       }, { passive:true });
