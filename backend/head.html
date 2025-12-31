@@ -34,8 +34,8 @@
 
 <style>
   :root{
-    --vh: 1vh; /* mobile viewport helper */
-    --radius: 18px;
+    --vh: 1vh; /* echte Viewport-Höhe (Mobile-Fix) */
+--radius: 18px;
     --panel-bg: rgba(255,255,255,0.84);
     --panel-border: rgba(15,23,42,0.10);
     --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
@@ -46,6 +46,8 @@
     --text-max-w: min(780px, 60vw);  /* Textpanel max */
     --img-max: min(420px, 40vw);     /* Bild max */
   }
+
+  .team-head, .team-head *{ box-sizing: border-box; }
 
   .team-head{
     position:relative;
@@ -137,7 +139,7 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    padding: clamp(22px, 3vw, 46px);
+    padding: clamp(18px, 2vw, 32px);
   }
 
   /* === Slide Layout Desktop: Text links + Bild rechts (getrennt, KEIN gemeinsamer Container) === */
@@ -299,7 +301,6 @@
     .team-scroll{
       height: calc(var(--vh) * 100);
       overflow-y: auto;
-      overflow-x: clip;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
     }
@@ -311,7 +312,7 @@
     /* Optional: kein zusätzlicher "unsichtbarer" Rand-/Schatteneffekt am Viewport */
     .team-viewport{ box-shadow: none !important; }
 
-    .team-scroll{ padding: 14px 14px 18px; }
+    .team-scroll{ padding: 0; }
     .team-stage{ height:auto; min-height:0; gap: 10px; }
     .sceneZone{ flex: 0 0 auto; height:auto; overflow:visible; }
     .selectorZone{ display:none; } /* Tabs wandern in Slide */
@@ -360,18 +361,20 @@
 
 
 <script>
-  // Mobile Viewport-Fix: --vh entspricht der echten sichtbaren Höhe (inkl. Browserleisten)
+  // Mobile-Viewport-Fix: --vh entspricht echter sichtbarer Höhe (inkl. Browserleisten)
   (function(){
     function setVH(){
-      const h = (window.visualViewport && window.visualViewport.height) ? window.visualViewport.height : window.innerHeight;
+      const h = (window.visualViewport && window.visualViewport.height)
+        ? window.visualViewport.height
+        : window.innerHeight;
       document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
     }
     setVH();
-    window.addEventListener('resize', setVH, { passive:true });
-    window.addEventListener('orientationchange', setVH, { passive:true });
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
     if (window.visualViewport){
-      window.visualViewport.addEventListener('resize', setVH, { passive:true });
-      window.visualViewport.addEventListener('scroll', setVH, { passive:true });
+      window.visualViewport.addEventListener('resize', setVH);
+      window.visualViewport.addEventListener('scroll', setVH);
     }
   })();
 </script>
