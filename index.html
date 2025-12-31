@@ -363,86 +363,62 @@
         setupHeadShopScrollSwitch();
       }
 
+      
+      // Mobile Pull-up (nur Mobile): am Ende vom Head noch ~24px weiter hochziehen -> Shop
+      const mqMobilePull = window.matchMedia("(max-width: 980px)");
+      let pullActive = false;
+      let pullStartY = 0;
+      let pullDist = 0;
+
+      function resetPull(){
+        pullActive = false;
+        pullStartY = 0;
+        pullDist = 0;
+      }
+
+      function canPullFromHead(){
+        if (activePanel !== 'head') return false;
+        if (isScrollable(headEl)) return atBottom(headEl);
+        return true; // Head passt komplett in den Screen
+      }
+
+      headEl.addEventListener('touchstart', (e) => {
+        if (!mqMobilePull.matches) return;
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+        if (!canPullFromHead()) return;
+
+        pullActive = true;
+        pullStartY = t.clientY;
+        pullDist = 0;
+      }, { passive: true });
+
+      headEl.addEventListener('touchmove', (e) => {
+        if (!mqMobilePull.matches) return;
+        if (!pullActive) return;
+        const t = e.touches && e.touches[0];
+        if (!t) return;
+
+        const dy = t.clientY - pullStartY; // negativ = nach oben ziehen
+        if (dy < 0){
+          pullDist = Math.min(80, Math.abs(dy));
+          if (pullDist > 6) e.preventDefault(); // verhindert Rubberband/Body-Scroll
+        } else {
+          resetPull();
+        }
+      }, { passive: false });
+
+      headEl.addEventListener('touchend', () => {
+        if (!mqMobilePull.matches) return;
+        if (!pullActive) return;
+        if (canPullFromHead() && pullDist >= 24){
+          goShop();
+        }
+        resetPull();
+      }, { passive: true });
+
       boot().catch(err => console.error(err));
     })();
-  
-                    }
-            if (activePanel === 'head' && !isScrollable(headEl)) {
-              goShop();
-            }
-          }
-
-          // Swipe down (dy positiv) -> nach oben im Inhalt
-          if (dy > 50){
-            if (activePanel === 'shop' && atTop(shopEl)) {
-              goHead();
-            }
-          }
-        }, {passive:true});
-
-        // Mobile Pull-up (nur Mobile): Am Ende vom Head noch ~24px weiter "hochziehen" -> Shop
-        const mqMobile = window.matchMedia("(max-width: 980px)");
-        let pullActive = false;
-        let pullStartY = 0;
-        let pullDist = 0;
-
-        function resetPull(){
-          pullActive = false;
-          pullStartY = 0;
-          pullDist = 0;
-        }
-
-        function canPullFromHead(){
-          // Wenn Head scrollbar: nur ganz unten
-          if (isScrollable(headEl)) return atBottom(headEl);
-          // Wenn Head nicht scrollbar: immer (einmal ziehen -> Shop)
-          return true;
-        }
-
-        headEl.addEventListener('touchstart', (e) => {
-          if (!mqMobile.matches) return;
-          const t = e.touches && e.touches[0];
-          if (!t) return;
-
-          // Pull nur erlauben, wenn wir im Head sind und am Ende (oder nicht-scrollbar)
-          if (activePanel !== 'head') return;
-          if (!canPullFromHead()) return;
-
-          pullActive = true;
-          pullStartY = t.clientY;
-          pullDist = 0;
-        }, { passive: true });
-
-        headEl.addEventListener('touchmove', (e) => {
-          if (!mqMobile.matches) return;
-          if (!pullActive) return;
-          const t = e.touches && e.touches[0];
-          if (!t) return;
-
-          const dy = t.clientY - pullStartY; // negativ = nach oben ziehen
-          if (dy < 0){
-            pullDist = Math.min(80, Math.abs(dy));
-            // ab kleiner Distanz verhindern wir das "Rubberband" / Body-Scroll
-            if (pullDist > 6){
-              e.preventDefault();
-            }
-          } else {
-            // nach unten ziehen -> abbrechen
-            resetPull();
-          }
-        }, { passive: false });
-
-        headEl.addEventListener('touchend', () => {
-          if (!mqMobile.matches) return;
-          if (!pullActive) return;
-
-          // vor Auslösung nochmal prüfen, ob wir immer noch ziehen dürfen
-          if (activePanel === 'head' && canPullFromHead() && pullDist >= 24){
-            goShop();
-          }
-          resetPull();
-        }, { passive: true });
-
-</script>
+  </script>
 </body>
 </html>
