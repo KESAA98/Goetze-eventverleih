@@ -366,29 +366,7 @@
       boot().catch(err => console.error(err));
     })();
   
-        // Mobile Swipe-Support: wenn Head unten ist und weiter nach oben gewischt wird -> Shop
-        // und umgekehrt (Shop oben + nach unten wischen -> Head)
-        let touchY0 = 0;
-        let touchT0 = 0;
-
-        window.addEventListener('touchstart', (e) => {
-          if (!e.touches || !e.touches.length) return;
-          touchY0 = e.touches[0].clientY;
-          touchT0 = Date.now();
-        }, {passive:true});
-
-        window.addEventListener('touchend', (e) => {
-          const dt = Date.now() - touchT0;
-          if (dt > 700) return; // zu langsam -> ignorieren
-          const changed = (e.changedTouches && e.changedTouches.length) ? e.changedTouches[0] : null;
-          if (!changed) return;
-          const dy = changed.clientY - touchY0;
-
-          // Swipe up (dy negativ) -> nach unten im Inhalt
-          if (dy < -50){
-            if (activePanel === 'head' && isScrollable(headEl) && atBottom(headEl)) {
-              goShop();
-            }
+                    }
             if (activePanel === 'head' && !isScrollable(headEl)) {
               goShop();
             }
@@ -401,6 +379,70 @@
             }
           }
         }, {passive:true});
+
+        // Mobile Pull-up (nur Mobile): Am Ende vom Head noch ~24px weiter "hochziehen" -> Shop
+        const mqMobile = window.matchMedia("(max-width: 980px)");
+        let pullActive = false;
+        let pullStartY = 0;
+        let pullDist = 0;
+
+        function resetPull(){
+          pullActive = false;
+          pullStartY = 0;
+          pullDist = 0;
+        }
+
+        function canPullFromHead(){
+          // Wenn Head scrollbar: nur ganz unten
+          if (isScrollable(headEl)) return atBottom(headEl);
+          // Wenn Head nicht scrollbar: immer (einmal ziehen -> Shop)
+          return true;
+        }
+
+        headEl.addEventListener('touchstart', (e) => {
+          if (!mqMobile.matches) return;
+          const t = e.touches && e.touches[0];
+          if (!t) return;
+
+          // Pull nur erlauben, wenn wir im Head sind und am Ende (oder nicht-scrollbar)
+          if (activePanel !== 'head') return;
+          if (!canPullFromHead()) return;
+
+          pullActive = true;
+          pullStartY = t.clientY;
+          pullDist = 0;
+        }, { passive: true });
+
+        headEl.addEventListener('touchmove', (e) => {
+          if (!mqMobile.matches) return;
+          if (!pullActive) return;
+          const t = e.touches && e.touches[0];
+          if (!t) return;
+
+          const dy = t.clientY - pullStartY; // negativ = nach oben ziehen
+          if (dy < 0){
+            pullDist = Math.min(80, Math.abs(dy));
+            // ab kleiner Distanz verhindern wir das "Rubberband" / Body-Scroll
+            if (pullDist > 6){
+              e.preventDefault();
+            }
+          } else {
+            // nach unten ziehen -> abbrechen
+            resetPull();
+          }
+        }, { passive: false });
+
+        headEl.addEventListener('touchend', () => {
+          if (!mqMobile.matches) return;
+          if (!pullActive) return;
+
+          // vor Auslösung nochmal prüfen, ob wir immer noch ziehen dürfen
+          if (activePanel === 'head' && canPullFromHead() && pullDist >= 24){
+            goShop();
+          }
+          resetPull();
+        }, { passive: true });
+
 </script>
 </body>
 </html>
