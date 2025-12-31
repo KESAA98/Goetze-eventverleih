@@ -249,7 +249,8 @@
           return !!(ov && ov.classList.contains("is-visible"));
         };
 
-        const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+        const isScrollable = (el) => el.scrollHeight > el.clientHeight + 2;
+        const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
         const atTop    = (el) => el.scrollTop <= 0;
 
         const goShop = () => {
