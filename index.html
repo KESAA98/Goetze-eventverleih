@@ -256,7 +256,7 @@
           if(locked || window.__view === "shop") return;
           locked = true;
           window.__view = "shop";
-          panels.style.transform = "translateY(-100%)";
+          panels.style.transform = "translateY(-50%)";
           window.__updateTitleShadow && window.__updateTitleShadow();
           setTimeout(()=> locked = false, 380);
         };
