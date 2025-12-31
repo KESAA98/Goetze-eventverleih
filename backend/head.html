@@ -34,6 +34,8 @@
 
 <style>
   :root{
+    --vh: 1vh;
+
     --radius: 18px;
     --panel-bg: rgba(255,255,255,0.84);
     --panel-border: rgba(15,23,42,0.10);
@@ -292,11 +294,11 @@
 
   /* ===== Mobile: Bild oben, Tabs, Text ===== */
   @media (max-width: 980px){
-    /* Mobile: Head muss die volle Viewport-Höhe bekommen,
-       damit im Head gescrollt werden kann (ohne Page-Scroll/Shop-Snap). */
-    .team-head{ height: 100vh; min-height: 100vh; }
+
+    /* Mobile Viewport Fix: echte sichtbare Höhe statt 100vh (Browserleisten) */
+    .team-head{ height: calc(var(--vh) * 100); min-height: calc(var(--vh) * 100); }
     .team-scroll{
-      height: 100vh;
+      height: calc(var(--vh) * 100);
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior: contain;
@@ -355,6 +357,18 @@
     }
   }
 </style>
+
+<script>
+  /* Mobile Viewport Fix: setzt --vh auf die echte sichtbare Höhe */
+  (function(){
+    function setVH(){
+      document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+    }
+    setVH();
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+  })();
+</script>
 
 <script>
   (function(){
