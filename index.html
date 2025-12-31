@@ -294,64 +294,7 @@
           // (Falls neu geladen/umgebaut wird) doppelte Listener vermeiden: simpel durch Clone ersetzen
           // -> wir machen hier keine Clone-Aktion, sondern verlassen uns darauf, dass bindWheel nur 1x läuft.
 
-          hs.
-        // Mobile Pull-up (nur Mobile): am Ende vom Head noch ~24px weiter hochziehen -> Shop
-        const mqMobilePull = window.matchMedia("(max-width: 980px)");
-        let pullActive = false;
-        let pullStartY = 0;
-        let pullDist = 0;
-
-        const resetPull = () => { pullActive = false; pullStartY = 0; pullDist = 0; };
-
-        const canPullFromHead = () => {
-          const el = getHeadScrollEl();
-          if (window.__view !== "head") return false;
-          if (cookieVisible()) return false;
-          if (!el) return false;
-          if (isScrollable(el)) return atBottom(el);
-          return true; // Head passt komplett in den Screen
-        };
-
-        // Wichtig: passive:false bei touchmove, damit preventDefault funktioniert (sonst "rubber band"/Body)
-        document.addEventListener('touchstart', (e) => {
-          if (!mqMobilePull.matches) return;
-          const t = e.touches && e.touches[0];
-          if (!t) return;
-          if (!canPullFromHead()) return;
-
-          pullActive = true;
-          pullStartY = t.clientY;
-          pullDist = 0;
-        }, { passive: true });
-
-        document.addEventListener('touchmove', (e) => {
-          if (!mqMobilePull.matches) return;
-          if (!pullActive) return;
-
-          const t = e.touches && e.touches[0];
-          if (!t) return;
-
-          const dy = t.clientY - pullStartY; // negativ = nach oben ziehen
-          if (dy < 0){
-            pullDist = Math.min(90, Math.abs(dy));
-            if (pullDist > 6){
-              e.preventDefault();
-            }
-          } else {
-            resetPull();
-          }
-        }, { passive: false });
-
-        document.addEventListener('touchend', () => {
-          if (!mqMobilePull.matches) return;
-          if (!pullActive) return;
-
-          if (canPullFromHead() && pullDist >= 24){
-            goShop();
-          }
-          resetPull();
-        }, { passive: true });
-addEventListener("wheel", (e) => {
+          hs.addEventListener("wheel", (e) => {
             if(cookieVisible()) return;
             if(e.deltaY > 0 && atBottom(hs)){
               e.preventDefault();
@@ -422,6 +365,17 @@ addEventListener("wheel", (e) => {
 
       boot().catch(err => console.error(err));
     })();
+  
+        // Mobile Swipe-Support: wenn Head unten ist und weiter nach oben gewischt wird -> Shop
+        // und umgekehrt (Shop oben + nach unten wischen -> Head)
+        let touchY0 = 0;
+        let touchT0 = 0;
+
+        window.addEventListener('touchstart', (e) => {
+          if (!e.touches || !e.touches.length) return;
+          touchY0 = e.touches[0].clientY;
+          touchT0 = Date.now();
+        }, {passive:true});
 
         window.addEventListener('touchend', (e) => {
           const dt = Date.now() - touchT0;
