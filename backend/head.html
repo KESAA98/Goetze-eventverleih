@@ -295,15 +295,21 @@
 
   /* ===== Mobile: Bild oben, Tabs, Text ===== */
   @media (max-width: 980px){
-    /* Mobile: Head muss die volle Viewport-Höhe bekommen,
-       damit im Head gescrollt werden kann (ohne Page-Scroll/Shop-Snap). */
+    /* Mobile: Head bleibt volle Viewport-Höhe, aber KEIN internes Scrollen.
+       Der Wechsel Head↔Shop wird in der index gesteuert. */
     .team-head{ height: calc(var(--vh) * 100); min-height: calc(var(--vh) * 100); }
+
     .team-scroll{
-      height: calc(var(--vh) * 100);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior: contain;
+      height: 100%;
+      overflow: hidden;         /* internes Scrollen aus */
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: auto;
+      touch-action: none;       /* Browser darf nicht selbst scrollen */
     }
+
+    /* Hinweis/Button auf Mobile weg */
+    .gateBtn{ display:none !important; }
+  }
 
     /* Mobile: Inhalt oben starten (kein "schwebender" Block bei kurzem Text) */
     .team-slide{ align-items: flex-start; }
