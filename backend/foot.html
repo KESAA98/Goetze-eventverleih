@@ -1,6 +1,6 @@
-<!-- backend/foot.html  (FIX: Höhe exakt wie Head über --vh, keine Scrollbar, Footer unten, Textfeld-Placeholder angepasst) -->
+<!-- backend/foot.html  (FIX: placeholder statt Text + Parent-Container-Höhe sauber + keine Scrollbar) -->
 
-<div class="foot-wrap">
+<div class="foot-wrap" id="footRoot">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
 
@@ -31,7 +31,8 @@
 
         <label class="field">
           <span>Nachricht</span>
-          <textarea id="f_msg" name="message" required>Wie können wir Ihnen weiterhelfen?</textarea>
+          <!-- FIX: placeholder (kein hart codierter Text) -->
+          <textarea id="f_msg" name="message" placeholder="Wie können wir Ihnen weiterhelfen?" required></textarea>
         </label>
 
         <div class="pref" role="group" aria-label="Bevorzugter Kontaktweg">
@@ -104,12 +105,12 @@
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
   .foot-wrap{ margin:0; padding:0; }
 
-  /* WICHTIG: exakt wie Head -> nutzt --vh (wird in index gesetzt) */
+  /* Höhe wird zusätzlich per JS an Parent/Body durchgesetzt */
   .foot-wrap{
     position:relative;
     height: calc(var(--vh, 1vh) * 100);
     width:100%;
-    overflow:hidden;            /* verhindert Scrollbars im Foot */
+    overflow:hidden;
     background:#d9dde3;
   }
 
@@ -131,7 +132,6 @@
     z-index:0;
   }
 
-  /* Stage = Foot-Höhe minus Footerbar */
   .foot-stage{
     position:relative;
     z-index:1;
@@ -189,7 +189,7 @@
     font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  /* Textfeld: feste Höhe + interne Scrollbar */
+  /* feste Höhe + interne Scrollbar */
   textarea{
     height: var(--textarea-h);
     min-height: var(--textarea-h);
@@ -287,7 +287,6 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* Footerbar unten im Foot */
   .titlebar{
     height: var(--title-height);
     background:#fff;
@@ -340,8 +339,35 @@
 (function(){
   const FLOW_URL = "https://default91b0e232846941aab7d1176f14ecb7.8c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d6aba3378db4ea1bd72aeddae7b9c3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC1H-XcsNqqsISufNQcfHdXRdkwmgELEKJ8ZDB0lvYg";
   const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
+
+  const wrap = document.getElementById("footRoot");
   const bgEl = document.getElementById("footBg");
 
+  // ====== HARD FIX: Parent-Container auf exakt gleiche Höhe + no-scroll ======
+  function applyNoScrollHeight(){
+    const h = getComputedStyle(wrap).height;
+    const parent = wrap.parentElement;
+
+    if (parent){
+      parent.style.height = h;
+      parent.style.maxHeight = h;
+      parent.style.overflow = "hidden";
+      parent.style.margin = "0";
+      parent.style.padding = "0";
+    }
+
+    // optional (hilft gegen 1px-Scroll durch Browser)
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    document.body.style.margin = "0";
+  }
+
+  // direkt + nach Layout
+  applyNoScrollHeight();
+  requestAnimationFrame(applyNoScrollHeight);
+  setTimeout(applyNoScrollHeight, 50);
+
+  // Items_Anfrage (JSON im JSON) - extern setzbar
   let itemsAnfrage = null;
   window.setItemsAnfrage = function(obj){ itemsAnfrage = (obj === undefined) ? null : obj; };
 
@@ -424,8 +450,6 @@
 
       setStatus("Gesendet.");
       form.reset();
-      // Default: Text wieder setzen + E-Mail aktiv
-      document.getElementById("f_msg").value = "Wie können wir Ihnen weiterhelfen?";
       const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
       if (emailRadio) emailRadio.checked = true;
       itemsAnfrage = null;
