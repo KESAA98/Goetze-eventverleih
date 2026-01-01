@@ -1,4 +1,4 @@
-<!-- backend/foot.html  (FIX: placeholder statt Text + Parent-Container-Höhe sauber + keine Scrollbar) -->
+<!-- backend/foot.html  (FIX: Footer-Balken IMMER sichtbar – auch wenn Parent overflow:hidden; mobile-safe) -->
 
 <div class="foot-wrap" id="footRoot">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
@@ -31,7 +31,6 @@
 
         <label class="field">
           <span>Nachricht</span>
-          <!-- FIX: placeholder (kein hart codierter Text) -->
           <textarea id="f_msg" name="message" placeholder="Wie können wir Ihnen weiterhelfen?" required></textarea>
         </label>
 
@@ -71,7 +70,8 @@
     </div>
   </div>
 
-  <div class="titlebar titlebar--foot" role="contentinfo" aria-label="Fußzeile">
+  <!-- bleibt drin für Styling/Markup, wird aber zusätzlich "ausgelagert" (Portal), siehe Script -->
+  <div class="titlebar titlebar--foot" id="footTitlebar" role="contentinfo" aria-label="Fußzeile">
     <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
     <nav class="titlebar__nav" aria-label="Fußnavigation">
       <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
@@ -103,9 +103,7 @@
   }
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
-  .foot-wrap{ margin:0; padding:0; }
 
-  /* Höhe wird zusätzlich per JS an Parent/Body durchgesetzt */
   .foot-wrap{
     position:relative;
     height: calc(var(--vh, 1vh) * 100);
@@ -189,7 +187,6 @@
     font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  /* feste Höhe + interne Scrollbar */
   textarea{
     height: var(--textarea-h);
     min-height: var(--textarea-h);
@@ -287,6 +284,7 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
+  /* ===== Footerbar Optik wie Titel ===== */
   .titlebar{
     height: var(--title-height);
     background:#fff;
@@ -314,12 +312,15 @@
   }
   .titlebar__link:hover{ color:#1f2933; }
   .titlebar__left--empty{ padding-left:0; width:1px; }
+
+  /* Standard: absolute am Ende */
   .titlebar--foot{
     position:absolute;
     left:0; right:0; bottom:0;
-    z-index: 5;
+    z-index: 50;
   }
 
+  /* Mobile */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
@@ -342,8 +343,35 @@
 
   const wrap = document.getElementById("footRoot");
   const bgEl = document.getElementById("footBg");
+  const titlebar = document.getElementById("footTitlebar");
 
-  // ====== HARD FIX: Parent-Container auf exakt gleiche Höhe + no-scroll ======
+  // ===== Portal: Titlebar in <body> hängen -> sichtbar trotz Parent overflow:hidden =====
+  function mountTitlebarToBody(){
+    if (!titlebar) return;
+
+    // falls schon gemountet: skip
+    if (titlebar.dataset.mounted === "1") return;
+
+    // Platzhalter im Wrap unsichtbar lassen (Layout)
+    titlebar.dataset.mounted = "1";
+
+    // Clone in Body (Original bleibt im Wrap, aber wir verstecken ihn)
+    const clone = titlebar.cloneNode(true);
+    clone.id = "footTitlebarPortal";
+    clone.style.position = "fixed";
+    clone.style.left = "0";
+    clone.style.right = "0";
+    clone.style.bottom = "0";
+    clone.style.zIndex = "999999";
+    clone.style.width = "100%";
+
+    // Original ausblenden (damit es nicht doppelt ist)
+    titlebar.style.display = "none";
+
+    document.body.appendChild(clone);
+  }
+
+  // ===== Height/No-Scroll auf Parent + Footerbar-Reserve =====
   function applyNoScrollHeight(){
     const h = getComputedStyle(wrap).height;
     const parent = wrap.parentElement;
@@ -354,22 +382,14 @@
       parent.style.overflow = "hidden";
       parent.style.margin = "0";
       parent.style.padding = "0";
+      parent.style.position = parent.style.position || "relative";
     }
 
-    // optional (hilft gegen 1px-Scroll durch Browser)
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
     document.body.style.margin = "0";
+    document.body.style.paddingBottom = "0";
   }
-
-  // direkt + nach Layout
-  applyNoScrollHeight();
-  requestAnimationFrame(applyNoScrollHeight);
-  setTimeout(applyNoScrollHeight, 50);
-
-  // Items_Anfrage (JSON im JSON) - extern setzbar
-  let itemsAnfrage = null;
-  window.setItemsAnfrage = function(obj){ itemsAnfrage = (obj === undefined) ? null : obj; };
 
   function basePath(){
     const host = (location.hostname || "").toLowerCase();
@@ -379,9 +399,9 @@
     }
     return "";
   }
-  function setNavLinks(){
+  function setNavLinks(root){
     const base = basePath();
-    document.querySelectorAll("[data-page]").forEach(a => {
+    (root || document).querySelectorAll("[data-page]").forEach(a => {
       const page = a.getAttribute("data-page");
       a.setAttribute("href", base + "/" + page + "/");
     });
@@ -398,11 +418,25 @@
     bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
   }
 
+  // initial
+  mountTitlebarToBody();
+  applyNoScrollHeight();
+  requestAnimationFrame(applyNoScrollHeight);
+  setTimeout(applyNoScrollHeight, 50);
+
+  // Links: im Wrap + im Portal
+  setNavLinks(document);
+  const portal = document.getElementById("footTitlebarPortal");
+  if (portal) setNavLinks(portal);
+
+  // Hintergrund
   (async function(){
     try{ setRandomBackground(await fetchJson(BG_MANIFEST_URL)); }catch(e){}
   })();
 
-  setNavLinks();
+  // Items_Anfrage (JSON im JSON) - extern setzbar
+  let itemsAnfrage = null;
+  window.setItemsAnfrage = function(obj){ itemsAnfrage = (obj === undefined) ? null : obj; };
 
   const form = document.getElementById("contactForm");
   const statusEl = document.getElementById("status");
