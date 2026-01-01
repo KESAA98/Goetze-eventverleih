@@ -1,4 +1,4 @@
-<!-- backend/foot.html  (FIX: keine Seiten-Scrollbars, Textarea feste Höhe + interne Scrollbar, Panel sauber zentriert) -->
+<!-- backend/foot.html  (FIX: Höhe exakt wie Head über --vh, keine Scrollbar, Footer unten, Textfeld-Placeholder angepasst) -->
 
 <div class="foot-wrap">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
@@ -31,7 +31,7 @@
 
         <label class="field">
           <span>Nachricht</span>
-          <textarea id="f_msg" name="message" placeholder="Worum geht’s? (Datum, Ort, Umfang …)" required></textarea>
+          <textarea id="f_msg" name="message" required>Wie können wir Ihnen weiterhelfen?</textarea>
         </label>
 
         <div class="pref" role="group" aria-label="Bevorzugter Kontaktweg">
@@ -81,6 +81,7 @@
 <style>
   :root{
     --title-height: 70px;
+
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
     --nav-pad-right: 32px;
@@ -96,19 +97,19 @@
     --primary: #1f4fa3;
     --primary-2:#2b66d8;
 
-    --stage-pad: 18px;           /* genereller Innenabstand */
-    --textarea-h: 140px;         /* feste Höhe Textfeld (Desktop) */
+    --stage-pad: 18px;
+    --textarea-h: 140px;
   }
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
+  .foot-wrap{ margin:0; padding:0; }
 
-  /* ===== FIX: wirklich KEIN Scrollen innerhalb der Foot-HTML ===== */
-  html, body{ height:100%; }
+  /* WICHTIG: exakt wie Head -> nutzt --vh (wird in index gesetzt) */
   .foot-wrap{
     position:relative;
-    height:100vh;                /* fest */
+    height: calc(var(--vh, 1vh) * 100);
     width:100%;
-    overflow:hidden;             /* keine Scrollbars */
+    overflow:hidden;            /* verhindert Scrollbars im Foot */
     background:#d9dde3;
   }
 
@@ -130,18 +131,16 @@
     z-index:0;
   }
 
-  /* Stage nimmt Viewport minus Footerbar -> so gibt’s keinen „Rest“ */
+  /* Stage = Foot-Höhe minus Footerbar */
   .foot-stage{
     position:relative;
     z-index:1;
-
-    height: calc(100vh - var(--title-height));
+    height: calc((var(--vh, 1vh) * 100) - var(--title-height));
     padding: var(--stage-pad) 24px;
     display:flex;
     align-items:center;
     justify-content:center;
-
-    overflow:hidden;            /* verhindert internal overflow */
+    overflow:hidden;
   }
 
   .contact-panel{
@@ -190,13 +189,13 @@
     font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  /* ===== FIX: Textfeld feste Höhe + scrollt intern ===== */
+  /* Textfeld: feste Höhe + interne Scrollbar */
   textarea{
     height: var(--textarea-h);
     min-height: var(--textarea-h);
     max-height: var(--textarea-h);
-    resize: none;               /* keine Resize-Griffe */
-    overflow: auto;             /* interne Scrollbar bei zu viel Text */
+    resize: none;
+    overflow:auto;
     line-height: 1.35;
   }
 
@@ -288,7 +287,7 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* Footerbar: am unteren Rand des Foot-Viewports */
+  /* Footerbar unten im Foot */
   .titlebar{
     height: var(--title-height);
     background:#fff;
@@ -327,14 +326,10 @@
       --title-pad-x: 12px;
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
-      --textarea-h: 160px;       /* etwas höher auf mobile */
+      --textarea-h: 160px;
     }
     .row{ grid-template-columns: 1fr; }
-    .foot-stage{
-      height: calc(100vh - var(--title-height));
-      align-items:flex-start;
-      padding: 14px;
-    }
+    .foot-stage{ padding: 14px; align-items:flex-start; }
     .titlebar__nav{ gap: 14px; }
     .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
     .titlebar__link:active{ background: rgba(0,0,0,.05); }
@@ -429,6 +424,8 @@
 
       setStatus("Gesendet.");
       form.reset();
+      // Default: Text wieder setzen + E-Mail aktiv
+      document.getElementById("f_msg").value = "Wie können wir Ihnen weiterhelfen?";
       const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
       if (emailRadio) emailRadio.checked = true;
       itemsAnfrage = null;
