@@ -1,12 +1,12 @@
-<!-- backend/foot.html  (Kontakt + Footer-Leiste wie Titel, ohne Extra-Scrollbars, Links korrekt, Submit funktioniert) -->
+<!-- backend/foot.html  (Footer-Leiste 1:1 aus titel.html übernommen + korrekt ganz unten) -->
 
-<div class="foot-wrap" id="footWrap">
+<div class="foot-wrap">
   <!-- Hintergrund wie Head -->
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
 
-  <!-- Inhalt -->
-  <div class="foot-stage" id="footStage">
+  <!-- Inhalt: exakt der Bereich OBERHALB der Titlebar -->
+  <div class="foot-stage">
     <div class="contact-panel" role="region" aria-label="Kontaktformular">
       <h2 class="contact-title">Sie haben Fragen?</h2>
       <p class="contact-sub">
@@ -59,7 +59,7 @@
           </span>
         </label>
 
-        <!-- optional für Flow-Kompatibilität -->
+        <!-- optional (Flow-kompatibel, leer) -->
         <input id="f_msg" type="hidden" value="" />
 
         <div class="actions">
@@ -70,9 +70,10 @@
     </div>
   </div>
 
-  <!-- Footer-Leiste: exakt Titel-Optik (weiß + dünner grauer Strich), sitzt IMMER ganz unten -->
+  <!-- BOTTOM: exakt Titel-Optik (weiß + dünner grauer Strich) -->
   <div class="titlebar titlebar--foot" role="contentinfo" aria-label="Fußzeile">
     <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
+
     <nav class="titlebar__nav" aria-label="Fußnavigation">
       <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
     </nav>
@@ -80,6 +81,7 @@
 </div>
 
 <style>
+  /* ======= Titel-VARS 1:1 aus titel.html ======= */
   :root{
     --title-height: 70px;
     --title-shadow: 0 8px 24px rgba(0,0,0,.12);
@@ -100,16 +102,15 @@
     --primary-2:#2b66d8;
   }
 
-  /* ===== Layout: KEIN eigener Scroll im Desktop, Footer immer unten ===== */
+  .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
+
+  /* ======= FIX: keine Extra-Scrollbar + Footer wirklich am unteren Rand ======= */
   .foot-wrap{
     position:relative;
-    height: 100%;
-    width: 100%;
-    overflow: hidden;
+    height:100%;
+    width:100%;
+    overflow:hidden;
     background:#d9dde3;
-
-    display:flex;
-    flex-direction:column;
   }
 
   .foot-bg{
@@ -130,11 +131,11 @@
     z-index:0;
   }
 
+  /* Inhalt = 100% minus Titlebar */
   .foot-stage{
     position:relative;
     z-index:1;
-    flex: 1 1 auto;            /* nimmt exakt den Platz über dem Footer ein */
-    min-height: 0;             /* wichtig: verhindert Flex-Overflow/Scrollbars */
+    height: calc(100% - var(--title-height));
     display:flex;
     align-items:center;
     justify-content:center;
@@ -168,7 +169,7 @@
 
   .contact-form{ display:flex; flex-direction:column; gap: 12px; }
 
-  .field{ display:flex; flex-direction:column; gap: 6px; }
+  .field{ display:flex; flex-direction:column; gap:6px; }
   .field > span{
     color: rgba(15,23,42,0.68);
     font-size: 12.5px;
@@ -192,9 +193,9 @@
     box-shadow: 0 0 0 4px rgba(31,79,163,0.12);
   }
 
-  .row{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
 
-  .pref{ margin-top: 2px; padding-top: 6px; }
+  .pref{ margin-top:2px; padding-top:6px; }
   .pref-label{
     color: rgba(15,23,42,0.68);
     font-size: 12.5px;
@@ -202,7 +203,7 @@
     letter-spacing: -0.01em;
     margin-bottom: 8px;
   }
-  .pref-options{ display:flex; gap: 10px; flex-wrap: wrap; }
+  .pref-options{ display:flex; gap:10px; flex-wrap:wrap; }
 
   .pref-pill{
     position:relative;
@@ -243,69 +244,51 @@
     font-size: 12.5px;
     line-height: 1.45;
   }
-  .consent input{
-    margin-top: 3px;
-    accent-color: var(--primary);
-  }
-  .consent a{
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 760;
-  }
+  .consent input{ margin-top:3px; accent-color: var(--primary); }
+  .consent a{ color: var(--primary); text-decoration:none; font-weight:760; }
   .consent a:hover{ text-decoration: underline; }
 
-  .actions{
-    display:flex;
-    align-items:center;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding-top: 4px;
-  }
+  .actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-top:4px; }
 
   .btn-primary{
-    border: 0;
+    border:0;
     padding: 12px 16px;
     border-radius: 12px;
     background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
-    color: white;
+    color:#fff;
     font-weight: 860;
     letter-spacing: .2px;
     box-shadow: 0 12px 26px rgba(31,79,163,0.22);
-    cursor: pointer;
+    cursor:pointer;
   }
 
-  /* "Grau bis gültig" OHNE disabled-Attribut -> kein gesperrter Cursor */
-  .contact-form:has(#f_name:invalid),
-  .contact-form:has(#f_email:invalid),
-  .contact-form:has(#f_consent:not(:checked)){
-    --btn-muted: 1;
-  }
+  /* Grau bis gültig, ohne disabled-Attribut -> kein gesperrter Cursor */
   .contact-form:has(#f_name:invalid) .btn-primary,
   .contact-form:has(#f_email:invalid) .btn-primary,
   .contact-form:has(#f_consent:not(:checked)) .btn-primary{
     background: rgba(15,23,42,0.18);
     color: rgba(15,23,42,0.55);
     box-shadow:none;
-    pointer-events:none;      /* wirkt wie disabled */
-    cursor: default;          /* aber nicht "gesperrt" */
+    pointer-events:none;
+    cursor: default;
   }
 
-  .status{
-    font-size: 13px;
-    color: rgba(15,23,42,0.70);
-    font-weight: 650;
-  }
+  .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* ===== Titel-Optik ===== */
+  /* ======= Titlebar CSS 1:1 aus titel.html ======= */
   .titlebar{
     height: var(--title-height);
     background:#fff;
     display:flex;
     align-items:center;
     justify-content:space-between;
+
     padding: 0 var(--title-pad-x);
+
     border-bottom: 1px solid rgba(0,0,0,.08);
     box-shadow: none;
+
+    transition: box-shadow .2s ease, border-bottom-color .2s ease;
   }
 
   .titlebar__left{
@@ -314,6 +297,7 @@
     padding-left: var(--logo-pad-left);
     min-width: 0;
   }
+
   .titlebar__nav{
     display:flex;
     align-items:center;
@@ -321,53 +305,69 @@
     padding-right: var(--nav-pad-right);
     white-space: nowrap;
   }
+
   .titlebar__link{
     color:#5b6472;
     text-decoration:none;
     font-size:14px;
     letter-spacing:.2px;
+
     background:transparent;
     border:0;
     padding: 10px 0;
     margin:0;
+
     cursor:pointer;
     user-select:none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
   }
   .titlebar__link:hover{ color:#1f2933; }
+  .titlebar__link:focus,
+  .titlebar__link:focus-visible{
+    outline: none;
+    text-decoration:none;
+  }
 
+  /* ======= Footer-spezifisch: unten, dünner grauer Strich oben ======= */
   .titlebar--foot{
-    position:relative;
+    position:absolute;
+    left:0; right:0; bottom:0;
     z-index: 5;
-    flex: 0 0 var(--title-height);
+
     border-bottom: 0;
     border-top: 1px solid rgba(0,0,0,.08);
   }
 
-  /* links ohne Logo: keine extra Einrückung, aber gleiche Außen-Paddings wie oben */
   .titlebar__left--empty{
     padding-left: 0;
     width: 1px;
   }
 
-  /* Mobile: darf scrollen, Footer bleibt sichtbar */
+  /* Mobile 1:1 aus titel.html */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
     }
-    .row{ grid-template-columns: 1fr; }
-    .foot-wrap{ overflow:auto; }
-    .foot-stage{ align-items:flex-start; }
-    .titlebar--foot{
-      position: sticky;
-      bottom: 0;
-    }
+
     .titlebar__nav{ gap: 14px; }
-    .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
-    .titlebar__link:active{ background: rgba(0,0,0,.05); }
+
+    .titlebar__link{
+      font-size: 13px;
+      padding: 10px 6px;
+      border-radius: 10px;
+    }
+    .titlebar__link:active{
+      background: rgba(0,0,0,.05);
+    }
+
+    /* Mobile: wenn Inhalt höher wird -> scroll im Foot erlauben, Footer sticky */
+    .foot-wrap{ overflow:auto; }
+    .foot-stage{ height:auto; min-height: calc(100% - var(--title-height)); align-items:flex-start; padding: 14px; }
+    .row{ grid-template-columns: 1fr; }
+    .titlebar--foot{ position: sticky; }
   }
 </style>
 
@@ -384,6 +384,7 @@
     itemsAnfrage = (obj === undefined) ? null : obj;
   };
 
+  // 1:1 aus titel.html
   function basePath(){
     const host = (location.hostname || "").toLowerCase();
     if (host.endsWith("github.io")) {
@@ -393,16 +394,12 @@
     return "";
   }
 
-  function setLinks(){
+  // Links exakt wie titel.html: base + "/page/"
+  function setNavLinks(){
     const base = basePath();
-    const map = {
-      "impressum":  base + "/impressum",
-      "datenschutz":base + "/datenschutz",
-      "agb":        base + "/agb"
-    };
     document.querySelectorAll("[data-page]").forEach(a => {
-      const key = a.getAttribute("data-page");
-      if (map[key]) a.setAttribute("href", map[key]);
+      const page = a.getAttribute("data-page");
+      a.setAttribute("href", base + "/" + page + "/");
     });
   }
 
@@ -425,13 +422,12 @@
     }catch(e){}
   })();
 
-  setLinks();
+  setNavLinks();
 
   const form = document.getElementById("contactForm");
   const statusEl = document.getElementById("status");
 
   function setStatus(msg){ statusEl.textContent = msg || ""; }
-
   function getPreferenz(){
     const el = form.querySelector('input[name="preferenz"]:checked');
     return el ? el.value : "E-Mail";
@@ -441,7 +437,6 @@
     ev.preventDefault();
     setStatus("");
 
-    // Browser-Validation (required + email-format + checkbox)
     if (!form.checkValidity()){
       form.reportValidity();
       return;
