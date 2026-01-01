@@ -1,11 +1,10 @@
-<!-- backend/foot.html  (Footer-Leiste 1:1 aus titel.html übernommen + korrekt ganz unten) -->
+<!-- backend/foot.html  (FIX: Footer sitzt wirklich am unteren Rand – ohne "Restfläche") -->
 
 <div class="foot-wrap">
-  <!-- Hintergrund wie Head -->
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
 
-  <!-- Inhalt: exakt der Bereich OBERHALB der Titlebar -->
+  <!-- Inhalt füllt per Flex automatisch den verfügbaren Platz -->
   <div class="foot-stage">
     <div class="contact-panel" role="region" aria-label="Kontaktformular">
       <h2 class="contact-title">Sie haben Fragen?</h2>
@@ -59,7 +58,6 @@
           </span>
         </label>
 
-        <!-- optional (Flow-kompatibel, leer) -->
         <input id="f_msg" type="hidden" value="" />
 
         <div class="actions">
@@ -70,10 +68,9 @@
     </div>
   </div>
 
-  <!-- BOTTOM: exakt Titel-Optik (weiß + dünner grauer Strich) -->
+  <!-- Footer-Leiste: bleibt im Flow und wird per margin-top:auto ganz nach unten gedrückt -->
   <div class="titlebar titlebar--foot" role="contentinfo" aria-label="Fußzeile">
     <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
-
     <nav class="titlebar__nav" aria-label="Fußnavigation">
       <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
     </nav>
@@ -81,7 +78,6 @@
 </div>
 
 <style>
-  /* ======= Titel-VARS 1:1 aus titel.html ======= */
   :root{
     --title-height: 70px;
     --title-shadow: 0 8px 24px rgba(0,0,0,.12);
@@ -104,13 +100,18 @@
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
 
-  /* ======= FIX: keine Extra-Scrollbar + Footer wirklich am unteren Rand ======= */
+  /* FIX: Flex-Layout -> kein Rechenfehler, kein "Rest" unter dem Footer */
   .foot-wrap{
     position:relative;
     height:100%;
     width:100%;
     overflow:hidden;
     background:#d9dde3;
+
+    display:flex;
+    flex-direction:column;
+    margin:0;
+    padding:0;
   }
 
   .foot-bg{
@@ -131,11 +132,12 @@
     z-index:0;
   }
 
-  /* Inhalt = 100% minus Titlebar */
+  /* Inhalt füllt alles oberhalb vom Footer */
   .foot-stage{
     position:relative;
     z-index:1;
-    height: calc(100% - var(--title-height));
+    flex: 1 1 auto;
+    min-height: 0; /* verhindert Flex-Overflow/Scrollbars */
     display:flex;
     align-items:center;
     justify-content:center;
@@ -262,7 +264,6 @@
     cursor:pointer;
   }
 
-  /* Grau bis gültig, ohne disabled-Attribut -> kein gesperrter Cursor */
   .contact-form:has(#f_name:invalid) .btn-primary,
   .contact-form:has(#f_email:invalid) .btn-primary,
   .contact-form:has(#f_consent:not(:checked)) .btn-primary{
@@ -275,20 +276,16 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* ======= Titlebar CSS 1:1 aus titel.html ======= */
+  /* ======= Titlebar CSS (wie titel.html) ======= */
   .titlebar{
     height: var(--title-height);
     background:#fff;
     display:flex;
     align-items:center;
     justify-content:space-between;
-
     padding: 0 var(--title-pad-x);
-
     border-bottom: 1px solid rgba(0,0,0,.08);
     box-shadow: none;
-
-    transition: box-shadow .2s ease, border-bottom-color .2s ease;
   }
 
   .titlebar__left{
@@ -311,63 +308,39 @@
     text-decoration:none;
     font-size:14px;
     letter-spacing:.2px;
-
     background:transparent;
     border:0;
     padding: 10px 0;
     margin:0;
-
     cursor:pointer;
     user-select:none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
   }
   .titlebar__link:hover{ color:#1f2933; }
-  .titlebar__link:focus,
-  .titlebar__link:focus-visible{
-    outline: none;
-    text-decoration:none;
-  }
 
-  /* ======= Footer-spezifisch: unten, dünner grauer Strich oben ======= */
+  /* Footer: dünner Strich oben, und per flex automatisch am unteren Rand */
   .titlebar--foot{
-    position:absolute;
-    left:0; right:0; bottom:0;
-    z-index: 5;
-
+    margin-top:auto;
     border-bottom: 0;
     border-top: 1px solid rgba(0,0,0,.08);
+    flex: 0 0 var(--title-height);
   }
 
-  .titlebar__left--empty{
-    padding-left: 0;
-    width: 1px;
-  }
+  .titlebar__left--empty{ padding-left: 0; width: 1px; }
 
-  /* Mobile 1:1 aus titel.html */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
     }
-
-    .titlebar__nav{ gap: 14px; }
-
-    .titlebar__link{
-      font-size: 13px;
-      padding: 10px 6px;
-      border-radius: 10px;
-    }
-    .titlebar__link:active{
-      background: rgba(0,0,0,.05);
-    }
-
-    /* Mobile: wenn Inhalt höher wird -> scroll im Foot erlauben, Footer sticky */
-    .foot-wrap{ overflow:auto; }
-    .foot-stage{ height:auto; min-height: calc(100% - var(--title-height)); align-items:flex-start; padding: 14px; }
     .row{ grid-template-columns: 1fr; }
-    .titlebar--foot{ position: sticky; }
+    .foot-wrap{ overflow:auto; }
+    .foot-stage{ align-items:flex-start; padding: 14px; }
+    .titlebar__nav{ gap: 14px; }
+    .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
+    .titlebar__link:active{ background: rgba(0,0,0,.05); }
   }
 </style>
 
@@ -378,13 +351,9 @@
 
   const bgEl = document.getElementById("footBg");
 
-  // Items_Anfrage (JSON im JSON) - extern setzbar
   let itemsAnfrage = null;
-  window.setItemsAnfrage = function(obj){
-    itemsAnfrage = (obj === undefined) ? null : obj;
-  };
+  window.setItemsAnfrage = function(obj){ itemsAnfrage = (obj === undefined) ? null : obj; };
 
-  // 1:1 aus titel.html
   function basePath(){
     const host = (location.hostname || "").toLowerCase();
     if (host.endsWith("github.io")) {
@@ -394,7 +363,6 @@
     return "";
   }
 
-  // Links exakt wie titel.html: base + "/page/"
   function setNavLinks(){
     const base = basePath();
     document.querySelectorAll("[data-page]").forEach(a => {
@@ -426,8 +394,8 @@
 
   const form = document.getElementById("contactForm");
   const statusEl = document.getElementById("status");
+  const setStatus = (m)=> statusEl.textContent = m || "";
 
-  function setStatus(msg){ statusEl.textContent = msg || ""; }
   function getPreferenz(){
     const el = form.querySelector('input[name="preferenz"]:checked');
     return el ? el.value : "E-Mail";
@@ -456,7 +424,6 @@
 
     try{
       setStatus("Sende …");
-
       const r = await fetch(FLOW_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
