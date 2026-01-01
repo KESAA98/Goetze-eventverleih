@@ -1,20 +1,19 @@
-<!-- backend/foot.html | Kontakt (Head-Optik, Desktop: begrenzte Höhe wie Head) -->
+<!-- backend/foot.html  (Kontakt + Footer-Leiste wie titel.html) -->
 
-<section class="contact-foot" aria-label="Kontakt">
-  <div class="contact-foot__bg" id="contactBg" aria-hidden="true"></div>
-  <div class="contact-foot__veil" aria-hidden="true"></div>
+<div class="foot-scroll" id="footScroll">
+  <!-- Hintergrund wie Head -->
+  <div class="foot-bg" id="footBg" aria-hidden="true"></div>
+  <div class="foot-veil" aria-hidden="true"></div>
 
-  <!-- Vollbild wie Head -->
-  <div class="contact-foot__stage" id="contactStage">
+  <!-- Inhalt -->
+  <div class="foot-stage">
     <div class="contact-panel" role="region" aria-label="Kontaktformular">
-      <div class="contact-badge">LG Eventverleih</div>
-
       <h2 class="contact-title">Sie haben Fragen?</h2>
       <p class="contact-sub">
         Nutzen Sie gerne unser Kontaktfeld – wir melden uns zeitnah auf dem von Ihnen bevorzugten Weg.
       </p>
 
-      <form id="contactForm" class="contact-form" autocomplete="on">
+      <form id="contactForm" class="contact-form" autocomplete="on" novalidate>
         <label class="field">
           <span>Name</span>
           <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
@@ -25,6 +24,7 @@
             <span>E-Mail</span>
             <input id="f_email" name="email" type="email" placeholder="name@mail.de" required />
           </label>
+
           <label class="field">
             <span>Telefon</span>
             <input id="f_phone" name="phone" type="tel" placeholder="+49 …" />
@@ -34,17 +34,17 @@
         <div class="pref" role="group" aria-label="Bevorzugter Kontaktweg">
           <div class="pref-label">Ich möchte per … kontaktiert werden</div>
           <div class="pref-options">
-            <label class="radio">
+            <label class="pref-pill">
               <input type="radio" name="preferenz" value="Telefon" />
               <span>Telefon</span>
             </label>
 
-            <label class="radio">
+            <label class="pref-pill">
               <input type="radio" name="preferenz" value="E-Mail" checked />
               <span>E-Mail</span>
             </label>
 
-            <label class="radio">
+            <label class="pref-pill">
               <input type="radio" name="preferenz" value="WhatsApp" />
               <span>WhatsApp</span>
             </label>
@@ -54,31 +54,40 @@
         <label class="consent">
           <input id="f_consent" type="checkbox" required />
           <span>
-            Ich habe die <a href="/io/datenschutz">Datenschutzerklärung</a> gelesen und akzeptiere die
-            <a href="/io/agb">AGB</a>.
+            Ich habe die <a data-page="io_datenschutz" href="#">Datenschutzerklärung</a> gelesen und akzeptiere die
+            <a data-page="io_agb" href="#">AGB</a>.
           </span>
         </label>
 
         <div class="actions">
-          <button id="sendBtn" class="btn-primary" type="submit">Anfrage senden</button>
+          <button id="sendBtn" class="btn-primary" type="submit" disabled aria-disabled="true">
+            Anfrage senden
+          </button>
           <span id="status" class="status" aria-live="polite"></span>
         </div>
       </form>
     </div>
-
-    <!-- Unterer Streifen wie Badge, nur Impressum -->
-    <div class="contact-footerbar" aria-label="Fußzeile">
-      <a class="footer-btn" href="/io/impressum">Impressum</a>
-    </div>
   </div>
-</section>
+
+  <!-- Footer-Leiste: exakt Titel-Optik (weiß + dünner grauer Strich) – ohne Logo, nur Impressum-Link -->
+  <div class="titlebar titlebar--foot" role="contentinfo" aria-label="Fußzeile">
+    <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
+    <nav class="titlebar__nav" aria-label="Fußnavigation">
+      <a class="titlebar__link" data-page="io_impressum" href="#">Impressum</a>
+    </nav>
+  </div>
+</div>
 
 <style>
   :root{
-    --vh: 1vh;
-    --radius: 18px;
+    --title-height: 70px;
+    --title-shadow: 0 8px 24px rgba(0,0,0,.12);
 
-    /* Head-ähnlich (hell, clean) */
+    --title-pad-x: 72px;
+    --logo-pad-left: 32px;
+    --nav-pad-right: 32px;
+
+    --radius: 16px;
     --panel-bg: rgba(255,255,255,0.84);
     --panel-border: rgba(15,23,42,0.10);
     --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
@@ -87,47 +96,53 @@
     --muted: rgba(15,23,42,0.72);
 
     --primary: #1f4fa3;
-    --primary-2: #2b66d8;
+    --primary-2:#2b66d8;
   }
 
-  .contact-foot, .contact-foot *{ box-sizing:border-box; }
-
-  .contact-foot{
+  /* ===== Scroll-Container für index.html (wichtig!) ===== */
+  .foot-scroll{
     position:relative;
-    width:100%;
-    height: calc(var(--vh) * 100);
-    min-height: calc(var(--vh) * 100);
-    overflow:hidden;
-    background:#d9dde3;
-  }
+    height: 100%;
+    width: 100%;
+    overflow:auto;
+    overflow-x:hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
 
-  .contact-foot__bg{
+    /* Platz für die Footer-Leiste (wie Titelhöhe) */
+    padding-bottom: var(--title-height);
+  }
+  .foot-scroll{ scrollbar-width:none; }
+  .foot-scroll::-webkit-scrollbar{ width:0; height:0; }
+
+  /* ===== Hintergrund wie Head ===== */
+  .foot-bg{
     position:absolute; inset:0;
     background-size:cover;
     background-position:center;
-    transform:scale(1.05);
-    filter:saturate(.98) contrast(.98);
+    transform: scale(1.05);
+    filter: saturate(.98) contrast(.98);
+    z-index:0;
   }
-
-  .contact-foot__veil{
+  .foot-veil{
     position:absolute; inset:0;
     background:
       radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
       linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 40%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.10) 100%);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index:0;
   }
 
-  .contact-foot__stage{
+  /* ===== Bühne (zentriert) ===== */
+  .foot-stage{
     position:relative;
     z-index:1;
-    height: 100%;
-    width: 100%;
-    padding: 18px 24px;
+    min-height: 100%;
     display:flex;
-    flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap: 14px;
+    padding: 18px 24px;
   }
 
   .contact-panel{
@@ -137,21 +152,8 @@
     border-radius: var(--radius);
     box-shadow: var(--panel-shadow);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     padding: 22px 22px 18px;
-  }
-
-  .contact-badge{
-    display:inline-flex;
-    align-items:center;
-    width: fit-content;
-    padding: 7px 12px;
-    border-radius: 999px;
-    border: 1px solid rgba(15,23,42,0.12);
-    background: rgba(255,255,255,0.62);
-    color: var(--text);
-    font-weight: 760;
-    letter-spacing: -0.01em;
-    margin-bottom: 10px;
   }
 
   .contact-title{
@@ -175,12 +177,7 @@
     gap: 12px;
   }
 
-  .field{
-    display:flex;
-    flex-direction:column;
-    gap: 6px;
-  }
-
+  .field{ display:flex; flex-direction:column; gap: 6px; }
   .field > span{
     color: rgba(15,23,42,0.68);
     font-size: 12.5px;
@@ -198,9 +195,7 @@
     outline:none;
     font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
-
   input::placeholder{ color: rgba(15,23,42,0.40); }
-
   input:focus{
     border-color: rgba(31,79,163,0.30);
     box-shadow: 0 0 0 4px rgba(31,79,163,0.12);
@@ -212,11 +207,7 @@
     gap: 10px;
   }
 
-  .pref{
-    margin-top: 2px;
-    padding-top: 6px;
-  }
-
+  .pref{ margin-top: 2px; padding-top: 6px; }
   .pref-label{
     color: rgba(15,23,42,0.68);
     font-size: 12.5px;
@@ -224,35 +215,41 @@
     letter-spacing: -0.01em;
     margin-bottom: 8px;
   }
+  .pref-options{ display:flex; gap: 10px; flex-wrap: wrap; }
 
-  .pref-options{
-    display:flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .radio{
+  /* Pills wie Head-Tabs (clean) */
+  .pref-pill{
+    position:relative;
     display:inline-flex;
     align-items:center;
-    gap: 8px;
-    padding: 10px 12px;
+    padding: 10px 14px;
     border-radius: 999px;
     background: rgba(255,255,255,0.62);
     border: 1px solid rgba(15,23,42,0.12);
     cursor:pointer;
     user-select:none;
+    transition: background .14s ease, border-color .14s ease, transform .14s ease;
+    white-space:nowrap;
   }
-
-  .radio input{
-    accent-color: var(--primary);
-    transform: translateY(0.5px);
+  .pref-pill:hover{
+    background: rgba(255,255,255,0.78);
+    border-color: rgba(31,79,163,0.22);
+    transform: translateY(-1px);
   }
-
-  .radio span{
+  .pref-pill input{
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
+  }
+  .pref-pill span{
     color: var(--text);
-    font-weight: 720;
+    font-weight: 760;
     letter-spacing: -0.01em;
     font-size: 13.5px;
+  }
+  .pref-pill:has(input:checked){
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(15,23,42,0.20);
   }
 
   .consent{
@@ -264,12 +261,10 @@
     font-size: 12.5px;
     line-height: 1.45;
   }
-
   .consent input{
     margin-top: 3px;
     accent-color: var(--primary);
   }
-
   .consent a{
     color: var(--primary);
     text-decoration: none;
@@ -287,7 +282,6 @@
 
   .btn-primary{
     border: 0;
-    cursor: pointer;
     padding: 12px 16px;
     border-radius: 12px;
     background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
@@ -295,12 +289,18 @@
     font-weight: 860;
     letter-spacing: .2px;
     box-shadow: 0 12px 26px rgba(31,79,163,0.22);
+    cursor: pointer;
   }
 
+  /* disabled: grau + cursor NIE gesperrt */
   .btn-primary:disabled{
-    opacity: .7;
-    cursor: not-allowed;
+    background: rgba(15,23,42,0.18);
+    color: rgba(15,23,42,0.55);
+    box-shadow: none;
+    opacity: 1;
+    cursor: default !important;
   }
+  .btn-primary:disabled *{ cursor: default !important; }
 
   .status{
     font-size: 13px;
@@ -308,163 +308,258 @@
     font-weight: 650;
   }
 
-  .contact-footerbar{
-    width: min(820px, 100%);
+  /* ===== Titel-Optik (1:1 aus titel.html) ===== */
+  .titlebar{
+    height: var(--title-height);
+    background:#fff;
     display:flex;
-    justify-content:flex-start;
+    align-items:center;
+    justify-content:space-between;
+
+    padding: 0 var(--title-pad-x);
+
+    border-bottom: 1px solid rgba(0,0,0,.08);
+    box-shadow: none;
+
+    transition: box-shadow .2s ease, border-bottom-color .2s ease;
+  }
+  /* nach Scroll (wird von index.html gesetzt) */
+  #title.is-scrolled .titlebar{
+    border-bottom-color: transparent;
+    box-shadow: var(--title-shadow);
   }
 
-  .footer-btn{
-    display:inline-flex;
+  .titlebar__left{
+    display:flex;
     align-items:center;
-    justify-content:center;
-    padding: 9px 14px;
-    border-radius: 999px;
-    border: 1px solid rgba(15,23,42,0.12);
-    background: rgba(255,255,255,0.62);
-    color: var(--text);
-    text-decoration:none;
-    font-weight: 760;
-    letter-spacing:-0.01em;
+    padding-left: var(--logo-pad-left);
+    min-width: 0;
   }
-  .footer-btn:hover{
-    background: rgba(255,255,255,0.78);
-    border-color: rgba(31,79,163,0.22);
+  .titlebar__nav{
+    display:flex;
+    align-items:center;
+    gap: 34px;
+    padding-right: var(--nav-pad-right);
+    white-space: nowrap;
+  }
+  .titlebar__link{
+    color:#5b6472;
+    text-decoration:none;
+    font-size:14px;
+    letter-spacing:.2px;
+
+    background:transparent;
+    border:0;
+    padding: 10px 0;
+    margin:0;
+
+    cursor:pointer;
+    user-select:none;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
+  .titlebar__link:hover{ color:#1f2933; }
+  .titlebar__link:focus,
+  .titlebar__link:focus-visible{
+    outline: none;
+    text-decoration:none;
+  }
+
+  /* ===== Footer-Leiste unten: gleiche Optik, aber als Bottom-Bar ===== */
+  .titlebar--foot{
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+
+    /* beim Footer brauchen wir den grauen Strich oben, nicht unten */
+    border-bottom: 0;
+    border-top: 1px solid rgba(0,0,0,.08);
+  }
+
+  .titlebar__left--empty{
+    padding-left: 0; /* kein Logo-Abstand */
+    width: 1px;      /* hält Layout stabil */
   }
 
   /* Mobile */
-  @media (max-width: 720px){
-    .contact-foot__stage{ padding: 14px; justify-content:flex-start; }
-    .contact-panel{ padding: 18px 18px 16px; }
+  @media (max-width:700px){
+    :root{
+      --title-pad-x: 12px;
+      --logo-pad-left: 10px;
+      --nav-pad-right: 10px;
+    }
+    .titlebar__nav{ gap: 14px; }
+    .titlebar__link{
+      font-size: 13px;
+      padding: 10px 6px;
+      border-radius: 10px;
+    }
+    .titlebar__link:active{
+      background: rgba(0,0,0,.05);
+    }
     .row{ grid-template-columns: 1fr; }
-    .contact-footerbar{ justify-content:center; }
+    .foot-stage{ padding: 14px; align-items:flex-start; }
+    .contact-panel{ padding: 18px 18px 16px; }
   }
 </style>
 
 <script>
-  // --vh Fix wie Head
-  (function(){
-    function setVH(){
-      const h = (window.visualViewport && window.visualViewport.height)
-        ? window.visualViewport.height
-        : window.innerHeight;
-      document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
+(function(){
+  const FLOW_URL = "https://default91b0e232846941aab7d1176f14ecb7.8c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d6aba3378db4ea1bd72aeddae7b9c3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC1H-XcsNqqsISufNQcfHdXRdkwmgELEKJ8ZDB0lvYg";
+  const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
+
+  const bgEl = document.getElementById("footBg");
+  const scrollEl = document.getElementById("footScroll");
+
+  // Items_Anfrage (JSON im JSON) - extern setzbar
+  let itemsAnfrage = null;
+  window.setItemsAnfrage = function(obj){
+    itemsAnfrage = (obj === undefined) ? null : obj;
+  };
+
+  function basePath(){
+    const host = (location.hostname || "").toLowerCase();
+    if (host.endsWith("github.io")) {
+      const seg = (location.pathname || "/").split("/").filter(Boolean)[0];
+      return seg ? ("/" + seg) : "";
     }
-    setVH();
-    window.addEventListener('resize', setVH);
-    window.addEventListener('orientationchange', setVH);
-    if (window.visualViewport){
-      window.visualViewport.addEventListener('resize', setVH);
-      window.visualViewport.addEventListener('scroll', setVH);
-    }
-  })();
-</script>
+    return "";
+  }
 
-<script>
-  (function(){
-    const FLOW_URL = "https://default91b0e232846941aab7d1176f14ecb7.8c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d6aba3378db4ea1bd72aeddae7b9c3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC1H-XcsNqqsISufNQcfHdXRdkwmgELEKJ8ZDB0lvYg";
-    const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
+  function setLinks(){
+    const base = basePath();
 
-    const bgEl = document.getElementById("contactBg");
-
-    async function fetchJson(url){
-      const r = await fetch(url, { cache: "no-store" });
-      if (!r.ok) throw new Error("Fetch failed: " + url);
-      return await r.json();
-    }
-
-    function setRandomBackground(list){
-      if (!Array.isArray(list) || list.length === 0) return;
-      const pick = list[Math.floor(Math.random() * list.length)];
-      // Head nutzt: "image/hintergrund/" + pick
-      bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
-    }
-
-    (async function(){
-      try{
-        const bg = await fetchJson(BG_MANIFEST_URL);
-        setRandomBackground(bg);
-      }catch(e){}
-    })();
-
-    // Items_Anfrage (JSON im JSON) - extern setzbar
-    let itemsAnfrage = null;
-    window.setItemsAnfrage = function(obj){
-      itemsAnfrage = (obj === undefined) ? null : obj;
+    // domain-unabhängig genau wie gewünscht: /io/...
+    const map = {
+      "io_impressum":  base + "/io/impressum",
+      "io_datenschutz":base + "/io/datenschutz",
+      "io_agb":        base + "/io/agb"
     };
 
-    const form = document.getElementById("contactForm");
-    const statusEl = document.getElementById("status");
-    const sendBtn = document.getElementById("sendBtn");
+    document.querySelectorAll("[data-page]").forEach(a => {
+      const key = a.getAttribute("data-page");
+      if (map[key]) a.setAttribute("href", map[key]);
+    });
+  }
 
-    function setStatus(msg){ statusEl.textContent = msg || ""; }
+  async function fetchJson(url){
+    const r = await fetch(url, { cache: "no-store" });
+    if(!r.ok) throw new Error("Fetch failed: " + url);
+    return await r.json();
+  }
 
-    function getPreferenz(){
-      const el = form.querySelector('input[name="preferenz"]:checked');
-      return el ? el.value : "E-Mail";
+  function setRandomBackground(list){
+    if (!Array.isArray(list) || list.length === 0) return;
+    const pick = list[Math.floor(Math.random() * list.length)];
+    bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
+  }
+
+  (async function(){
+    try{
+      const bg = await fetchJson(BG_MANIFEST_URL);
+      setRandomBackground(bg);
+    }catch(e){}
+  })();
+
+  setLinks();
+
+  const form = document.getElementById("contactForm");
+  const statusEl = document.getElementById("status");
+  const sendBtn = document.getElementById("sendBtn");
+
+  const elName = document.getElementById("f_name");
+  const elMail = document.getElementById("f_email");
+  const elPhone = document.getElementById("f_phone");
+  const elConsent = document.getElementById("f_consent");
+
+  function setStatus(msg){ statusEl.textContent = msg || ""; }
+
+  function getPreferenz(){
+    const el = form.querySelector('input[name="preferenz"]:checked');
+    return el ? el.value : "E-Mail";
+  }
+
+  function canSend(){
+    const nameOk = elName.value.trim().length > 0;
+    const mailOk = elMail.value.trim().length > 0;
+    const consentOk = elConsent.checked === true;
+    return nameOk && mailOk && consentOk;
+  }
+
+  function updateButton(){
+    const ok = canSend();
+    sendBtn.disabled = !ok;
+    sendBtn.setAttribute("aria-disabled", String(!ok));
+  }
+
+  ["input","change","blur"].forEach(ev => {
+    elName.addEventListener(ev, updateButton);
+    elMail.addEventListener(ev, updateButton);
+    elPhone.addEventListener(ev, updateButton);
+    elConsent.addEventListener(ev, updateButton);
+    form.querySelectorAll('input[name="preferenz"]').forEach(r => r.addEventListener(ev, updateButton));
+  });
+
+  updateButton();
+
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    setStatus("");
+
+    if(!canSend()){
+      updateButton();
+      setStatus("Bitte Name, E-Mail sowie Datenschutz & AGB bestätigen.");
+      return;
     }
 
-    form.addEventListener("submit", async (ev) => {
-      ev.preventDefault();
-      setStatus("");
+    const payload = {
+      Name: elName.value.trim(),
+      Email: elMail.value.trim(),
+      Telefon: elPhone.value.trim() || "",
+      Preferenz: getPreferenz(),
+      Zustimmung: true,
+      Items_Anfrage: itemsAnfrage ?? null,
+      Quelle: "foot",
+      Timestamp: new Date().toISOString()
+    };
 
-      const name = document.getElementById("f_name").value.trim();
-      const email = document.getElementById("f_email").value.trim();
-      const phone = document.getElementById("f_phone").value.trim();
-      const consent = document.getElementById("f_consent").checked;
-      const preferenz = getPreferenz();
+    try{
+      sendBtn.disabled = true;
+      sendBtn.setAttribute("aria-disabled","true");
+      setStatus("Sende …");
 
-      if(!name || !email){
-        setStatus("Bitte Name und E-Mail ausfüllen.");
+      const r = await fetch(FLOW_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if(!r.ok){
+        const t = await r.text().catch(()=> "");
+        setStatus("Fehler beim Senden." + (t ? " " + t.slice(0,120) : ""));
+        updateButton();
         return;
       }
-      if(!consent){
-        setStatus("Bitte Datenschutz & AGB bestätigen.");
-        return;
-      }
 
-      const payload = {
-        Name: name,
-        Email: email,
-        Telefon: phone || "",
-        Preferenz: preferenz,          // <- neu
-        Zustimmung: true,              // <- bestätigt
-        Items_Anfrage: itemsAnfrage ?? null,
-        Quelle: "foot",
-        Timestamp: new Date().toISOString()
-      };
+      setStatus("Gesendet.");
+      form.reset();
 
-      try{
-        sendBtn.disabled = true;
-        setStatus("Sende …");
+      // Radio wieder auf E-Mail
+      const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
+      if (emailRadio) emailRadio.checked = true;
 
-        const r = await fetch(FLOW_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
+      itemsAnfrage = null;
+      updateButton();
 
-        if(!r.ok){
-          const t = await r.text().catch(()=> "");
-          setStatus("Fehler beim Senden." + (t ? " " + t.slice(0,120) : ""));
-          sendBtn.disabled = false;
-          return;
-        }
+      // optional: zurück nach oben im Foot
+      if(scrollEl) scrollEl.scrollTo({ top: 0, behavior: "smooth" });
 
-        setStatus("Gesendet.");
-        form.reset();
-        // Radio wieder auf E-Mail (default)
-        const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
-        if (emailRadio) emailRadio.checked = true;
-
-        // Items_Anfrage wieder leeren
-        itemsAnfrage = null;
-
-      }catch(err){
-        setStatus("Fehler beim Senden. Bitte später erneut versuchen.");
-      }finally{
-        sendBtn.disabled = false;
-      }
-    });
-  })();
+    }catch(err){
+      setStatus("Fehler beim Senden. Bitte später erneut versuchen.");
+      updateButton();
+    }
+  });
+})();
 </script>
