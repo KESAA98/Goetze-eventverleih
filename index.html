@@ -9,9 +9,8 @@
 
   <style>
     :root{
-      
       --vh: 1vh; /* echte Viewport-Höhe (Mobile-Fix) */
---cart-width: 360px;
+      --cart-width: 360px;
       --title-height: 70px;
 
       --font-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -82,24 +81,25 @@
       overflow:hidden;
     }
 
-    /* Panels Head + Shop untereinander */
+    /* Panels Head + Shop + Foot untereinander */
     #panels{
-      height: 200%;
+      height: 300%;
       transform: translateY(0);
       transition: transform .35s ease;
       will-change: transform;
     }
 
-    /* Head / Shop: nur intern scrollen (scrollbar versteckt, aber aktiv) */
-    #head, #shop{
+    /* Head / Shop / Foot: nur intern scrollen (scrollbar versteckt, aber aktiv) */
+    #head, #shop, #foot{
       height: calc((var(--vh) * 100) - var(--title-height));
       overflow:auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
     }
-    #head, #shop{ scrollbar-width: none; }
+    #head, #shop, #foot{ scrollbar-width: none; }
     #head::-webkit-scrollbar,
-    #shop::-webkit-scrollbar{
+    #shop::-webkit-scrollbar,
+    #foot::-webkit-scrollbar{
       width:0;
       height:0;
     }
@@ -159,15 +159,16 @@
   <!-- 2) Titel -->
   <header id="title" class="slot" data-src="backend/titel.html"></header>
 
-  <!-- 3/4) Stage: Head + Shop (kein Page-Scroll) -->
+  <!-- 3/4/5) Stage: Head + Shop + Foot (kein Page-Scroll) -->
   <div id="stage">
     <div id="panels">
       <section id="head" class="slot" data-src="backend/head.html"></section>
       <main id="shop" class="slot" data-src="backend/shop.html"></main>
+      <footer id="foot" class="slot" data-src="backend/foot.html"></footer>
     </div>
   </div>
 
-  <!-- 5) Cart -->
+  <!-- 6) Cart -->
   <aside id="cart" class="slot" data-src="backend/cart.html"></aside>
 
   <script>
@@ -229,19 +230,21 @@
         update();
       }
 
-      function setupHeadShopScrollSwitch(){
+      function setupHeadShopFootScrollSwitch(){
         const head   = document.getElementById("head");
         const shop   = document.getElementById("shop");
+        const foot   = document.getElementById("foot");
         const panels = document.getElementById("panels");
-        if(!head || !shop || !panels) return;
+        if(!head || !shop || !foot || !panels) return;
 
         // WICHTIG:
-        // Wenn head.html oder shop.html intern eigene Scroll-Container haben, müssen wir DIE nehmen.
+        // Wenn head/shop/foot intern eigene Scroll-Container haben, müssen wir DIE nehmen.
         // Fallback ist jeweils der Container selbst.
         const getHeadScrollEl = () => head.querySelector(".team-scroll") || head;
         const getShopScrollEl = () => shop.querySelector(".shop-scroll") || shop;
+        const getFootScrollEl = () => foot.querySelector(".foot-scroll") || foot;
 
-        window.__view = "head";  // "head" | "shop"
+        window.__view = "head";  // "head" | "shop" | "foot"
         let locked = false;
 
         const cookieVisible = () => {
@@ -249,51 +252,56 @@
           return !!(ov && ov.classList.contains("is-visible"));
         };
 
-        const isScrollable = (el) => el.scrollHeight > el.clientHeight + 2;
         const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
         const atTop    = (el) => el.scrollTop <= 0;
 
-        const goShop = () => {
-          if(locked || window.__view === "shop") return;
+        const setView = (v) => {
+          if(locked || window.__view === v) return;
           locked = true;
-          window.__view = "shop";
-          panels.style.transform = "translateY(-50%)";
+          window.__view = v;
+
+          // 3 Panels => 0%, -33.333%, -66.666%
+          if(v === "head") panels.style.transform = "translateY(0)";
+          if(v === "shop") panels.style.transform = "translateY(-33.3333%)";
+          if(v === "foot") panels.style.transform = "translateY(-66.6666%)";
+
           window.__updateTitleShadow && window.__updateTitleShadow();
           setTimeout(()=> locked = false, 380);
         };
 
-        const goHead = () => {
-          if(locked || window.__view === "head") return;
-          locked = true;
-          window.__view = "head";
-          panels.style.transform = "translateY(0)";
-          window.__updateTitleShadow && window.__updateTitleShadow();
-          setTimeout(()=> locked = false, 380);
-        };
+        const goShop = () => setView("shop");
+        const goHead = () => setView("head");
+        const goFoot = () => setView("foot");
 
-        // Für Head/Shop-HTML: damit deine Impuls-Skripte (head/shop) wirklich wechseln können
+        // Für Head/Shop/Foot-HTML: damit deine Impuls-Skripte wirklich wechseln können
         window.goShop = goShop;
         window.goHead = goHead;
+        window.goFoot = goFoot;
 
         // Titel-Schatten an das gerade aktive Scroll-Element koppeln
-        setupTitleShadow(() => (window.__view === "shop" ? getShopScrollEl() : getHeadScrollEl()));
+        setupTitleShadow(() => {
+          if(window.__view === "shop") return getShopScrollEl();
+          if(window.__view === "foot") return getFootScrollEl();
+          return getHeadScrollEl();
+        });
 
-        // Scroll-Listener für Shadow (auf beiden Scroll-Elementen, falls intern)
+        // Scroll-Listener für Shadow (auf allen Scroll-Elementen, falls intern)
         const bindScrollShadow = () => {
           const hs = getHeadScrollEl();
           const ss = getShopScrollEl();
+          const fs = getFootScrollEl();
           if(hs) hs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
           if(ss) ss.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
+          if(fs) fs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
         };
 
         // Wheel-Impulse: auf den echten Scrollflächen!
         const bindWheel = () => {
           const hs = getHeadScrollEl();
           const ss = getShopScrollEl();
+          const fs = getFootScrollEl();
 
-          // (Falls neu geladen/umgebaut wird) doppelte Listener vermeiden: simpel durch Clone ersetzen
-          // -> wir machen hier keine Clone-Aktion, sondern verlassen uns darauf, dass bindWheel nur 1x läuft.
-
+          // Head -> Shop
           hs.addEventListener("wheel", (e) => {
             if(cookieVisible()) return;
             if(e.deltaY > 0 && atBottom(hs)){
@@ -302,11 +310,28 @@
             }
           }, { passive:false });
 
+          // Shop -> Foot / Shop -> Head
           ss.addEventListener("wheel", (e) => {
             if(cookieVisible()) return;
+
+            if(e.deltaY > 0 && atBottom(ss)){
+              e.preventDefault();
+              goFoot();
+              return;
+            }
+
             if(e.deltaY < 0 && atTop(ss)){
               e.preventDefault();
               goHead();
+            }
+          }, { passive:false });
+
+          // Foot -> Shop
+          fs.addEventListener("wheel", (e) => {
+            if(cookieVisible()) return;
+            if(e.deltaY < 0 && atTop(fs)){
+              e.preventDefault();
+              goShop();
             }
           }, { passive:false });
         };
@@ -320,17 +345,21 @@
 
           const hs = getHeadScrollEl();
           const ss = getShopScrollEl();
+          const fs = getFootScrollEl();
 
           if(window.__view === "head" && downKeys.includes(e.key) && atBottom(hs)){
             e.preventDefault(); goShop();
           }
-          if(window.__view === "shop" && upKeys.includes(e.key) && atTop(ss)){
-            e.preventDefault(); goHead();
+          if(window.__view === "shop"){
+            if(downKeys.includes(e.key) && atBottom(ss)){ e.preventDefault(); goFoot(); }
+            if(upKeys.includes(e.key) && atTop(ss)){ e.preventDefault(); goHead(); }
+          }
+          if(window.__view === "foot" && upKeys.includes(e.key) && atTop(fs)){
+            e.preventDefault(); goShop();
           }
         }, { passive:false });
 
         // Nach Laden (und auch nach Resize) sicherstellen, dass wir die richtigen Scroll-Elemente erwischen
-        // (weil head.html erst nachträglich injected wird).
         const lateBind = () => {
           bindScrollShadow();
           bindWheel();
@@ -349,7 +378,7 @@
         let accepted = false;
         try { accepted = localStorage.getItem(COOKIE_KEY) === "1"; } catch(e) {}
 
-        /* Titel / Head / Shop / Cart immer laden */
+        /* Titel / Head / Shop / Foot / Cart immer laden */
         const normalSlots = slots.filter(el => el.id !== "cookieOverlay");
         await Promise.all(normalSlots.map(el => loadInto(el, el.dataset.src)));
 
@@ -360,13 +389,13 @@
           await loadInto(overlay, overlay.dataset.src);
         }
 
-        setupHeadShopScrollSwitch();
+        setupHeadShopFootScrollSwitch();
       }
 
       boot().catch(err => console.error(err));
     })();
 
-    // Mobile Swipe-Support (Head/Shop wechseln per Wischgeste)
+    // Mobile Swipe-Support (Head/Shop/Foot wechseln per Wischgeste)
     (function(){
       let touchY0 = 0;
       let touchT0 = 0;
@@ -384,12 +413,16 @@
         return shop ? (shop.querySelector(".shop-scroll") || shop) : null;
       };
 
+      const getFootScrollEl = () => {
+        const foot = document.getElementById("foot");
+        return foot ? (foot.querySelector(".foot-scroll") || foot) : null;
+      };
+
       const cookieVisible = () => {
         const ov = document.getElementById("cookieOverlay");
         return !!(ov && ov.classList.contains("is-visible"));
       };
 
-      const isScrollable = (el) => !!el && (el.scrollHeight > el.clientHeight + 2);
       const atBottom = (el) => !!el && (el.scrollTop + el.clientHeight >= el.scrollHeight - 2);
       const atTop    = (el) => !!el && (el.scrollTop <= 0);
 
@@ -405,7 +438,8 @@
 
         const goShop = window.goShop;
         const goHead = window.goHead;
-        if(typeof goShop !== "function" || typeof goHead !== "function") return;
+        const goFoot = window.goFoot;
+        if(typeof goShop !== "function" || typeof goHead !== "function" || typeof goFoot !== "function") return;
 
         const dt = Date.now() - touchT0;
         if(dt > MAX_DT) return;
@@ -418,24 +452,23 @@
         const view   = window.__view || "head";
         const headEl = getHeadScrollEl();
         const shopEl = getShopScrollEl();
+        const footEl = getFootScrollEl();
 
-        // Swipe up -> Richtung "nach unten"/weiter
+        // Swipe up -> weiter (nach unten)
         if(dy < -THRESHOLD){
-          if(view === "head"){
-            if(!isScrollable(headEl) || atBottom(headEl)) goShop();
-          }
+          if(view === "head" && atBottom(headEl)) { goShop(); return; }
+          if(view === "shop" && atBottom(shopEl)) { goFoot(); return; }
           return;
         }
 
-        // Swipe down -> Richtung "nach oben"/zurück
+        // Swipe down -> zurück (nach oben)
         if(dy > THRESHOLD){
-          if(view === "shop"){
-            if(atTop(shopEl)) goHead();
-          }
+          if(view === "foot" && atTop(footEl)) { goShop(); return; }
+          if(view === "shop" && atTop(shopEl)) { goHead(); return; }
         }
       }, { passive:true });
 
     })();
-</script>
+  </script>
 </body>
 </html>
