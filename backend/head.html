@@ -392,6 +392,9 @@
     const gateZone   = document.getElementById("gateZone");
     const gateBtn    = document.getElementById("gateBtn");
 
+    // Safety: If the DOM nodes aren't present (e.g. injection timing / load failure), abort cleanly.
+    if (!bgEl || !trackEl || !tabsEl || !scrollEl) return;
+
     const mqMobile = window.matchMedia("(max-width: 980px)");
 
     let members = [];
