@@ -1,164 +1,497 @@
-<!-- backend/titel.html -->
+<!-- backend/foot.html | Kontakt (Head-Optik, Desktop: begrenzte Höhe wie Head) -->
+
+<section class="contact-foot" aria-label="Kontakt">
+  <div class="contact-foot__bg" id="contactBg" aria-hidden="true"></div>
+  <div class="contact-foot__veil" aria-hidden="true"></div>
+
+  <div class="contact-foot__stage" id="contactStage">
+    <div class="contact-panel" role="region" aria-label="Kontaktformular">
+      <h2 class="contact-title">Sie haben Fragen?</h2>
+      <p class="contact-sub">
+        Nutzen Sie gerne unser Kontaktfeld – wir melden uns zeitnah auf dem von Ihnen bevorzugten Weg.
+      </p>
+
+      <form id="contactForm" class="contact-form" autocomplete="on" novalidate>
+        <label class="field">
+          <span>Name</span>
+          <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
+        </label>
+
+        <div class="row">
+          <label class="field">
+            <span>E-Mail</span>
+            <input id="f_email" name="email" type="email" placeholder="name@mail.de" required />
+          </label>
+          <label class="field">
+            <span>Telefon</span>
+            <input id="f_phone" name="phone" type="tel" placeholder="+49 …" />
+          </label>
+        </div>
+
+        <div class="pref" role="group" aria-label="Bevorzugter Kontaktweg">
+          <div class="pref-label">Ich möchte per … kontaktiert werden</div>
+
+          <div class="pref-options">
+            <label class="pref-pill">
+              <input type="radio" name="preferenz" value="Telefon" />
+              <span>Telefon</span>
+            </label>
+
+            <label class="pref-pill">
+              <input type="radio" name="preferenz" value="E-Mail" checked />
+              <span>E-Mail</span>
+            </label>
+
+            <label class="pref-pill">
+              <input type="radio" name="preferenz" value="WhatsApp" />
+              <span>WhatsApp</span>
+            </label>
+          </div>
+        </div>
+
+        <label class="consent">
+          <input id="f_consent" type="checkbox" required />
+          <span>
+            Ich habe die <a href="/io/datenschutz">Datenschutzerklärung</a> gelesen und akzeptiere die
+            <a href="/io/agb">AGB</a>.
+          </span>
+        </label>
+
+        <div class="actions">
+          <button id="sendBtn" class="btn-primary" type="submit" disabled aria-disabled="true">
+            Anfrage senden
+          </button>
+          <span id="status" class="status" aria-live="polite"></span>
+        </div>
+      </form>
+    </div>
+
+    <!-- Unterer Streifen: Optik wie "Titel-Pill", ohne Logo, mit Button -->
+    <div class="contact-footerbar" aria-label="Fußzeile">
+      <a class="footer-pill" href="/io/impressum" role="button" aria-label="Impressum öffnen">
+        Impressum
+      </a>
+    </div>
+  </div>
+</section>
+
 <style>
   :root{
-    --title-height: 70px;
-    --title-shadow: 0 8px 24px rgba(0,0,0,.12);
+    --vh: 1vh;
+    --radius: 18px;
 
-    --title-pad-x: 72px;
-    --logo-pad-left: 32px;
-    --nav-pad-right: 32px;
+    /* Head-ähnlich (hell, clean) */
+    --panel-bg: rgba(255,255,255,0.84);
+    --panel-border: rgba(15,23,42,0.10);
+    --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
+
+    --text: #0f172a;
+    --muted: rgba(15,23,42,0.72);
+
+    --primary: #1f4fa3;
+    --primary-2: #2b66d8;
   }
 
-  .titlebar{
-    height: var(--title-height);
-    background:#fff;
+  .contact-foot, .contact-foot *{ box-sizing:border-box; }
+
+  .contact-foot{
+    position:relative;
+    width:100%;
+    height: calc(var(--vh) * 100);
+    min-height: calc(var(--vh) * 100);
+    overflow:hidden;
+    background:#d9dde3;
+  }
+
+  .contact-foot__bg{
+    position:absolute; inset:0;
+    background-size:cover;
+    background-position:center;
+    transform:scale(1.05);
+    filter:saturate(.98) contrast(.98);
+  }
+
+  .contact-foot__veil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
+      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 40%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.10) 100%);
+    backdrop-filter: blur(10px);
+  }
+
+  .contact-foot__stage{
+    position:relative;
+    z-index:1;
+    height: 100%;
+    width: 100%;
+    padding: 18px 24px;
     display:flex;
+    flex-direction:column;
     align-items:center;
-    justify-content:space-between;
-
-    padding: 0 var(--title-pad-x);
-
-    border-bottom: 1px solid rgba(0,0,0,.08);
-    box-shadow: none;
-
-    transition: box-shadow .2s ease, border-bottom-color .2s ease;
+    justify-content:center;
+    gap: 14px;
   }
 
-  /* nach Scroll (wird von index.html gesetzt) */
-  #title.is-scrolled .titlebar{
-    border-bottom-color: transparent;
-    box-shadow: var(--title-shadow);
+  .contact-panel{
+    width: min(820px, 100%);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px);
+    padding: 22px 22px 18px;
   }
 
-  .titlebar__left{
+  .contact-title{
+    margin:0 0 8px 0;
+    font-size: clamp(24px, 2.2vw, 40px);
+    line-height:1.05;
+    letter-spacing:-0.02em;
+    color: var(--text);
+  }
+
+  .contact-sub{
+    margin:0 0 16px 0;
+    color: var(--muted);
+    line-height:1.55;
+    font-size: 14.5px;
+  }
+
+  .contact-form{
     display:flex;
-    align-items:center;
-    padding-left: var(--logo-pad-left);
-    min-width: 0;
+    flex-direction:column;
+    gap: 12px;
   }
 
-  .titlebar__logo{
-    height: 42px;
-    width:auto;
-    display:block;
-  }
-
-  .titlebar__nav{
+  .field{
     display:flex;
-    align-items:center;
-    gap: 34px;
-    padding-right: var(--nav-pad-right);
-    white-space: nowrap;
+    flex-direction:column;
+    gap: 6px;
   }
 
-  /* Links wie Buttons: kein Unterstrich, kein Fokus-Rand/„Schreib-Strich“ */
-  .titlebar__link{
-    color:#5b6472;
-    text-decoration:none;
-    font-size:14px;
-    letter-spacing:.2px;
+  .field > span{
+    color: rgba(15,23,42,0.68);
+    font-size: 12.5px;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+  }
 
-    background:transparent;
-    border:0;
-    padding: 10px 0;
-    margin:0;
+  input[type="text"], input[type="email"], input[type="tel"]{
+    width:100%;
+    padding: 12px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(15,23,42,0.14);
+    background: rgba(255,255,255,0.72);
+    color: var(--text);
+    outline:none;
+    font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
 
+  input::placeholder{ color: rgba(15,23,42,0.40); }
+
+  input:focus{
+    border-color: rgba(31,79,163,0.30);
+    box-shadow: 0 0 0 4px rgba(31,79,163,0.12);
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .pref{
+    margin-top: 2px;
+    padding-top: 6px;
+  }
+
+  .pref-label{
+    color: rgba(15,23,42,0.68);
+    font-size: 12.5px;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+
+  .pref-options{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  /* Pill-Radios (ohne billige Kreise) */
+  .pref-pill{
+    display:inline-flex;
+    align-items:center;
+    border-radius: 999px;
+    border: 1px solid rgba(15,23,42,0.12);
+    background: rgba(255,255,255,0.62);
     cursor:pointer;
     user-select:none;
-    -webkit-tap-highlight-color: transparent;
-    outline: none;
+    transition: background .14s ease, border-color .14s ease, transform .14s ease;
+    padding: 10px 14px;
   }
-  .titlebar__link:hover{ color:#1f2933; }
-  .titlebar__link:focus,
-  .titlebar__link:focus-visible{
-    outline: none;
+
+  .pref-pill:hover{
+    background: rgba(255,255,255,0.78);
+    border-color: rgba(31,79,163,0.22);
+    transform: translateY(-1px);
+  }
+
+  .pref-pill input{
+    position:absolute;
+    opacity:0;
+    pointer-events:none;
+  }
+
+  .pref-pill span{
+    color: var(--text);
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    font-size: 13.5px;
+  }
+
+  .pref-pill:has(input:checked){
+    background: rgba(255,255,255,0.92);
+    border-color: rgba(15,23,42,0.20);
+  }
+
+  .consent{
+    display:flex;
+    gap: 10px;
+    align-items:flex-start;
+    padding-top: 2px;
+    color: rgba(15,23,42,0.72);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  .consent input{
+    margin-top: 3px;
+    accent-color: var(--primary);
+  }
+
+  .consent a{
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 760;
+  }
+  .consent a:hover{ text-decoration: underline; }
+
+  .actions{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+  }
+
+  .btn-primary{
+    border: 0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
+    color: white;
+    font-weight: 860;
+    letter-spacing: .2px;
+    box-shadow: 0 12px 26px rgba(31,79,163,0.22);
+    cursor: pointer;
+  }
+
+  /* Disabled: grau, aber KEIN "verboten"-Cursor */
+  .btn-primary:disabled{
+    background: rgba(15,23,42,0.18);
+    color: rgba(15,23,42,0.55);
+    box-shadow: none;
+    cursor: default;          /* <- kein roter Kreis */
+    opacity: 1;
+  }
+
+  .status{
+    font-size: 13px;
+    color: rgba(15,23,42,0.70);
+    font-weight: 650;
+  }
+
+  /* Footer "wie Titel-Pill" */
+  .contact-footerbar{
+    width: min(820px, 100%);
+    display:flex;
+    justify-content:flex-start;
+  }
+
+  .footer-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(15,23,42,0.12);
+    background: rgba(255,255,255,0.62);
+    color: var(--text);
     text-decoration:none;
+    font-weight: 760;
+    letter-spacing:-0.01em;
+    transition: background .14s ease, border-color .14s ease, transform .14s ease;
+  }
+  .footer-pill:hover{
+    background: rgba(255,255,255,0.78);
+    border-color: rgba(31,79,163,0.22);
+    transform: translateY(-1px);
   }
 
   /* Mobile */
-  @media (max-width:700px){
-    :root{
-      --title-pad-x: 12px;
-      --logo-pad-left: 10px;
-      --nav-pad-right: 10px;
-    }
-
-    .titlebar__logo{ height: 34px; }
-
-    .titlebar__nav{
-      gap: 14px;
-    }
-
-    .titlebar__link{
-      font-size: 13px;
-      padding: 10px 6px;
-      border-radius: 10px;
-    }
-    .titlebar__link:active{
-      background: rgba(0,0,0,.05);
-    }
+  @media (max-width: 720px){
+    .contact-foot__stage{ padding: 14px; justify-content:flex-start; }
+    .contact-panel{ padding: 18px 18px 16px; }
+    .row{ grid-template-columns: 1fr; }
+    .contact-footerbar{ justify-content:center; }
   }
 </style>
 
-<div class="titlebar" role="banner">
-  <div class="titlebar__left">
-    <img
-      src="image/Titelbild.png"
-      alt="Eventverleih"
-      class="titlebar__logo"
-    >
-  </div>
-
-  <nav class="titlebar__nav" aria-label="Hauptnavigation">
-    <!-- Shop triggert den Down-Impuls (Head -> Shop) -->
-    <button class="titlebar__link" type="button" data-action="shop">Shop</button>
-
-    <!-- Domain-unabhängig: wird per JS auf korrektes /kontakt/ /impressum/ gesetzt -->
-    <a class="titlebar__link" data-page="kontakt" href="#">Kontakt</a>
-    <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
-  </nav>
-</div>
+<script>
+  // --vh Fix wie Head
+  (function(){
+    function setVH(){
+      const h = (window.visualViewport && window.visualViewport.height)
+        ? window.visualViewport.height
+        : window.innerHeight;
+      document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
+    }
+    setVH();
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+    if (window.visualViewport){
+      window.visualViewport.addEventListener('resize', setVH);
+      window.visualViewport.addEventListener('scroll', setVH);
+    }
+  })();
+</script>
 
 <script>
-(function(){
-  function basePath(){
-    // GitHub Pages Projektseite: https://<user>.github.io/<repo>/
-    // Eigene Domain: https://goetze-eventverleih.de/
-    const host = (location.hostname || "").toLowerCase();
-    if (host.endsWith("github.io")) {
-      // Repo-Name automatisch aus erstem Pfadsegment
-      const seg = (location.pathname || "/").split("/").filter(Boolean)[0];
-      return seg ? ("/" + seg) : "";
-    }
-    return "";
-  }
+  (function(){
+    const FLOW_URL = "https://default91b0e232846941aab7d1176f14ecb7.8c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d6aba3378db4ea1bd72aeddae7b9c3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC1H-XcsNqqsISufNQcfHdXRdkwmgELEKJ8ZDB0lvYg";
+    const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
 
-  function setNavLinks(){
-    const base = basePath();
-    document.querySelectorAll("[data-page]").forEach(a => {
-      const page = a.getAttribute("data-page");
-      a.setAttribute("href", base + "/" + page + "/");
+    const bgEl = document.getElementById("contactBg");
+
+    async function fetchJson(url){
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error("Fetch failed: " + url);
+      return await r.json();
+    }
+
+    function setRandomBackground(list){
+      if (!Array.isArray(list) || list.length === 0) return;
+      const pick = list[Math.floor(Math.random() * list.length)];
+      bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
+    }
+
+    (async function(){
+      try{
+        const bg = await fetchJson(BG_MANIFEST_URL);
+        setRandomBackground(bg);
+      }catch(e){}
+    })();
+
+    // Items_Anfrage (JSON im JSON) - extern setzbar
+    let itemsAnfrage = null;
+    window.setItemsAnfrage = function(obj){
+      itemsAnfrage = (obj === undefined) ? null : obj;
+    };
+
+    const form = document.getElementById("contactForm");
+    const statusEl = document.getElementById("status");
+    const sendBtn = document.getElementById("sendBtn");
+
+    const elName = document.getElementById("f_name");
+    const elMail = document.getElementById("f_email");
+    const elPhone = document.getElementById("f_phone");
+    const elConsent = document.getElementById("f_consent");
+
+    function setStatus(msg){ statusEl.textContent = msg || ""; }
+
+    function getPreferenz(){
+      const el = form.querySelector('input[name="preferenz"]:checked');
+      return el ? el.value : "E-Mail";
+    }
+
+    function canSend(){
+      const nameOk = elName.value.trim().length > 0;
+      const mailOk = elMail.value.trim().length > 0; // Mail-Format übernimmt Browser beim submit
+      const consentOk = elConsent.checked === true;
+      return nameOk && mailOk && consentOk;
+    }
+
+    function updateButton(){
+      const ok = canSend();
+      sendBtn.disabled = !ok;
+      sendBtn.setAttribute("aria-disabled", String(!ok));
+    }
+
+    ["input","change","blur"].forEach(ev => {
+      elName.addEventListener(ev, updateButton);
+      elMail.addEventListener(ev, updateButton);
+      elPhone.addEventListener(ev, updateButton);
+      elConsent.addEventListener(ev, updateButton);
+      form.querySelectorAll('input[name="preferenz"]').forEach(r => r.addEventListener(ev, updateButton));
     });
-  }
 
-  function goShop(){
-    // Nutzt die globale Funktion aus index.html (Head/Shop Switch)
-    if (typeof window.goShop === "function") {
-      window.goShop();
-      return;
-    }
-    // Fallback: nichts tun (weil Page-Scroll in index ja disabled ist)
-  }
+    updateButton();
 
-  document.addEventListener("click", function(e){
-    const shopBtn = e.target.closest('[data-action="shop"]');
-    if (shopBtn){
-      e.preventDefault();
-      goShop();
-      return;
-    }
-  });
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      setStatus("");
 
-  setNavLinks();
-})();
+      if(!canSend()){
+        updateButton();
+        setStatus("Bitte Name, E-Mail sowie Datenschutz & AGB bestätigen.");
+        return;
+      }
+
+      const payload = {
+        Name: elName.value.trim(),
+        Email: elMail.value.trim(),
+        Telefon: elPhone.value.trim() || "",
+        Preferenz: getPreferenz(),
+        Zustimmung: true,
+        Items_Anfrage: itemsAnfrage ?? null,
+        Quelle: "foot",
+        Timestamp: new Date().toISOString()
+      };
+
+      try{
+        sendBtn.disabled = true;
+        sendBtn.setAttribute("aria-disabled", "true");
+        setStatus("Sende …");
+
+        const r = await fetch(FLOW_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if(!r.ok){
+          const t = await r.text().catch(()=> "");
+          setStatus("Fehler beim Senden." + (t ? " " + t.slice(0,120) : ""));
+          updateButton();
+          return;
+        }
+
+        setStatus("Gesendet.");
+        form.reset();
+
+        // Radio wieder auf E-Mail
+        const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
+        if (emailRadio) emailRadio.checked = true;
+
+        itemsAnfrage = null;
+        updateButton();
+
+      }catch(err){
+        setStatus("Fehler beim Senden. Bitte später erneut versuchen.");
+        updateButton();
+      }
+    });
+  })();
 </script>
