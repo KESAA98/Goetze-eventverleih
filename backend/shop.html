@@ -1,16 +1,122 @@
-<!-- backend/shop.html | Stage-Platzhalter (interner Scroll) -->
+<!-- backend/shop.html | Fake-Shop (interner Scroll) -->
 <section class="shop" aria-label="Shop">
   <div class="shop-scroll" id="shopScroll" aria-label="Shop Inhalt">
     <div class="shop-inner">
-      <div class="panel">
-        <h2 class="h">Shop (Platzhalter)</h2>
-        <p class="p">Hier kommen später die Items rein.
-Aktuell ist das nur ein Scroll-Bereich, damit der Auto-Wechsel (oben/unten) sauber funktioniert.</p>
 
-        <button class="btn" type="button" onclick="if(window.goHead){ window.goHead(); }">↑ Zurück zum Team</button>
+      <!-- Top Panel / Navigation -->
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="h">Shop</h2>
+            <p class="p">Platzhalter-Artikel (Deko) – ohne Backend.</p>
+          </div>
+
+          <div class="shop-nav">
+            <button class="btn" type="button" onclick="if(window.goHead){ window.goHead(); }">↑ Team</button>
+            <button class="btn" type="button" onclick="if(window.goFoot){ window.goFoot(); }">↓ Kontakt</button>
+          </div>
+        </div>
       </div>
 
-      <div class="spacer" aria-hidden="true"></div>
+      <!-- Fake Items -->
+      <div class="grid" aria-label="Artikelübersicht">
+        <!-- 1 -->
+        <article class="card">
+          <div class="img ph-1" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3 class="t">Bierzeltgarnitur (Set)</h3>
+              <div class="price">15 € / Tag</div>
+            </div>
+            <p class="d">Tisch + 2 Bänke, stabil & schnell aufgebaut.</p>
+            <button class="cta" type="button" onclick="alert('Platzhalter – später Anfrage/ Warenkorb')">Anfragen</button>
+          </div>
+        </article>
+
+        <!-- 2 -->
+        <article class="card">
+          <div class="img ph-2" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3 class="t">Pavillon 3×3 m</h3>
+              <div class="price">25 € / Tag</div>
+            </div>
+            <p class="d">Wetterfest, ideal für Gartenparty oder Empfang.</p>
+            <button class="cta" type="button" onclick="alert('Platzhalter – später Anfrage/ Warenkorb')">Anfragen</button>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="card">
+          <div class="img ph-3" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3 class="t">Stehtisch inkl. Husse</h3>
+              <div class="price">10 € / Tag</div>
+            </div>
+            <p class="d">Schick für Sektempfang, Party oder Messe.</p>
+            <button class="cta" type="button" onclick="alert('Platzhalter – später Anfrage/ Warenkorb')">Anfragen</button>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="card">
+          <div class="img ph-4" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3 class="t">Lichterkette (10 m)</h3>
+              <div class="price">6 € / Tag</div>
+            </div>
+            <p class="d">Warmweiß, perfekte Stimmung für Abend-Events.</p>
+            <button class="cta" type="button" onclick="alert('Platzhalter – später Anfrage/ Warenkorb')">Anfragen</button>
+          </div>
+        </article>
+
+        <!-- 5 -->
+        <article class="card">
+          <div class="img ph-5" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3 class="t">Kühlbox XXL</h3>
+              <div class="price">12 € / Tag</div>
+            </div>
+            <p class="d">Viel Platz für Getränke – praktisch & mobil.</p>
+            <button class="cta" type="button" onclick="alert('Platzhalter – später Anfrage/ Warenkorb')">Anfragen</button>
+          </div>
+        </article>
+
+        <!-- 6 -->
+        <article class="card">
+          <div class="img ph-6" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="card-top">
+              <h3 class="t">Candybar-Gläser Set</h3>
+              <div class="price">18 € / Tag</div>
+            </div>
+            <p class="d">Deko-Set für Süßigkeiten – wirkt sofort „wow“.</p>
+            <button class="cta" type="button" onclick="alert('Platzhalter – später Anfrage/ Warenkorb')">Anfragen</button>
+          </div>
+        </article>
+      </div>
+
+      <!-- Bottom helper area (damit sicher „unten“ erreicht wird) -->
+      <div class="bottom-panel">
+        <div class="panel panel--soft">
+          <div class="panel-head">
+            <div>
+              <h3 class="h2">Noch Fragen?</h3>
+              <p class="p">Scroll weiter runter oder nutze den Button – dann kommst du zur Kontakt-Seite.</p>
+            </div>
+
+            <div class="shop-nav">
+              <button class="btn" type="button" onclick="if(window.goFoot){ window.goFoot(); }">↓ Kontakt</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="spacer" aria-hidden="true"></div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -41,35 +147,64 @@ Aktuell ist das nur ein Scroll-Bereich, damit der Auto-Wechsel (oben/unten) saub
     overflow-x:hidden;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    padding: 18px 24px;
+    padding: 18px 24px 22px;
   }
   .shop-scroll{ scrollbar-width:none; }
   .shop-scroll::-webkit-scrollbar{ width:0; height:0; }
 
-  .shop-inner{ min-height: 120%; } /* damit sicher gescrollt werden kann */
+  .shop-inner{
+    min-height: 120%;
+  }
 
   .panel{
     background: var(--panel);
     border-radius: var(--radius);
     box-shadow: var(--shadow-soft);
-    padding: 22px;
-    max-width: 920px;
+    padding: 18px;
+    max-width: 980px;
+  }
+
+  .panel--soft{
+    box-shadow: none;
+    border: 1px solid rgba(15,23,42,.10);
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
   }
 
   .h{
-    margin:0 0 8px 0;
+    margin:0 0 6px 0;
     font-size: clamp(22px, 2.2vw, 30px);
     line-height:1.1;
     letter-spacing:.2px;
     color: var(--text);
   }
 
+  .h2{
+    margin:0 0 6px 0;
+    font-size: 18px;
+    line-height:1.2;
+    color: var(--text);
+  }
+
   .p{
-    margin:0 0 14px 0;
+    margin:0;
     color: var(--muted);
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.55;
-    white-space: pre-wrap;
+    white-space: normal;
+  }
+
+  .shop-nav{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content:flex-end;
+    align-items:center;
   }
 
   .btn{
@@ -86,10 +221,105 @@ Aktuell ist das nur ein Scroll-Bereich, damit der Auto-Wechsel (oben/unten) saub
   }
   .btn:active{ transform: scale(.99); }
 
-  .spacer{ height: 120vh; }
+  .grid{
+    margin-top: 14px;
+    max-width: 980px;
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .card{
+    background: rgba(255,255,255,.88);
+    border: 1px solid rgba(15,23,42,.10);
+    border-radius: 16px;
+    overflow:hidden;
+    box-shadow: 0 10px 26px rgba(0,0,0,.10);
+    display:flex;
+    flex-direction:column;
+    min-height: 260px;
+  }
+
+  .img{
+    height: 120px;
+    background: #d9dde3;
+  }
+  .ph-1{ background: linear-gradient(135deg, rgba(31,79,163,.22), rgba(255,255,255,.0)); }
+  .ph-2{ background: linear-gradient(135deg, rgba(16,185,129,.22), rgba(255,255,255,.0)); }
+  .ph-3{ background: linear-gradient(135deg, rgba(245,158,11,.22), rgba(255,255,255,.0)); }
+  .ph-4{ background: linear-gradient(135deg, rgba(168,85,247,.22), rgba(255,255,255,.0)); }
+  .ph-5{ background: linear-gradient(135deg, rgba(239,68,68,.22), rgba(255,255,255,.0)); }
+  .ph-6{ background: linear-gradient(135deg, rgba(14,165,233,.22), rgba(255,255,255,.0)); }
+
+  .card-body{
+    padding: 12px 12px 12px;
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+    flex:1;
+  }
+
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+  }
+
+  .t{
+    margin:0;
+    font-size: 15px;
+    line-height: 1.2;
+    color: var(--text);
+  }
+
+  .price{
+    font-size: 13px;
+    color: rgba(15,23,42,.75);
+    white-space: nowrap;
+    border: 1px solid rgba(15,23,42,.12);
+    background: rgba(255,255,255,.60);
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+
+  .d{
+    margin:0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .cta{
+    margin-top:auto;
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(15,23,42,.14);
+    background: rgba(255,255,255,.75);
+    cursor:pointer;
+    color: var(--text);
+    font-weight: 600;
+  }
+  .cta:active{ transform: scale(.99); }
+
+  .bottom-panel{
+    max-width: 980px;
+    margin-top: 14px;
+  }
+
+  .spacer{ height: 60vh; }
 
   @media (max-width: 980px){
     .shop-scroll{ padding: 14px 14px 18px; }
     .panel{ padding: 16px; border-radius: 16px; }
+    .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 560px){
+    .panel-head{ flex-direction: column; align-items: stretch; }
+    .shop-nav{ justify-content:flex-start; }
+    .grid{ grid-template-columns: 1fr; }
+    .img{ height: 110px; }
   }
 </style>
