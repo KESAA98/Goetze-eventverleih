@@ -1,12 +1,12 @@
-<!-- backend/foot.html  (Kontakt + Footer-Leiste wie titel.html) -->
+<!-- backend/foot.html  (Kontakt + Footer-Leiste wie Titel, korrekt: keine Extra-Scrollbars + Links ohne /io/) -->
 
-<div class="foot-scroll" id="footScroll">
+<div class="foot-wrap" id="footWrap">
   <!-- Hintergrund wie Head -->
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
 
-  <!-- Inhalt -->
-  <div class="foot-stage">
+  <!-- Inhalt (nimmt exakt den Platz oberhalb der Footer-Leiste ein) -->
+  <div class="foot-stage" id="footStage">
     <div class="contact-panel" role="region" aria-label="Kontaktformular">
       <h2 class="contact-title">Sie haben Fragen?</h2>
       <p class="contact-sub">
@@ -54,8 +54,8 @@
         <label class="consent">
           <input id="f_consent" type="checkbox" required />
           <span>
-            Ich habe die <a data-page="io_datenschutz" href="#">Datenschutzerklärung</a> gelesen und akzeptiere die
-            <a data-page="io_agb" href="#">AGB</a>.
+            Ich habe die <a data-page="datenschutz" href="#">Datenschutzerklärung</a> gelesen und akzeptiere die
+            <a data-page="agb" href="#">AGB</a>.
           </span>
         </label>
 
@@ -69,11 +69,11 @@
     </div>
   </div>
 
-  <!-- Footer-Leiste: exakt Titel-Optik (weiß + dünner grauer Strich) – ohne Logo, nur Impressum-Link -->
+  <!-- Footer-Leiste: exakt Titel-Optik (weiß + dünner grauer Strich), ganz unten fix im Foot -->
   <div class="titlebar titlebar--foot" role="contentinfo" aria-label="Fußzeile">
     <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
     <nav class="titlebar__nav" aria-label="Fußnavigation">
-      <a class="titlebar__link" data-page="io_impressum" href="#">Impressum</a>
+      <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
     </nav>
   </div>
 </div>
@@ -99,23 +99,16 @@
     --primary-2:#2b66d8;
   }
 
-  /* ===== Scroll-Container für index.html (wichtig!) ===== */
-  .foot-scroll{
+  /* ===== Wichtig: KEIN eigener Scroll im Foot (Desktop) -> verhindert die Extra-Scrollbar ===== */
+  .foot-wrap{
     position:relative;
     height: 100%;
     width: 100%;
-    overflow:auto;
-    overflow-x:hidden;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-
-    /* Platz für die Footer-Leiste (wie Titelhöhe) */
-    padding-bottom: var(--title-height);
+    overflow: hidden; /* <- verhindert die zweite Scrollbar */
+    background:#d9dde3;
   }
-  .foot-scroll{ scrollbar-width:none; }
-  .foot-scroll::-webkit-scrollbar{ width:0; height:0; }
 
-  /* ===== Hintergrund wie Head ===== */
+  /* Hintergrund wie Head */
   .foot-bg{
     position:absolute; inset:0;
     background-size:cover;
@@ -134,11 +127,11 @@
     z-index:0;
   }
 
-  /* ===== Bühne (zentriert) ===== */
+  /* Inhalt nimmt EXAKT den Bereich über der Footer-Leiste ein */
   .foot-stage{
     position:relative;
     z-index:1;
-    min-height: 100%;
+    height: calc(100% - var(--title-height));
     display:flex;
     align-items:center;
     justify-content:center;
@@ -171,11 +164,7 @@
     font-size: 14.5px;
   }
 
-  .contact-form{
-    display:flex;
-    flex-direction:column;
-    gap: 12px;
-  }
+  .contact-form{ display:flex; flex-direction:column; gap: 12px; }
 
   .field{ display:flex; flex-direction:column; gap: 6px; }
   .field > span{
@@ -201,11 +190,7 @@
     box-shadow: 0 0 0 4px rgba(31,79,163,0.12);
   }
 
-  .row{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+  .row{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
   .pref{ margin-top: 2px; padding-top: 6px; }
   .pref-label{
@@ -217,7 +202,7 @@
   }
   .pref-options{ display:flex; gap: 10px; flex-wrap: wrap; }
 
-  /* Pills wie Head-Tabs (clean) */
+  /* Pills wie Head-Tabs */
   .pref-pill{
     position:relative;
     display:inline-flex;
@@ -236,11 +221,7 @@
     border-color: rgba(31,79,163,0.22);
     transform: translateY(-1px);
   }
-  .pref-pill input{
-    position:absolute;
-    opacity:0;
-    pointer-events:none;
-  }
+  .pref-pill input{ position:absolute; opacity:0; pointer-events:none; }
   .pref-pill span{
     color: var(--text);
     font-weight: 760;
@@ -308,25 +289,17 @@
     font-weight: 650;
   }
 
-  /* ===== Titel-Optik (1:1 aus titel.html) ===== */
+  /* ===== Titel-Optik (weiß + dünner grauer Strich) ===== */
   .titlebar{
     height: var(--title-height);
     background:#fff;
     display:flex;
     align-items:center;
     justify-content:space-between;
-
     padding: 0 var(--title-pad-x);
-
     border-bottom: 1px solid rgba(0,0,0,.08);
     box-shadow: none;
-
     transition: box-shadow .2s ease, border-bottom-color .2s ease;
-  }
-  /* nach Scroll (wird von index.html gesetzt) */
-  #title.is-scrolled .titlebar{
-    border-bottom-color: transparent;
-    box-shadow: var(--title-shadow);
   }
 
   .titlebar__left{
@@ -347,61 +320,50 @@
     text-decoration:none;
     font-size:14px;
     letter-spacing:.2px;
-
     background:transparent;
     border:0;
     padding: 10px 0;
     margin:0;
-
     cursor:pointer;
     user-select:none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
   }
   .titlebar__link:hover{ color:#1f2933; }
-  .titlebar__link:focus,
-  .titlebar__link:focus-visible{
-    outline: none;
-    text-decoration:none;
-  }
 
-  /* ===== Footer-Leiste unten: gleiche Optik, aber als Bottom-Bar ===== */
+  /* Footer: wirklich ganz unten im Foot */
   .titlebar--foot{
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
     z-index: 5;
 
-    /* beim Footer brauchen wir den grauen Strich oben, nicht unten */
+    /* beim Footer grauer Strich oben */
     border-bottom: 0;
     border-top: 1px solid rgba(0,0,0,.08);
   }
 
   .titlebar__left--empty{
-    padding-left: 0; /* kein Logo-Abstand */
-    width: 1px;      /* hält Layout stabil */
+    padding-left: 0;
+    width: 1px;
   }
 
-  /* Mobile */
+  /* Mobile: wenn Inhalt doch höher wird -> dann darf gescrollt werden */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
     }
-    .titlebar__nav{ gap: 14px; }
-    .titlebar__link{
-      font-size: 13px;
-      padding: 10px 6px;
-      border-radius: 10px;
-    }
-    .titlebar__link:active{
-      background: rgba(0,0,0,.05);
-    }
     .row{ grid-template-columns: 1fr; }
-    .foot-stage{ padding: 14px; align-items:flex-start; }
+    .foot-wrap{ overflow:auto; } /* mobile darf scrollen */
+    .foot-stage{ height:auto; min-height: calc(100% - var(--title-height)); align-items:flex-start; padding: 14px; }
     .contact-panel{ padding: 18px 18px 16px; }
+    .titlebar__nav{ gap: 14px; }
+    .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
+    .titlebar__link:active{ background: rgba(0,0,0,.05); }
+    .titlebar--foot{ position: sticky; } /* damit der Footer beim Scroll sichtbar bleibt */
   }
 </style>
 
@@ -411,7 +373,6 @@
   const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
 
   const bgEl = document.getElementById("footBg");
-  const scrollEl = document.getElementById("footScroll");
 
   // Items_Anfrage (JSON im JSON) - extern setzbar
   let itemsAnfrage = null;
@@ -430,12 +391,10 @@
 
   function setLinks(){
     const base = basePath();
-
-    // domain-unabhängig genau wie gewünscht: /io/...
     const map = {
-      "io_impressum":  base + "/io/impressum",
-      "io_datenschutz":base + "/io/datenschutz",
-      "io_agb":        base + "/io/agb"
+      "impressum":  base + "/impressum",
+      "datenschutz":base + "/datenschutz",
+      "agb":        base + "/agb"
     };
 
     document.querySelectorAll("[data-page]").forEach(a => {
@@ -475,7 +434,6 @@
   const elConsent = document.getElementById("f_consent");
 
   function setStatus(msg){ statusEl.textContent = msg || ""; }
-
   function getPreferenz(){
     const el = form.querySelector('input[name="preferenz"]:checked');
     return el ? el.value : "E-Mail";
@@ -501,7 +459,6 @@
     elConsent.addEventListener(ev, updateButton);
     form.querySelectorAll('input[name="preferenz"]').forEach(r => r.addEventListener(ev, updateButton));
   });
-
   updateButton();
 
   form.addEventListener("submit", async (ev) => {
@@ -552,9 +509,6 @@
 
       itemsAnfrage = null;
       updateButton();
-
-      // optional: zurück nach oben im Foot
-      if(scrollEl) scrollEl.scrollTo({ top: 0, behavior: "smooth" });
 
     }catch(err){
       setStatus("Fehler beim Senden. Bitte später erneut versuchen.");
