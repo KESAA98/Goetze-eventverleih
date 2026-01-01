@@ -1,11 +1,11 @@
-<!-- backend/foot.html  (Kontakt + Footer-Leiste wie Titel, korrekt: keine Extra-Scrollbars + Links ohne /io/) -->
+<!-- backend/foot.html  (Kontakt + Footer-Leiste wie Titel, ohne Extra-Scrollbars, Links korrekt, Submit funktioniert) -->
 
 <div class="foot-wrap" id="footWrap">
   <!-- Hintergrund wie Head -->
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
 
-  <!-- Inhalt (nimmt exakt den Platz oberhalb der Footer-Leiste ein) -->
+  <!-- Inhalt -->
   <div class="foot-stage" id="footStage">
     <div class="contact-panel" role="region" aria-label="Kontaktformular">
       <h2 class="contact-title">Sie haben Fragen?</h2>
@@ -13,7 +13,7 @@
         Nutzen Sie gerne unser Kontaktfeld – wir melden uns zeitnah auf dem von Ihnen bevorzugten Weg.
       </p>
 
-      <form id="contactForm" class="contact-form" autocomplete="on" novalidate>
+      <form id="contactForm" class="contact-form" autocomplete="on">
         <label class="field">
           <span>Name</span>
           <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
@@ -59,17 +59,18 @@
           </span>
         </label>
 
+        <!-- optional für Flow-Kompatibilität -->
+        <input id="f_msg" type="hidden" value="" />
+
         <div class="actions">
-          <button id="sendBtn" class="btn-primary" type="submit" disabled aria-disabled="true">
-            Anfrage senden
-          </button>
+          <button id="sendBtn" class="btn-primary" type="submit">Anfrage senden</button>
           <span id="status" class="status" aria-live="polite"></span>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Footer-Leiste: exakt Titel-Optik (weiß + dünner grauer Strich), ganz unten fix im Foot -->
+  <!-- Footer-Leiste: exakt Titel-Optik (weiß + dünner grauer Strich), sitzt IMMER ganz unten -->
   <div class="titlebar titlebar--foot" role="contentinfo" aria-label="Fußzeile">
     <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
     <nav class="titlebar__nav" aria-label="Fußnavigation">
@@ -99,16 +100,18 @@
     --primary-2:#2b66d8;
   }
 
-  /* ===== Wichtig: KEIN eigener Scroll im Foot (Desktop) -> verhindert die Extra-Scrollbar ===== */
+  /* ===== Layout: KEIN eigener Scroll im Desktop, Footer immer unten ===== */
   .foot-wrap{
     position:relative;
     height: 100%;
     width: 100%;
-    overflow: hidden; /* <- verhindert die zweite Scrollbar */
+    overflow: hidden;
     background:#d9dde3;
+
+    display:flex;
+    flex-direction:column;
   }
 
-  /* Hintergrund wie Head */
   .foot-bg{
     position:absolute; inset:0;
     background-size:cover;
@@ -127,11 +130,11 @@
     z-index:0;
   }
 
-  /* Inhalt nimmt EXAKT den Bereich über der Footer-Leiste ein */
   .foot-stage{
     position:relative;
     z-index:1;
-    height: calc(100% - var(--title-height));
+    flex: 1 1 auto;            /* nimmt exakt den Platz über dem Footer ein */
+    min-height: 0;             /* wichtig: verhindert Flex-Overflow/Scrollbars */
     display:flex;
     align-items:center;
     justify-content:center;
@@ -156,7 +159,6 @@
     letter-spacing:-0.02em;
     color: var(--text);
   }
-
   .contact-sub{
     margin:0 0 16px 0;
     color: var(--muted);
@@ -202,7 +204,6 @@
   }
   .pref-options{ display:flex; gap: 10px; flex-wrap: wrap; }
 
-  /* Pills wie Head-Tabs */
   .pref-pill{
     position:relative;
     display:inline-flex;
@@ -273,15 +274,21 @@
     cursor: pointer;
   }
 
-  /* disabled: grau + cursor NIE gesperrt */
-  .btn-primary:disabled{
+  /* "Grau bis gültig" OHNE disabled-Attribut -> kein gesperrter Cursor */
+  .contact-form:has(#f_name:invalid),
+  .contact-form:has(#f_email:invalid),
+  .contact-form:has(#f_consent:not(:checked)){
+    --btn-muted: 1;
+  }
+  .contact-form:has(#f_name:invalid) .btn-primary,
+  .contact-form:has(#f_email:invalid) .btn-primary,
+  .contact-form:has(#f_consent:not(:checked)) .btn-primary{
     background: rgba(15,23,42,0.18);
     color: rgba(15,23,42,0.55);
-    box-shadow: none;
-    opacity: 1;
-    cursor: default !important;
+    box-shadow:none;
+    pointer-events:none;      /* wirkt wie disabled */
+    cursor: default;          /* aber nicht "gesperrt" */
   }
-  .btn-primary:disabled *{ cursor: default !important; }
 
   .status{
     font-size: 13px;
@@ -289,7 +296,7 @@
     font-weight: 650;
   }
 
-  /* ===== Titel-Optik (weiß + dünner grauer Strich) ===== */
+  /* ===== Titel-Optik ===== */
   .titlebar{
     height: var(--title-height);
     background:#fff;
@@ -299,7 +306,6 @@
     padding: 0 var(--title-pad-x);
     border-bottom: 1px solid rgba(0,0,0,.08);
     box-shadow: none;
-    transition: box-shadow .2s ease, border-bottom-color .2s ease;
   }
 
   .titlebar__left{
@@ -331,25 +337,21 @@
   }
   .titlebar__link:hover{ color:#1f2933; }
 
-  /* Footer: wirklich ganz unten im Foot */
   .titlebar--foot{
-    position:absolute;
-    bottom:0;
-    left:0;
-    right:0;
+    position:relative;
     z-index: 5;
-
-    /* beim Footer grauer Strich oben */
+    flex: 0 0 var(--title-height);
     border-bottom: 0;
     border-top: 1px solid rgba(0,0,0,.08);
   }
 
+  /* links ohne Logo: keine extra Einrückung, aber gleiche Außen-Paddings wie oben */
   .titlebar__left--empty{
     padding-left: 0;
     width: 1px;
   }
 
-  /* Mobile: wenn Inhalt doch höher wird -> dann darf gescrollt werden */
+  /* Mobile: darf scrollen, Footer bleibt sichtbar */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
@@ -357,13 +359,15 @@
       --nav-pad-right: 10px;
     }
     .row{ grid-template-columns: 1fr; }
-    .foot-wrap{ overflow:auto; } /* mobile darf scrollen */
-    .foot-stage{ height:auto; min-height: calc(100% - var(--title-height)); align-items:flex-start; padding: 14px; }
-    .contact-panel{ padding: 18px 18px 16px; }
+    .foot-wrap{ overflow:auto; }
+    .foot-stage{ align-items:flex-start; }
+    .titlebar--foot{
+      position: sticky;
+      bottom: 0;
+    }
     .titlebar__nav{ gap: 14px; }
     .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
     .titlebar__link:active{ background: rgba(0,0,0,.05); }
-    .titlebar--foot{ position: sticky; } /* damit der Footer beim Scroll sichtbar bleibt */
   }
 </style>
 
@@ -396,7 +400,6 @@
       "datenschutz":base + "/datenschutz",
       "agb":        base + "/agb"
     };
-
     document.querySelectorAll("[data-page]").forEach(a => {
       const key = a.getAttribute("data-page");
       if (map[key]) a.setAttribute("href", map[key]);
@@ -426,65 +429,37 @@
 
   const form = document.getElementById("contactForm");
   const statusEl = document.getElementById("status");
-  const sendBtn = document.getElementById("sendBtn");
-
-  const elName = document.getElementById("f_name");
-  const elMail = document.getElementById("f_email");
-  const elPhone = document.getElementById("f_phone");
-  const elConsent = document.getElementById("f_consent");
 
   function setStatus(msg){ statusEl.textContent = msg || ""; }
+
   function getPreferenz(){
     const el = form.querySelector('input[name="preferenz"]:checked');
     return el ? el.value : "E-Mail";
   }
 
-  function canSend(){
-    const nameOk = elName.value.trim().length > 0;
-    const mailOk = elMail.value.trim().length > 0;
-    const consentOk = elConsent.checked === true;
-    return nameOk && mailOk && consentOk;
-  }
-
-  function updateButton(){
-    const ok = canSend();
-    sendBtn.disabled = !ok;
-    sendBtn.setAttribute("aria-disabled", String(!ok));
-  }
-
-  ["input","change","blur"].forEach(ev => {
-    elName.addEventListener(ev, updateButton);
-    elMail.addEventListener(ev, updateButton);
-    elPhone.addEventListener(ev, updateButton);
-    elConsent.addEventListener(ev, updateButton);
-    form.querySelectorAll('input[name="preferenz"]').forEach(r => r.addEventListener(ev, updateButton));
-  });
-  updateButton();
-
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
     setStatus("");
 
-    if(!canSend()){
-      updateButton();
-      setStatus("Bitte Name, E-Mail sowie Datenschutz & AGB bestätigen.");
+    // Browser-Validation (required + email-format + checkbox)
+    if (!form.checkValidity()){
+      form.reportValidity();
       return;
     }
 
     const payload = {
-      Name: elName.value.trim(),
-      Email: elMail.value.trim(),
-      Telefon: elPhone.value.trim() || "",
+      Name: document.getElementById("f_name").value.trim(),
+      Email: document.getElementById("f_email").value.trim(),
+      Telefon: document.getElementById("f_phone").value.trim() || "",
       Preferenz: getPreferenz(),
       Zustimmung: true,
+      Nachricht: document.getElementById("f_msg").value || "",
       Items_Anfrage: itemsAnfrage ?? null,
       Quelle: "foot",
       Timestamp: new Date().toISOString()
     };
 
     try{
-      sendBtn.disabled = true;
-      sendBtn.setAttribute("aria-disabled","true");
       setStatus("Sende …");
 
       const r = await fetch(FLOW_URL, {
@@ -495,24 +470,18 @@
 
       if(!r.ok){
         const t = await r.text().catch(()=> "");
-        setStatus("Fehler beim Senden." + (t ? " " + t.slice(0,120) : ""));
-        updateButton();
+        setStatus("Fehler beim Senden." + (t ? " " + t.slice(0,160) : ""));
         return;
       }
 
       setStatus("Gesendet.");
       form.reset();
-
-      // Radio wieder auf E-Mail
       const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
       if (emailRadio) emailRadio.checked = true;
-
       itemsAnfrage = null;
-      updateButton();
 
     }catch(err){
       setStatus("Fehler beim Senden. Bitte später erneut versuchen.");
-      updateButton();
     }
   });
 })();
