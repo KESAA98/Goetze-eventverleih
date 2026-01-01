@@ -1,288 +1,209 @@
-<!-- backend/foot.html -->
-<section class="team-foot" aria-label="Kontakt & Anfrage">
-  <div class="foot-bg" aria-hidden="true"></div>
-  <div class="foot-vignette" aria-hidden="true"></div>
+<!-- backend/foot.html | Kontakt (Head-Optik, Desktop: begrenzte Höhe wie Head) -->
 
-  <div class="foot-inner">
-    <div class="glass">
-      <div class="top">
-        <div class="badge">LG Eventverleih</div>
-        <h2 class="foot-title">Kontakt</h2>
-        <p class="foot-sub">
-          Schreib uns kurz, worum es geht – wir melden uns schnellstmöglich zurück.
-        </p>
-      </div>
+<section class="contact-foot" aria-label="Kontakt">
+  <div class="contact-foot__bg" id="contactBg" aria-hidden="true"></div>
+  <div class="contact-foot__veil" aria-hidden="true"></div>
 
-      <div class="grid">
-        <div class="col">
-          <div class="card">
-            <h3 class="card-title">Kontaktanfrage</h3>
+  <!-- Vollbild wie Head -->
+  <div class="contact-foot__stage" id="contactStage">
+    <div class="contact-panel" role="region" aria-label="Kontaktformular">
+      <div class="contact-badge">LG Eventverleih</div>
 
-            <form id="contactForm" class="form" autocomplete="on">
-              <label class="field">
-                <span>Name</span>
-                <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
-              </label>
+      <h2 class="contact-title">Sie haben Fragen?</h2>
+      <p class="contact-sub">
+        Nutzen Sie gerne unser Kontaktfeld – wir melden uns zeitnah auf dem von Ihnen bevorzugten Weg.
+      </p>
 
-              <div class="row">
-                <label class="field">
-                  <span>E-Mail</span>
-                  <input id="f_email" name="email" type="email" placeholder="name@mail.de" required />
-                </label>
-                <label class="field">
-                  <span>Telefon</span>
-                  <input id="f_phone" name="phone" type="tel" placeholder="+49 …" />
-                </label>
-              </div>
+      <form id="contactForm" class="contact-form" autocomplete="on">
+        <label class="field">
+          <span>Name</span>
+          <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
+        </label>
 
-              <label class="field">
-                <span>Nachricht</span>
-                <textarea id="f_msg" name="message" rows="5" placeholder="Worum geht’s? (Datum, Ort, Umfang …)" required></textarea>
-              </label>
+        <div class="row">
+          <label class="field">
+            <span>E-Mail</span>
+            <input id="f_email" name="email" type="email" placeholder="name@mail.de" required />
+          </label>
+          <label class="field">
+            <span>Telefon</span>
+            <input id="f_phone" name="phone" type="tel" placeholder="+49 …" />
+          </label>
+        </div>
 
-              <div class="actions">
-                <button id="sendBtn" class="btn-primary" type="submit">Anfrage senden</button>
-                <span id="status" class="status" aria-live="polite"></span>
-              </div>
+        <div class="pref" role="group" aria-label="Bevorzugter Kontaktweg">
+          <div class="pref-label">Ich möchte per … kontaktiert werden</div>
+          <div class="pref-options">
+            <label class="radio">
+              <input type="radio" name="preferenz" value="Telefon" />
+              <span>Telefon</span>
+            </label>
 
-              <p class="hint">
-                Mit dem Absenden stimmst du der Verarbeitung deiner Angaben zur Bearbeitung der Anfrage zu.
-              </p>
-            </form>
+            <label class="radio">
+              <input type="radio" name="preferenz" value="E-Mail" checked />
+              <span>E-Mail</span>
+            </label>
+
+            <label class="radio">
+              <input type="radio" name="preferenz" value="WhatsApp" />
+              <span>WhatsApp</span>
+            </label>
           </div>
         </div>
 
-        <div class="col">
-          <div class="card info">
-            <h3 class="card-title">Direktkontakt</h3>
-            <p class="muted">
-              Alternativ erreichst du uns auch direkt – je nach Anliegen geht’s so noch schneller.
-            </p>
+        <label class="consent">
+          <input id="f_consent" type="checkbox" required />
+          <span>
+            Ich habe die <a href="/io/datenschutz">Datenschutzerklärung</a> gelesen und akzeptiere die
+            <a href="/io/agb">AGB</a>.
+          </span>
+        </label>
 
-            <div class="info-list">
-              <div class="info-item">
-                <div class="dot" aria-hidden="true"></div>
-                <div>
-                  <div class="info-label">E-Mail</div>
-                  <div class="info-value">info@lg-eventverleih.de</div>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <div class="dot" aria-hidden="true"></div>
-                <div>
-                  <div class="info-label">Telefon</div>
-                  <div class="info-value">+49 (0) …</div>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <div class="dot" aria-hidden="true"></div>
-                <div>
-                  <div class="info-label">Standort</div>
-                  <div class="info-value">Dithmarschen / Umgebung</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mini">
-              <div class="mini-title">Hinweis</div>
-              <div class="mini-text">
-                Für eine schnelle Bearbeitung: Zeitraum, Ort, Personenzahl und gewünschte Artikel nennen.
-              </div>
-            </div>
-
-            <div class="quick">
-              <a class="btn" href="/io/impressum">Impressum</a>
-              <a class="btn" href="#top">Nach oben</a>
-            </div>
-          </div>
+        <div class="actions">
+          <button id="sendBtn" class="btn-primary" type="submit">Anfrage senden</button>
+          <span id="status" class="status" aria-live="polite"></span>
         </div>
-      </div>
+      </form>
+    </div>
 
-      <div class="bottom-note">
-        <span class="pill">Zufallsbild</span>
-        <span class="muted">Der Hintergrund wird beim Laden zufällig gewählt.</span>
-      </div>
+    <!-- Unterer Streifen wie Badge, nur Impressum -->
+    <div class="contact-footerbar" aria-label="Fußzeile">
+      <a class="footer-btn" href="/io/impressum">Impressum</a>
     </div>
   </div>
 </section>
-
-<footer class="foot-legal" aria-label="Fußzeile">
-  <div class="foot-legal-inner">
-    <a class="foot-legal-link" href="/io/impressum">Impressum</a>
-  </div>
-</footer>
 
 <style>
   :root{
     --vh: 1vh;
     --radius: 18px;
 
-    --panel-bg: rgba(255,255,255,0.18);
-    --panel-border: rgba(255,255,255,0.28);
-    --panel-shadow: 0 18px 46px rgba(0,0,0,0.16);
+    /* Head-ähnlich (hell, clean) */
+    --panel-bg: rgba(255,255,255,0.84);
+    --panel-border: rgba(15,23,42,0.10);
+    --panel-shadow: 0 18px 50px rgba(0,0,0,0.12);
 
-    --text: rgba(255,255,255,0.94);
-    --muted: rgba(255,255,255,0.78);
+    --text: #0f172a;
+    --muted: rgba(15,23,42,0.72);
 
     --primary: #1f4fa3;
     --primary-2: #2b66d8;
-
-    --input-bg: rgba(255,255,255,0.18);
-    --input-border: rgba(255,255,255,0.30);
-
-    --glass-grad: linear-gradient(180deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.12) 100%);
   }
 
-  .team-foot, .team-foot *{ box-sizing:border-box; }
+  .contact-foot, .contact-foot *{ box-sizing:border-box; }
 
-  .team-foot{
-    position: relative;
-    width: 100%;
-    min-height: calc(var(--vh) * 100);
-    display:flex;
-    align-items: center;
-    justify-content: center;
-    padding: 28px 16px;
-    overflow:hidden;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .foot-bg{
-    position:absolute;
-    inset:0;
-    background-position:center;
-    background-size:cover;
-    transform: scale(1.06);
-    filter: saturate(1.05) contrast(1.05);
-  }
-
-  .foot-vignette{
-    position:absolute;
-    inset:-2px;
-    background:
-      radial-gradient(1200px 520px at 20% 20%, rgba(255,255,255,0.10), transparent 58%),
-      radial-gradient(900px 420px at 80% 70%, rgba(0,0,0,0.35), transparent 60%),
-      linear-gradient(180deg, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.40) 100%);
-    pointer-events:none;
-  }
-
-  .foot-inner{
-    position: relative;
-    width: min(1200px, 100%);
-    z-index: 2;
-  }
-
-  .glass{
+  .contact-foot{
+    position:relative;
     width:100%;
-    border-radius: var(--radius);
-    border: 1px solid var(--panel-border);
-    background: var(--glass-grad);
-    box-shadow: var(--panel-shadow);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    padding: 22px;
+    height: calc(var(--vh) * 100);
+    min-height: calc(var(--vh) * 100);
+    overflow:hidden;
+    background:#d9dde3;
   }
 
-  .top{
+  .contact-foot__bg{
+    position:absolute; inset:0;
+    background-size:cover;
+    background-position:center;
+    transform:scale(1.05);
+    filter:saturate(.98) contrast(.98);
+  }
+
+  .contact-foot__veil{
+    position:absolute; inset:0;
+    background:
+      radial-gradient(1200px 700px at 18% 40%, rgba(255,255,255,0.86), rgba(255,255,255,0.18) 58%, rgba(255,255,255,0.0) 74%),
+      linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.70) 40%, rgba(255,255,255,0.22) 70%, rgba(255,255,255,0.10) 100%);
+    backdrop-filter: blur(10px);
+  }
+
+  .contact-foot__stage{
+    position:relative;
+    z-index:1;
+    height: 100%;
+    width: 100%;
+    padding: 18px 24px;
     display:flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 16px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap: 14px;
   }
 
-  .badge{
+  .contact-panel{
+    width: min(820px, 100%);
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    box-shadow: var(--panel-shadow);
+    backdrop-filter: blur(10px);
+    padding: 22px 22px 18px;
+  }
+
+  .contact-badge{
     display:inline-flex;
     align-items:center;
-    gap: 8px;
     width: fit-content;
     padding: 7px 12px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.30);
-    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(15,23,42,0.12);
+    background: rgba(255,255,255,0.62);
     color: var(--text);
-    font-weight: 700;
-    letter-spacing: .2px;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    margin-bottom: 10px;
   }
 
-  .foot-title{
-    margin: 0;
+  .contact-title{
+    margin:0 0 8px 0;
+    font-size: clamp(24px, 2.2vw, 40px);
+    line-height:1.05;
+    letter-spacing:-0.02em;
     color: var(--text);
-    font-size: clamp(22px, 2.4vw, 30px);
-    line-height: 1.12;
   }
 
-  .foot-sub{
-    margin: 0;
+  .contact-sub{
+    margin:0 0 16px 0;
     color: var(--muted);
-    font-size: 15px;
-    line-height: 1.45;
-    max-width: 62ch;
+    line-height:1.55;
+    font-size: 14.5px;
   }
 
-  .grid{
-    display:grid;
-    grid-template-columns: 1.1fr .9fr;
-    gap: 16px;
-    align-items: start;
-  }
-
-  .card{
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.22);
-    background: rgba(255,255,255,0.12);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.10);
-    padding: 16px;
-  }
-
-  .card-title{
-    margin: 0 0 10px 0;
-    color: var(--text);
-    font-size: 16px;
-    letter-spacing: .2px;
-  }
-
-  .muted{ color: var(--muted); }
-
-  .form{
+  .contact-form{
     display:flex;
-    flex-direction: column;
+    flex-direction:column;
     gap: 12px;
   }
 
   .field{
     display:flex;
-    flex-direction: column;
+    flex-direction:column;
     gap: 6px;
   }
 
   .field > span{
-    color: var(--muted);
+    color: rgba(15,23,42,0.68);
     font-size: 12.5px;
-    font-weight: 700;
-    letter-spacing: .2px;
+    font-weight: 760;
+    letter-spacing: -0.01em;
   }
 
-  input, textarea{
-    width: 100%;
+  input[type="text"], input[type="email"], input[type="tel"]{
+    width:100%;
     padding: 12px 12px;
     border-radius: 12px;
-    border: 1px solid var(--input-border);
-    background: var(--input-bg);
+    border: 1px solid rgba(15,23,42,0.14);
+    background: rgba(255,255,255,0.72);
     color: var(--text);
-    outline: none;
-    font: 500 14px/1.3 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    outline:none;
+    font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  textarea{ resize: vertical; min-height: 120px; }
+  input::placeholder{ color: rgba(15,23,42,0.40); }
 
-  input::placeholder, textarea::placeholder{ color: rgba(255,255,255,0.65); }
-
-  input:focus, textarea:focus{
-    border-color: rgba(255,255,255,0.42);
-    box-shadow: 0 0 0 4px rgba(31,79,163,0.18);
+  input:focus{
+    border-color: rgba(31,79,163,0.30);
+    box-shadow: 0 0 0 4px rgba(31,79,163,0.12);
   }
 
   .row{
@@ -291,11 +212,77 @@
     gap: 10px;
   }
 
+  .pref{
+    margin-top: 2px;
+    padding-top: 6px;
+  }
+
+  .pref-label{
+    color: rgba(15,23,42,0.68);
+    font-size: 12.5px;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+
+  .pref-options{
+    display:flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .radio{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.62);
+    border: 1px solid rgba(15,23,42,0.12);
+    cursor:pointer;
+    user-select:none;
+  }
+
+  .radio input{
+    accent-color: var(--primary);
+    transform: translateY(0.5px);
+  }
+
+  .radio span{
+    color: var(--text);
+    font-weight: 720;
+    letter-spacing: -0.01em;
+    font-size: 13.5px;
+  }
+
+  .consent{
+    display:flex;
+    gap: 10px;
+    align-items:flex-start;
+    padding-top: 2px;
+    color: rgba(15,23,42,0.72);
+    font-size: 12.5px;
+    line-height: 1.45;
+  }
+
+  .consent input{
+    margin-top: 3px;
+    accent-color: var(--primary);
+  }
+
+  .consent a{
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 760;
+  }
+  .consent a:hover{ text-decoration: underline; }
+
   .actions{
     display:flex;
     align-items:center;
     gap: 12px;
     flex-wrap: wrap;
+    padding-top: 4px;
   }
 
   .btn-primary{
@@ -305,9 +292,9 @@
     border-radius: 12px;
     background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
     color: white;
-    font-weight: 800;
+    font-weight: 860;
     letter-spacing: .2px;
-    box-shadow: 0 12px 26px rgba(31,79,163,0.30);
+    box-shadow: 0 12px 26px rgba(31,79,163,0.22);
   }
 
   .btn-primary:disabled{
@@ -317,207 +304,104 @@
 
   .status{
     font-size: 13px;
-    color: rgba(255,255,255,0.88);
+    color: rgba(15,23,42,0.70);
+    font-weight: 650;
   }
 
-  .hint{
-    margin: 0;
-    font-size: 12px;
-    color: rgba(255,255,255,0.70);
-    line-height: 1.45;
-  }
-
-  .info-list{
+  .contact-footerbar{
+    width: min(820px, 100%);
     display:flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
+    justify-content:flex-start;
   }
 
-  .info-item{
-    display:flex;
-    gap: 10px;
-    align-items:flex-start;
-  }
-
-  .dot{
-    width: 10px;
-    height: 10px;
-    margin-top: 4px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.90);
-    box-shadow: 0 0 0 4px rgba(255,255,255,0.14);
-    flex: 0 0 auto;
-  }
-
-  .info-label{
-    font-size: 12px;
-    color: rgba(255,255,255,0.70);
-    font-weight: 800;
-    letter-spacing: .2px;
-  }
-
-  .info-value{
-    color: rgba(255,255,255,0.93);
-    font-weight: 700;
-  }
-
-  .mini{
-    margin-top: 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.20);
-    background: rgba(0,0,0,0.18);
-    padding: 12px;
-  }
-
-  .mini-title{
-    color: rgba(255,255,255,0.92);
-    font-weight: 900;
-    font-size: 12.5px;
-    margin-bottom: 6px;
-    letter-spacing: .2px;
-  }
-
-  .mini-text{
-    color: rgba(255,255,255,0.78);
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  .quick{
-    display:flex;
-    gap: 10px;
-    margin-top: 14px;
-    flex-wrap: wrap;
-  }
-
-  .btn{
+  .footer-btn{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    padding: 10px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.26);
-    background: rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.92);
-    text-decoration: none;
-    font-weight: 800;
-    letter-spacing: .2px;
-  }
-
-  .btn:hover{
-    background: rgba(255,255,255,0.16);
-  }
-
-  .bottom-note{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(255,255,255,0.18);
-  }
-
-  .pill{
-    display:inline-flex;
-    align-items:center;
-    padding: 6px 10px;
+    padding: 9px 14px;
     border-radius: 999px;
-    background: rgba(0,0,0,0.18);
-    border: 1px solid rgba(255,255,255,0.20);
-    color: rgba(255,255,255,0.92);
-    font-weight: 900;
-    font-size: 12px;
-    letter-spacing: .2px;
+    border: 1px solid rgba(15,23,42,0.12);
+    background: rgba(255,255,255,0.62);
+    color: var(--text);
+    text-decoration:none;
+    font-weight: 760;
+    letter-spacing:-0.01em;
+  }
+  .footer-btn:hover{
+    background: rgba(255,255,255,0.78);
+    border-color: rgba(31,79,163,0.22);
   }
 
-  @media (max-width: 980px){
-    .grid{ grid-template-columns: 1fr; }
-  }
-
+  /* Mobile */
   @media (max-width: 720px){
-    .team-foot{ padding: 22px 12px; }
-    .glass{ padding: 14px; }
+    .contact-foot__stage{ padding: 14px; justify-content:flex-start; }
+    .contact-panel{ padding: 18px 18px 16px; }
     .row{ grid-template-columns: 1fr; }
-    input, textarea{ padding: 12px; }
-    .card{ padding: 14px; }
-  }
-
-  /* --- Legal Footer (Impressum) --- */
-  .foot-legal{
-    width:100%;
-    margin-top: 14px;
-    padding: 0 16px 18px;
-  }
-  .foot-legal-inner{
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 12px 16px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.35);
-    background: rgba(255,255,255,0.16);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 10px 26px rgba(0,0,0,0.10);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  .foot-legal-link{
-    color: rgba(255,255,255,0.92);
-    text-decoration: none;
-    font-weight: 700;
-    letter-spacing: .2px;
-  }
-  .foot-legal-link:hover{
-    text-decoration: underline;
-  }
-
-  @media (max-width: 720px){
-    .foot-legal{ padding: 0 12px 16px; }
-    .foot-legal-inner{ padding: 12px 14px; }
+    .contact-footerbar{ justify-content:center; }
   }
 </style>
 
 <script>
+  // --vh Fix wie Head
+  (function(){
+    function setVH(){
+      const h = (window.visualViewport && window.visualViewport.height)
+        ? window.visualViewport.height
+        : window.innerHeight;
+      document.documentElement.style.setProperty('--vh', (h * 0.01) + 'px');
+    }
+    setVH();
+    window.addEventListener('resize', setVH);
+    window.addEventListener('orientationchange', setVH);
+    if (window.visualViewport){
+      window.visualViewport.addEventListener('resize', setVH);
+      window.visualViewport.addEventListener('scroll', setVH);
+    }
+  })();
+</script>
+
+<script>
   (function(){
     const FLOW_URL = "https://default91b0e232846941aab7d1176f14ecb7.8c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d6aba3378db4ea1bd72aeddae7b9c3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC1H-XcsNqqsISufNQcfHdXRdkwmgELEKJ8ZDB0lvYg";
+    const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
 
-    // Hintergrund: random aus image/hintergrund/manifest.json
-    const bgEl = document.querySelector(".foot-bg");
+    const bgEl = document.getElementById("contactBg");
 
-    async function pickRandomBackground(){
-      try{
-        const res = await fetch("image/hintergrund/manifest.json", { cache: "no-store" });
-        if(!res.ok) throw new Error("manifest.json not reachable");
-        const list = await res.json();
-        if(!Array.isArray(list) || list.length === 0) return;
-        const pick = list[Math.floor(Math.random()*list.length)];
-        if(!pick) return;
-        const url = pick.startsWith("http") ? pick : pick.replace(/^\.\//,"");
-        bgEl.style.backgroundImage = `url('${url}')`;
-      }catch(e){
-        // fallback (optional)
-        bgEl.style.backgroundImage = "linear-gradient(135deg, #1f4fa3, #0b1220)";
-      }
+    async function fetchJson(url){
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) throw new Error("Fetch failed: " + url);
+      return await r.json();
     }
 
-    pickRandomBackground();
+    function setRandomBackground(list){
+      if (!Array.isArray(list) || list.length === 0) return;
+      const pick = list[Math.floor(Math.random() * list.length)];
+      // Head nutzt: "image/hintergrund/" + pick
+      bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
+    }
 
-    // Items_Anfrage (JSON im JSON) - kann von außen gesetzt werden:
-    // window.setItemsAnfrage({...}) oder window.setItemsAnfrage(null)
+    (async function(){
+      try{
+        const bg = await fetchJson(BG_MANIFEST_URL);
+        setRandomBackground(bg);
+      }catch(e){}
+    })();
+
+    // Items_Anfrage (JSON im JSON) - extern setzbar
     let itemsAnfrage = null;
     window.setItemsAnfrage = function(obj){
       itemsAnfrage = (obj === undefined) ? null : obj;
     };
 
-    // Formular senden
     const form = document.getElementById("contactForm");
     const statusEl = document.getElementById("status");
     const sendBtn = document.getElementById("sendBtn");
 
-    function setStatus(msg){
-      statusEl.textContent = msg || "";
+    function setStatus(msg){ statusEl.textContent = msg || ""; }
+
+    function getPreferenz(){
+      const el = form.querySelector('input[name="preferenz"]:checked');
+      return el ? el.value : "E-Mail";
     }
 
     form.addEventListener("submit", async (ev) => {
@@ -527,10 +411,15 @@
       const name = document.getElementById("f_name").value.trim();
       const email = document.getElementById("f_email").value.trim();
       const phone = document.getElementById("f_phone").value.trim();
-      const message = document.getElementById("f_msg").value.trim();
+      const consent = document.getElementById("f_consent").checked;
+      const preferenz = getPreferenz();
 
-      if(!name || !email || !message){
-        setStatus("Bitte Name, E-Mail und Nachricht ausfüllen.");
+      if(!name || !email){
+        setStatus("Bitte Name und E-Mail ausfüllen.");
+        return;
+      }
+      if(!consent){
+        setStatus("Bitte Datenschutz & AGB bestätigen.");
         return;
       }
 
@@ -538,7 +427,8 @@
         Name: name,
         Email: email,
         Telefon: phone || "",
-        Nachricht: message,
+        Preferenz: preferenz,          // <- neu
+        Zustimmung: true,              // <- bestätigt
         Items_Anfrage: itemsAnfrage ?? null,
         Quelle: "foot",
         Timestamp: new Date().toISOString()
@@ -556,14 +446,18 @@
 
         if(!r.ok){
           const t = await r.text().catch(()=> "");
-          setStatus("Fehler beim Senden. " + (t ? t.slice(0,120) : ""));
+          setStatus("Fehler beim Senden." + (t ? " " + t.slice(0,120) : ""));
           sendBtn.disabled = false;
           return;
         }
 
-        setStatus("Danke! Anfrage wurde gesendet.");
+        setStatus("Gesendet.");
         form.reset();
-        // Items_Anfrage danach wieder leeren
+        // Radio wieder auf E-Mail (default)
+        const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
+        if (emailRadio) emailRadio.checked = true;
+
+        // Items_Anfrage wieder leeren
         itemsAnfrage = null;
 
       }catch(err){
