@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <title>Eventverleih</title>
   <link rel="icon" type="image/png" href="image/Logo.png" />
 
   <style>
     :root{
-      --vh: 1vh; /* echte Viewport-Höhe (Mobile-Fix) */
+      --vh: 1vh;
       --cart-width: 360px;
       --title-height: 70px;
 
@@ -17,12 +16,6 @@
 
       --bg: #ffffff;
       --text: #1f2933;
-      --muted: #6b7280;
-      --primary: #1f4fa3;
-
-      --card: #f8f9fb;
-      --radius: 14px;
-      --shadow: 0 12px 40px rgba(0,0,0,.18);
 
       --title-shadow: 0 8px 24px rgba(0,0,0,.12);
     }
@@ -34,19 +27,12 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-base);
-      overflow:hidden; /* Page-Scroll komplett aus */
+      overflow:hidden; /* Page-Scroll aus */
       -webkit-text-size-adjust: 100%;
-      text-rendering: optimizeLegibility;
     }
-
     *, *::before, *::after{ box-sizing: border-box; }
 
-    .slot{
-      width:100%;
-      border:0;
-      outline:0;
-      background:transparent;
-    }
+    .slot{ width:100%; border:0; outline:0; background:transparent; }
 
     /* Cookie-Overlay */
     #cookieOverlay{
@@ -58,30 +44,27 @@
     }
     #cookieOverlay.is-visible{ display:block; }
 
-    /* TITEL */
+    /* Titel */
     #title{
       position:fixed;
       top:0; left:0; right:0;
       z-index:2000;
       height: var(--title-height);
       background:#fff;
-      display:block;
       box-shadow:none;
     }
-    #title.is-scrolled{
-      box-shadow: var(--title-shadow);
-    }
+    #title.is-scrolled{ box-shadow: var(--title-shadow); }
 
-    /* Bühne unter der Titel-Leiste */
+    /* Bühne */
     #stage{
       position:fixed;
       top: var(--title-height);
       left:0; right:0;
       height: calc((var(--vh) * 100) - var(--title-height));
-      overflow:hidden; /* Desktop: kein echtes Scrollen, wir schieben Panels per transform */
+      overflow:hidden; /* Standard: Panels werden per transform geschoben */
+      touch-action: none; /* wichtig für Mobile: wir übernehmen den Swipe */
     }
 
-    /* Panels Head + Shop untereinander */
     #panels{
       height: 200%;
       transform: translateY(0);
@@ -89,19 +72,15 @@
       will-change: transform;
     }
 
-    /* Head / Shop: Desktop intern scrollen (scrollbar versteckt, aber aktiv) */
     #head, #shop{
       height: calc((var(--vh) * 100) - var(--title-height));
       overflow:auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
-    #head, #shop{ scrollbar-width: none; }
     #head::-webkit-scrollbar,
-    #shop::-webkit-scrollbar{
-      width:0;
-      height:0;
-    }
+    #shop::-webkit-scrollbar{ width:0; height:0; }
 
     /* Shop: Platz für Cart rechts (Desktop) */
     #shop{
@@ -125,40 +104,21 @@
 
     @media (max-width: 900px){
       :root{ --cart-width: 0px; }
-      #cart{ transform:none; }
       #shop{ width:100%; margin-right:0; }
-    }
 
-    /* =========
-       MOBILE SNAP (nur Mobile, Desktop bleibt wie bisher)
-       ========= */
-    @media (max-width: 900px){
-      /* Auf Mobile soll NUR #stage scrollen, die inneren Container nicht */
-      #stage{
-        overflow:auto;
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-        scroll-snap-type: y mandatory;
-      }
-
-      #panels{
-        height:auto;
-        transform:none !important;
-        transition:none !important;
-        will-change:auto;
-      }
-
+      /* Mobile: innere Container NICHT scrollen (wie besprochen) */
       #head, #shop{
-        height:auto;
-        min-height: calc((var(--vh) * 100) - var(--title-height));
-        overflow:hidden !important; /* inneres Scrollen aus */
-        scroll-snap-align: start;
+        overflow:hidden !important;
+      }
+
+      /* Mobile: damit der Finger-Drag sauber wirkt */
+      #panels{
+        transition: transform .28s ease;
       }
     }
   </style>
 
   <script>
-    // Viewport-Fix: --vh entspricht der echten sichtbaren Höhe (Mobile Browserleisten)
     (function(){
       function setVH(){
         const h = (window.visualViewport && window.visualViewport.height)
@@ -175,17 +135,12 @@
       }
     })();
   </script>
-
 </head>
 
 <body>
-  <!-- 1) Cookies -->
   <div id="cookieOverlay" class="slot" data-src="backend/cookie.html"></div>
-
-  <!-- 2) Titel -->
   <header id="title" class="slot" data-src="backend/titel.html"></header>
 
-  <!-- 3/4) Stage: Head + Shop (kein Page-Scroll) -->
   <div id="stage">
     <div id="panels">
       <section id="head" class="slot" data-src="backend/head.html"></section>
@@ -193,27 +148,23 @@
     </div>
   </div>
 
-  <!-- 5) Cart -->
   <aside id="cart" class="slot" data-src="backend/cart.html"></aside>
 
   <script>
     (function(){
       const COOKIE_KEY = "cookiesAccepted_v1";
 
-      /* von cookie.html aufrufbar */
       window.acceptCookies = function(){
         try { localStorage.setItem(COOKIE_KEY, "1"); } catch(e) {}
         document.getElementById("cookieOverlay")?.classList.remove("is-visible");
       };
 
-      /* Cart-Steuerung */
       window.openCart = function(){
         const el = document.getElementById("cart");
         if(!el) return;
         el.style.pointerEvents = "auto";
         el.style.transform = "translateX(0)";
       };
-
       window.closeCart = function(){
         const el = document.getElementById("cart");
         if(!el) return;
@@ -225,48 +176,41 @@
         const res = await fetch(url, { cache: "no-store" });
         if(!res.ok) throw new Error(url + " -> " + res.status);
         const html = await res.text();
-
         el.innerHTML = html;
 
-        /* Scripts aus geladenem HTML ausführen */
         const scripts = Array.from(el.querySelectorAll("script"));
         for(const s of scripts){
           const ns = document.createElement("script");
-          for(const attr of s.attributes){
-            ns.setAttribute(attr.name, attr.value);
-          }
+          for(const attr of s.attributes){ ns.setAttribute(attr.name, attr.value); }
           ns.text = s.text || "";
           s.parentNode.replaceChild(ns, s);
         }
-      }
-
-      function setupTitleShadow(getScrollEl){
-        const title = document.getElementById("title");
-        if(!title) return;
-
-        const update = () => {
-          const el = getScrollEl();
-          const top = el ? el.scrollTop : 0;
-          if(top > 0) title.classList.add("is-scrolled");
-          else title.classList.remove("is-scrolled");
-        };
-
-        window.__updateTitleShadow = update;
-        update();
       }
 
       function isMobile(){
         return window.matchMedia && window.matchMedia("(max-width: 900px)").matches;
       }
 
-      function setupHeadShopScrollSwitch(){
+      function setupTitleShadow(getScrollTop){
+        const title = document.getElementById("title");
+        if(!title) return;
+        const update = () => {
+          const top = getScrollTop();
+          if(top > 0) title.classList.add("is-scrolled");
+          else title.classList.remove("is-scrolled");
+        };
+        window.__updateTitleShadow = update;
+        update();
+      }
+
+      function setupSwitch(){
         const head   = document.getElementById("head");
         const shop   = document.getElementById("shop");
         const panels = document.getElementById("panels");
         const stage  = document.getElementById("stage");
         if(!head || !shop || !panels || !stage) return;
 
-        window.__view = "head";  // "head" | "shop"
+        window.__view = "head";
         let locked = false;
 
         const cookieVisible = () => {
@@ -274,185 +218,139 @@
           return !!(ov && ov.classList.contains("is-visible"));
         };
 
-        /* ===== MOBILE: echtes Scrollen in #stage + Snap-Logik (Schwelle 20%) ===== */
-        function setupMobileSnap(){
-          const SNAP_THRESHOLD = 0.20; // 20% vom Viewport (#stage)
+        const panelH = () => stage.clientHeight || window.innerHeight;
 
-          const headTop = () => 0;
-          const shopTop = () => head.offsetTop; // shop liegt direkt unter head im selben Flow
+        const setPos = (y, animate=true) => {
+          if(!animate) panels.style.transition = "none";
+          panels.style.transform = "translateY(" + y + "px)";
+          if(!animate){
+            // re-enable transition on next frame
+            requestAnimationFrame(() => panels.style.transition = "transform .28s ease");
+          }
+        };
 
-          const updateViewFromScroll = () => {
-            const boundary = shopTop();
-            const y = stage.scrollTop;
-            window.__view = (y >= boundary - 2) ? "shop" : "head";
-            window.__updateTitleShadow && window.__updateTitleShadow();
-          };
+        const goShop = () => {
+          if(locked || window.__view === "shop" || cookieVisible()) return;
+          locked = true;
+          window.__view = "shop";
+          setPos(-panelH(), true);
+          window.__updateTitleShadow && window.__updateTitleShadow();
+          setTimeout(()=> locked = false, 320);
+        };
 
-          const snapTo = (target) => {
-            if(locked) return;
-            locked = true;
-            const top = (target === "shop") ? shopTop() : headTop();
-            stage.scrollTo({ top, behavior: "smooth" });
-            window.__view = target;
-            window.__updateTitleShadow && window.__updateTitleShadow();
-            setTimeout(()=> locked = false, 420);
-          };
+        const goHead = () => {
+          if(locked || window.__view === "head" || cookieVisible()) return;
+          locked = true;
+          window.__view = "head";
+          setPos(0, true);
+          window.__updateTitleShadow && window.__updateTitleShadow();
+          setTimeout(()=> locked = false, 320);
+        };
 
-          // Für Head/Shop-HTML: damit deine Impuls-Skripte weiterhin funktionieren
-          window.goShop = () => { if(!cookieVisible()) snapTo("shop"); };
-          window.goHead = () => { if(!cookieVisible()) snapTo("head"); };
+        window.goShop = goShop;
+        window.goHead = goHead;
 
-          // Shadow hängt auf Mobile am Stage-Scroll
-          setupTitleShadow(() => stage);
-
-          // Scroll-Ende Debounce => niemals "in der Mitte" stehen bleiben
-          let t = 0;
-          const onScroll = () => {
-            if(cookieVisible()) return;
-            window.__updateTitleShadow && window.__updateTitleShadow();
-
-            clearTimeout(t);
-            t = setTimeout(() => {
-              const boundary = shopTop();
-              const y = stage.scrollTop;
-              const vh = stage.clientHeight || window.innerHeight;
-              const thr = vh * SNAP_THRESHOLD;
-
-              // Wenn wir deutlich über/unter der Grenze sind => eindeutig
-              if (y < boundary - thr){
-                snapTo("head");
-                return;
-              }
-              if (y > boundary + thr){
-                snapTo("shop");
-                return;
-              }
-
-              // Im "Graubereich" => zum näheren Panel
-              const distHead = Math.abs(y - headTop());
-              const distShop = Math.abs(y - boundary);
-              snapTo(distShop < distHead ? "shop" : "head");
-            }, 120);
-          };
-
-          stage.addEventListener("scroll", onScroll, { passive:true });
-
-          // falls Start nicht exakt sitzt
-          setTimeout(updateViewFromScroll, 60);
-          window.addEventListener("resize", () => setTimeout(updateViewFromScroll, 80), { passive:true });
-        }
-
-        /* ===== DESKTOP: bestehender Transform-Mechanismus ===== */
-        function setupDesktopTransform(){
-          // WICHTIG:
-          // Wenn head.html oder shop.html intern eigene Scroll-Container haben, müssen wir DIE nehmen.
-          // Fallback ist jeweils der Container selbst.
+        if(!isMobile()){
+          // Desktop: Shadow nach innerem Scroll (falls vorhanden)
           const getHeadScrollEl = () => head.querySelector(".team-scroll") || head;
           const getShopScrollEl = () => shop.querySelector(".shop-scroll") || shop;
+
+          setupTitleShadow(() => (window.__view === "shop" ? getShopScrollEl().scrollTop : getHeadScrollEl().scrollTop));
 
           const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
           const atTop    = (el) => el.scrollTop <= 0;
 
-          const goShop = () => {
-            if(locked || window.__view === "shop" || cookieVisible()) return;
-            locked = true;
-            window.__view = "shop";
-            panels.style.transform = "translateY(-50%)";
-            window.__updateTitleShadow && window.__updateTitleShadow();
-            setTimeout(()=> locked = false, 380);
-          };
+          const hs = getHeadScrollEl();
+          const ss = getShopScrollEl();
 
-          const goHead = () => {
-            if(locked || window.__view === "head" || cookieVisible()) return;
-            locked = true;
-            window.__view = "head";
-            panels.style.transform = "translateY(0)";
-            window.__updateTitleShadow && window.__updateTitleShadow();
-            setTimeout(()=> locked = false, 380);
-          };
+          hs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
+          ss.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
 
-          // Für Head/Shop-HTML: damit deine Impuls-Skripte (head/shop) wirklich wechseln können
-          window.goShop = goShop;
-          window.goHead = goHead;
-
-          // Titel-Schatten an das gerade aktive Scroll-Element koppeln
-          setupTitleShadow(() => (window.__view === "shop" ? getShopScrollEl() : getHeadScrollEl()));
-
-          // Scroll-Listener für Shadow (auf beiden Scroll-Elementen, falls intern)
-          const bindScrollShadow = () => {
-            const hs = getHeadScrollEl();
-            const ss = getShopScrollEl();
-            if(hs) hs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
-            if(ss) ss.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
-          };
-
-          // Wheel-Impulse: auf den echten Scrollflächen!
-          const bindWheel = () => {
-            const hs = getHeadScrollEl();
-            const ss = getShopScrollEl();
-
-            hs.addEventListener("wheel", (e) => {
-              if(cookieVisible()) return;
-              if(e.deltaY > 0 && atBottom(hs)){
-                e.preventDefault();
-                goShop();
-              }
-            }, { passive:false });
-
-            ss.addEventListener("wheel", (e) => {
-              if(cookieVisible()) return;
-              if(e.deltaY < 0 && atTop(ss)){
-                e.preventDefault();
-                goHead();
-              }
-            }, { passive:false });
-          };
-
-          // Keyboard-Impulse (optional)
-          window.addEventListener("keydown", (e) => {
+          hs.addEventListener("wheel", (e) => {
             if(cookieVisible()) return;
-
-            const downKeys = ["ArrowDown","PageDown"," "];
-            const upKeys   = ["ArrowUp","PageUp"];
-
-            const hs = getHeadScrollEl();
-            const ss = getShopScrollEl();
-
-            if(window.__view === "head" && downKeys.includes(e.key) && atBottom(hs)){
+            if(e.deltaY > 0 && atBottom(hs)){
               e.preventDefault(); goShop();
             }
-            if(window.__view === "shop" && upKeys.includes(e.key) && atTop(ss)){
+          }, { passive:false });
+
+          ss.addEventListener("wheel", (e) => {
+            if(cookieVisible()) return;
+            if(e.deltaY < 0 && atTop(ss)){
               e.preventDefault(); goHead();
             }
           }, { passive:false });
 
-          const lateBind = () => {
-            bindScrollShadow();
-            bindWheel();
-            window.__updateTitleShadow && window.__updateTitleShadow();
-          };
-
-          lateBind();
-          setTimeout(lateBind, 120);
-          window.addEventListener("resize", () => setTimeout(lateBind, 60), { passive:true });
+          return;
         }
 
-        // Init je nach Mode
-        if (isMobile()) setupMobileSnap();
-        else setupDesktopTransform();
+        // ===== MOBILE: "Pull / Swipe" mit 20% Schwelle, niemals zwischen den Panels stehen bleiben =====
+        const THRESHOLD = 0.20; // 20% der Stage-Höhe
 
-        // Wenn Mode wechselt (Rotate/Resize), einmal neu initialisieren (simple Reload der Seite vermeiden)
-        let lastMobile = isMobile();
-        window.addEventListener("resize", () => {
-          const nowMobile = isMobile();
-          if (nowMobile !== lastMobile){
-            lastMobile = nowMobile;
-            // harte Neuinitialisierung der Logik
-            window.__view = "head";
-            panels.style.transform = "translateY(0)";
-            // Wichtig: keine Doppel-Listener -> Seite neu laden ist am stabilsten
-            // aber wir machen hier bewusst KEIN reload. In der Praxis: resize über 900px ist selten auf Mobile.
+        setupTitleShadow(() => 0); // Mobile: kein inneres Scrollen, daher immer 0 Schatten im Head
+
+        let startY = 0;
+        let startX = 0;
+        let dragging = false;
+        let lastY = 0;
+
+        function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+        stage.addEventListener("touchstart", (e) => {
+          if(cookieVisible()) return;
+          if(locked) return;
+          const t = e.touches[0];
+          startY = t.clientY;
+          startX = t.clientX;
+          lastY = startY;
+          dragging = true;
+          panels.style.transition = "none";
+        }, { passive:true });
+
+        stage.addEventListener("touchmove", (e) => {
+          if(!dragging || cookieVisible()) return;
+
+          const t = e.touches[0];
+          const dy = t.clientY - startY;
+          const dx = t.clientX - startX;
+
+          // wenn horizontal stärker als vertikal -> nicht übernehmen
+          if(Math.abs(dx) > Math.abs(dy) * 1.2){
+            return;
           }
+
+          e.preventDefault(); // wichtig: keine Browser-Scroll/Momentum
+          lastY = t.clientY;
+
+          const h = panelH();
+          const base = (window.__view === "shop") ? -h : 0;
+          // "Rubber" leicht begrenzen
+          const y = clamp(base + dy, -h - 60, 60);
+          setPos(y, false);
+        }, { passive:false });
+
+        stage.addEventListener("touchend", () => {
+          if(!dragging || cookieVisible()) return;
+          dragging = false;
+
+          const dy = lastY - startY;
+          const h = panelH();
+          const thr = h * THRESHOLD;
+
+          panels.style.transition = "transform .28s ease";
+
+          if(window.__view === "head"){
+            if(dy < -thr) goShop();
+            else goHead();
+          } else {
+            if(dy > thr) goHead();
+            else goShop();
+          }
+        }, { passive:true });
+
+        // Safety: bei Resize Position korrekt halten
+        window.addEventListener("resize", () => {
+          if(window.__view === "shop") setPos(-panelH(), true);
+          else setPos(0, true);
         }, { passive:true });
       }
 
@@ -462,21 +360,19 @@
         let accepted = false;
         try { accepted = localStorage.getItem(COOKIE_KEY) === "1"; } catch(e) {}
 
-        /* Titel / Head / Shop / Cart immer laden */
         const normalSlots = slots.filter(el => el.id !== "cookieOverlay");
         await Promise.all(normalSlots.map(el => loadInto(el, el.dataset.src)));
 
-        /* Cookie nur bei Bedarf */
         if(!accepted){
           const overlay = document.getElementById("cookieOverlay");
           overlay.classList.add("is-visible");
           await loadInto(overlay, overlay.dataset.src);
         }
 
-        setupHeadShopScrollSwitch();
+        setupSwitch();
       }
 
-      boot().catch(err => console.error(err));
+      boot().catch(console.error);
     })();
   </script>
 </body>
