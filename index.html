@@ -365,42 +365,77 @@
 
       boot().catch(err => console.error(err));
     })();
-  
-        // Mobile Swipe-Support: wenn Head unten ist und weiter nach oben gewischt wird -> Shop
-        // und umgekehrt (Shop oben + nach unten wischen -> Head)
-        let touchY0 = 0;
-        let touchT0 = 0;
 
-        window.addEventListener('touchstart', (e) => {
-          if (!e.touches || !e.touches.length) return;
-          touchY0 = e.touches[0].clientY;
-          touchT0 = Date.now();
-        }, {passive:true});
+    // Mobile Swipe-Support (Head/Shop wechseln per Wischgeste)
+    (function(){
+      let touchY0 = 0;
+      let touchT0 = 0;
 
-        window.addEventListener('touchend', (e) => {
-          const dt = Date.now() - touchT0;
-          if (dt > 700) return; // zu langsam -> ignorieren
-          const changed = (e.changedTouches && e.changedTouches.length) ? e.changedTouches[0] : null;
-          if (!changed) return;
-          const dy = changed.clientY - touchY0;
+      const THRESHOLD = 50; // px
+      const MAX_DT = 700;   // ms
 
-          // Swipe up (dy negativ) -> nach unten im Inhalt
-          if (dy < -50){
-            if (activePanel === 'head' && isScrollable(headEl) && atBottom(headEl)) {
-              goShop();
-            }
-            if (activePanel === 'head' && !isScrollable(headEl)) {
-              goShop();
-            }
+      const getHeadScrollEl = () => {
+        const head = document.getElementById("head");
+        return head ? (head.querySelector(".team-scroll") || head) : null;
+      };
+
+      const getShopScrollEl = () => {
+        const shop = document.getElementById("shop");
+        return shop ? (shop.querySelector(".shop-scroll") || shop) : null;
+      };
+
+      const cookieVisible = () => {
+        const ov = document.getElementById("cookieOverlay");
+        return !!(ov && ov.classList.contains("is-visible"));
+      };
+
+      const isScrollable = (el) => !!el && (el.scrollHeight > el.clientHeight + 2);
+      const atBottom = (el) => !!el && (el.scrollTop + el.clientHeight >= el.scrollHeight - 2);
+      const atTop    = (el) => !!el && (el.scrollTop <= 0);
+
+      window.addEventListener("touchstart", (e) => {
+        if(cookieVisible()) return;
+        if(!e.touches || !e.touches.length) return;
+        touchY0 = e.touches[0].clientY;
+        touchT0 = Date.now();
+      }, { passive:true });
+
+      window.addEventListener("touchend", (e) => {
+        if(cookieVisible()) return;
+
+        const goShop = window.goShop;
+        const goHead = window.goHead;
+        if(typeof goShop !== "function" || typeof goHead !== "function") return;
+
+        const dt = Date.now() - touchT0;
+        if(dt > MAX_DT) return;
+
+        const t = (e.changedTouches && e.changedTouches.length) ? e.changedTouches[0] : null;
+        if(!t) return;
+
+        const dy = t.clientY - touchY0;
+
+        const view   = window.__view || "head";
+        const headEl = getHeadScrollEl();
+        const shopEl = getShopScrollEl();
+
+        // Swipe up -> Richtung "nach unten"/weiter
+        if(dy < -THRESHOLD){
+          if(view === "head"){
+            if(!isScrollable(headEl) || atBottom(headEl)) goShop();
           }
+          return;
+        }
 
-          // Swipe down (dy positiv) -> nach oben im Inhalt
-          if (dy > 50){
-            if (activePanel === 'shop' && atTop(shopEl)) {
-              goHead();
-            }
+        // Swipe down -> Richtung "nach oben"/zurück
+        if(dy > THRESHOLD){
+          if(view === "shop"){
+            if(atTop(shopEl)) goHead();
           }
-        }, {passive:true});
+        }
+      }, { passive:true });
+
+    })();
 </script>
 </body>
 </html>
