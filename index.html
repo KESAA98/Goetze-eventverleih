@@ -9,9 +9,8 @@
 
   <style>
     :root{
-      
       --vh: 1vh; /* echte Viewport-Höhe (Mobile-Fix) */
---cart-width: 360px;
+      --cart-width: 360px;
       --title-height: 70px;
 
       --font-base: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -79,7 +78,7 @@
       top: var(--title-height);
       left:0; right:0;
       height: calc((var(--vh) * 100) - var(--title-height));
-      overflow:hidden;
+      overflow:hidden; /* Desktop: kein echtes Scrollen, wir schieben Panels per transform */
     }
 
     /* Panels Head + Shop untereinander */
@@ -90,7 +89,7 @@
       will-change: transform;
     }
 
-    /* Head / Shop: nur intern scrollen (scrollbar versteckt, aber aktiv) */
+    /* Head / Shop: Desktop intern scrollen (scrollbar versteckt, aber aktiv) */
     #head, #shop{
       height: calc((var(--vh) * 100) - var(--title-height));
       overflow:auto;
@@ -128,6 +127,33 @@
       :root{ --cart-width: 0px; }
       #cart{ transform:none; }
       #shop{ width:100%; margin-right:0; }
+    }
+
+    /* =========
+       MOBILE SNAP (nur Mobile, Desktop bleibt wie bisher)
+       ========= */
+    @media (max-width: 900px){
+      /* Auf Mobile soll NUR #stage scrollen, die inneren Container nicht */
+      #stage{
+        overflow:auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        scroll-snap-type: y mandatory;
+      }
+
+      #panels{
+        height:auto;
+        transform:none !important;
+        transition:none !important;
+        will-change:auto;
+      }
+
+      #head, #shop{
+        height:auto;
+        min-height: calc((var(--vh) * 100) - var(--title-height));
+        overflow:hidden !important; /* inneres Scrollen aus */
+        scroll-snap-align: start;
+      }
     }
   </style>
 
@@ -229,17 +255,16 @@
         update();
       }
 
+      function isMobile(){
+        return window.matchMedia && window.matchMedia("(max-width: 900px)").matches;
+      }
+
       function setupHeadShopScrollSwitch(){
         const head   = document.getElementById("head");
         const shop   = document.getElementById("shop");
         const panels = document.getElementById("panels");
-        if(!head || !shop || !panels) return;
-
-        // WICHTIG:
-        // Wenn head.html oder shop.html intern eigene Scroll-Container haben, müssen wir DIE nehmen.
-        // Fallback ist jeweils der Container selbst.
-        const getHeadScrollEl = () => head.querySelector(".team-scroll") || head;
-        const getShopScrollEl = () => shop.querySelector(".shop-scroll") || shop;
+        const stage  = document.getElementById("stage");
+        if(!head || !shop || !panels || !stage) return;
 
         window.__view = "head";  // "head" | "shop"
         let locked = false;
@@ -249,98 +274,186 @@
           return !!(ov && ov.classList.contains("is-visible"));
         };
 
-        const isScrollable = (el) => el.scrollHeight > el.clientHeight + 2;
-        const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
-        const atTop    = (el) => el.scrollTop <= 0;
+        /* ===== MOBILE: echtes Scrollen in #stage + Snap-Logik (Schwelle 20%) ===== */
+        function setupMobileSnap(){
+          const SNAP_THRESHOLD = 0.20; // 20% vom Viewport (#stage)
 
-        const goShop = () => {
-          if(locked || window.__view === "shop") return;
-          locked = true;
-          window.__view = "shop";
-          panels.style.transform = "translateY(-50%)";
-          window.__updateTitleShadow && window.__updateTitleShadow();
-          setTimeout(()=> locked = false, 380);
-        };
+          const headTop = () => 0;
+          const shopTop = () => head.offsetTop; // shop liegt direkt unter head im selben Flow
 
-        const goHead = () => {
-          if(locked || window.__view === "head") return;
-          locked = true;
-          window.__view = "head";
-          panels.style.transform = "translateY(0)";
-          window.__updateTitleShadow && window.__updateTitleShadow();
-          setTimeout(()=> locked = false, 380);
-        };
+          const updateViewFromScroll = () => {
+            const boundary = shopTop();
+            const y = stage.scrollTop;
+            window.__view = (y >= boundary - 2) ? "shop" : "head";
+            window.__updateTitleShadow && window.__updateTitleShadow();
+          };
 
-        // Für Head/Shop-HTML: damit deine Impuls-Skripte (head/shop) wirklich wechseln können
-        window.goShop = goShop;
-        window.goHead = goHead;
+          const snapTo = (target) => {
+            if(locked) return;
+            locked = true;
+            const top = (target === "shop") ? shopTop() : headTop();
+            stage.scrollTo({ top, behavior: "smooth" });
+            window.__view = target;
+            window.__updateTitleShadow && window.__updateTitleShadow();
+            setTimeout(()=> locked = false, 420);
+          };
 
-        // Titel-Schatten an das gerade aktive Scroll-Element koppeln
-        setupTitleShadow(() => (window.__view === "shop" ? getShopScrollEl() : getHeadScrollEl()));
+          // Für Head/Shop-HTML: damit deine Impuls-Skripte weiterhin funktionieren
+          window.goShop = () => { if(!cookieVisible()) snapTo("shop"); };
+          window.goHead = () => { if(!cookieVisible()) snapTo("head"); };
 
-        // Scroll-Listener für Shadow (auf beiden Scroll-Elementen, falls intern)
-        const bindScrollShadow = () => {
-          const hs = getHeadScrollEl();
-          const ss = getShopScrollEl();
-          if(hs) hs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
-          if(ss) ss.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
-        };
+          // Shadow hängt auf Mobile am Stage-Scroll
+          setupTitleShadow(() => stage);
 
-        // Wheel-Impulse: auf den echten Scrollflächen!
-        const bindWheel = () => {
-          const hs = getHeadScrollEl();
-          const ss = getShopScrollEl();
-
-          // (Falls neu geladen/umgebaut wird) doppelte Listener vermeiden: simpel durch Clone ersetzen
-          // -> wir machen hier keine Clone-Aktion, sondern verlassen uns darauf, dass bindWheel nur 1x läuft.
-
-          hs.addEventListener("wheel", (e) => {
+          // Scroll-Ende Debounce => niemals "in der Mitte" stehen bleiben
+          let t = 0;
+          const onScroll = () => {
             if(cookieVisible()) return;
-            if(e.deltaY > 0 && atBottom(hs)){
-              e.preventDefault();
-              goShop();
+            window.__updateTitleShadow && window.__updateTitleShadow();
+
+            clearTimeout(t);
+            t = setTimeout(() => {
+              const boundary = shopTop();
+              const y = stage.scrollTop;
+              const vh = stage.clientHeight || window.innerHeight;
+              const thr = vh * SNAP_THRESHOLD;
+
+              // Wenn wir deutlich über/unter der Grenze sind => eindeutig
+              if (y < boundary - thr){
+                snapTo("head");
+                return;
+              }
+              if (y > boundary + thr){
+                snapTo("shop");
+                return;
+              }
+
+              // Im "Graubereich" => zum näheren Panel
+              const distHead = Math.abs(y - headTop());
+              const distShop = Math.abs(y - boundary);
+              snapTo(distShop < distHead ? "shop" : "head");
+            }, 120);
+          };
+
+          stage.addEventListener("scroll", onScroll, { passive:true });
+
+          // falls Start nicht exakt sitzt
+          setTimeout(updateViewFromScroll, 60);
+          window.addEventListener("resize", () => setTimeout(updateViewFromScroll, 80), { passive:true });
+        }
+
+        /* ===== DESKTOP: bestehender Transform-Mechanismus ===== */
+        function setupDesktopTransform(){
+          // WICHTIG:
+          // Wenn head.html oder shop.html intern eigene Scroll-Container haben, müssen wir DIE nehmen.
+          // Fallback ist jeweils der Container selbst.
+          const getHeadScrollEl = () => head.querySelector(".team-scroll") || head;
+          const getShopScrollEl = () => shop.querySelector(".shop-scroll") || shop;
+
+          const atBottom = (el) => el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+          const atTop    = (el) => el.scrollTop <= 0;
+
+          const goShop = () => {
+            if(locked || window.__view === "shop" || cookieVisible()) return;
+            locked = true;
+            window.__view = "shop";
+            panels.style.transform = "translateY(-50%)";
+            window.__updateTitleShadow && window.__updateTitleShadow();
+            setTimeout(()=> locked = false, 380);
+          };
+
+          const goHead = () => {
+            if(locked || window.__view === "head" || cookieVisible()) return;
+            locked = true;
+            window.__view = "head";
+            panels.style.transform = "translateY(0)";
+            window.__updateTitleShadow && window.__updateTitleShadow();
+            setTimeout(()=> locked = false, 380);
+          };
+
+          // Für Head/Shop-HTML: damit deine Impuls-Skripte (head/shop) wirklich wechseln können
+          window.goShop = goShop;
+          window.goHead = goHead;
+
+          // Titel-Schatten an das gerade aktive Scroll-Element koppeln
+          setupTitleShadow(() => (window.__view === "shop" ? getShopScrollEl() : getHeadScrollEl()));
+
+          // Scroll-Listener für Shadow (auf beiden Scroll-Elementen, falls intern)
+          const bindScrollShadow = () => {
+            const hs = getHeadScrollEl();
+            const ss = getShopScrollEl();
+            if(hs) hs.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
+            if(ss) ss.addEventListener("scroll", () => window.__updateTitleShadow && window.__updateTitleShadow(), { passive:true });
+          };
+
+          // Wheel-Impulse: auf den echten Scrollflächen!
+          const bindWheel = () => {
+            const hs = getHeadScrollEl();
+            const ss = getShopScrollEl();
+
+            hs.addEventListener("wheel", (e) => {
+              if(cookieVisible()) return;
+              if(e.deltaY > 0 && atBottom(hs)){
+                e.preventDefault();
+                goShop();
+              }
+            }, { passive:false });
+
+            ss.addEventListener("wheel", (e) => {
+              if(cookieVisible()) return;
+              if(e.deltaY < 0 && atTop(ss)){
+                e.preventDefault();
+                goHead();
+              }
+            }, { passive:false });
+          };
+
+          // Keyboard-Impulse (optional)
+          window.addEventListener("keydown", (e) => {
+            if(cookieVisible()) return;
+
+            const downKeys = ["ArrowDown","PageDown"," "];
+            const upKeys   = ["ArrowUp","PageUp"];
+
+            const hs = getHeadScrollEl();
+            const ss = getShopScrollEl();
+
+            if(window.__view === "head" && downKeys.includes(e.key) && atBottom(hs)){
+              e.preventDefault(); goShop();
+            }
+            if(window.__view === "shop" && upKeys.includes(e.key) && atTop(ss)){
+              e.preventDefault(); goHead();
             }
           }, { passive:false });
 
-          ss.addEventListener("wheel", (e) => {
-            if(cookieVisible()) return;
-            if(e.deltaY < 0 && atTop(ss)){
-              e.preventDefault();
-              goHead();
-            }
-          }, { passive:false });
-        };
+          const lateBind = () => {
+            bindScrollShadow();
+            bindWheel();
+            window.__updateTitleShadow && window.__updateTitleShadow();
+          };
 
-        // Keyboard-Impulse (optional)
-        window.addEventListener("keydown", (e) => {
-          if(cookieVisible()) return;
+          lateBind();
+          setTimeout(lateBind, 120);
+          window.addEventListener("resize", () => setTimeout(lateBind, 60), { passive:true });
+        }
 
-          const downKeys = ["ArrowDown","PageDown"," "];
-          const upKeys   = ["ArrowUp","PageUp"];
+        // Init je nach Mode
+        if (isMobile()) setupMobileSnap();
+        else setupDesktopTransform();
 
-          const hs = getHeadScrollEl();
-          const ss = getShopScrollEl();
-
-          if(window.__view === "head" && downKeys.includes(e.key) && atBottom(hs)){
-            e.preventDefault(); goShop();
+        // Wenn Mode wechselt (Rotate/Resize), einmal neu initialisieren (simple Reload der Seite vermeiden)
+        let lastMobile = isMobile();
+        window.addEventListener("resize", () => {
+          const nowMobile = isMobile();
+          if (nowMobile !== lastMobile){
+            lastMobile = nowMobile;
+            // harte Neuinitialisierung der Logik
+            window.__view = "head";
+            panels.style.transform = "translateY(0)";
+            // Wichtig: keine Doppel-Listener -> Seite neu laden ist am stabilsten
+            // aber wir machen hier bewusst KEIN reload. In der Praxis: resize über 900px ist selten auf Mobile.
           }
-          if(window.__view === "shop" && upKeys.includes(e.key) && atTop(ss)){
-            e.preventDefault(); goHead();
-          }
-        }, { passive:false });
-
-        // Nach Laden (und auch nach Resize) sicherstellen, dass wir die richtigen Scroll-Elemente erwischen
-        // (weil head.html erst nachträglich injected wird).
-        const lateBind = () => {
-          bindScrollShadow();
-          bindWheel();
-          window.__updateTitleShadow && window.__updateTitleShadow();
-        };
-
-        // Einmal direkt und einmal kurz danach (falls DOM noch nachzieht)
-        lateBind();
-        setTimeout(lateBind, 120);
-        window.addEventListener("resize", () => setTimeout(lateBind, 60), { passive:true });
+        }, { passive:true });
       }
 
       async function boot(){
@@ -365,42 +478,6 @@
 
       boot().catch(err => console.error(err));
     })();
-  
-        // Mobile Swipe-Support: wenn Head unten ist und weiter nach oben gewischt wird -> Shop
-        // und umgekehrt (Shop oben + nach unten wischen -> Head)
-        let touchY0 = 0;
-        let touchT0 = 0;
-
-        window.addEventListener('touchstart', (e) => {
-          if (!e.touches || !e.touches.length) return;
-          touchY0 = e.touches[0].clientY;
-          touchT0 = Date.now();
-        }, {passive:true});
-
-        window.addEventListener('touchend', (e) => {
-          const dt = Date.now() - touchT0;
-          if (dt > 700) return; // zu langsam -> ignorieren
-          const changed = (e.changedTouches && e.changedTouches.length) ? e.changedTouches[0] : null;
-          if (!changed) return;
-          const dy = changed.clientY - touchY0;
-
-          // Swipe up (dy negativ) -> nach unten im Inhalt
-          if (dy < -50){
-            if (activePanel === 'head' && isScrollable(headEl) && atBottom(headEl)) {
-              goShop();
-            }
-            if (activePanel === 'head' && !isScrollable(headEl)) {
-              goShop();
-            }
-          }
-
-          // Swipe down (dy positiv) -> nach oben im Inhalt
-          if (dy > 50){
-            if (activePanel === 'shop' && atTop(shopEl)) {
-              goHead();
-            }
-          }
-        }, {passive:true});
-</script>
+  </script>
 </body>
 </html>
