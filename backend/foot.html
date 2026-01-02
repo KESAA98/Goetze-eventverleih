@@ -1,4 +1,4 @@
-<!-- backend/foot.html  (Desktop: Kontaktbereich = Foot-Höhe - Footbar-Höhe; Footbar NUR im Foot unten; kein Portal/fixed) -->
+<!-- backend/foot.html  (Desktop: Content + Footbar nutzen exakt die verfügbare Foot-Höhe; kein Portal/fixed; kein Gap unten) -->
 
 <div class="foot-wrap" id="footRoot">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
@@ -6,6 +6,7 @@
 
   <!-- ===== 2-Container-Layout: Content + Footbar ===== -->
   <div class="foot-layout" id="footLayout">
+
     <!-- CONTENT (nimmt Resthöhe über der Footbar) -->
     <div class="foot-content" id="footContent">
       <div class="contact-panel" role="region" aria-label="Kontaktformular">
@@ -73,13 +74,14 @@
       </div>
     </div>
 
-    <!-- FOOTBAR (immer unten im Foot, Teil vom Foot; niemals global) -->
+    <!-- FOOTBAR (immer unten im Foot, Teil vom Foot) -->
     <div class="titlebar titlebar--foot" id="footTitlebar" role="contentinfo" aria-label="Fußzeile">
       <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
       <nav class="titlebar__nav" aria-label="Fußnavigation">
         <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
       </nav>
     </div>
+
   </div>
 </div>
 
@@ -88,7 +90,7 @@
     /* Footbar-Höhe (weißes Band) */
     --footbar-height: 70px;
 
-    /* Typografie/Abstände */
+    /* Layout */
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
     --nav-pad-right: 32px;
@@ -106,18 +108,18 @@
 
     --stage-pad: 18px;
 
-    /* Wird per JS dynamisch angepasst, damit Desktop ohne Scroll passt */
+    /* Desktop: wird per JS passend gemacht */
     --textarea-h: 140px;
   }
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
 
-  /* foot.html füllt den #foot Slot (dessen Höhe kommt aus index.html) */
+  /* Füllt den #foot Slot (Höhe kommt aus index.html) */
   .foot-wrap{
     position:relative;
     height: 100%;
     width:100%;
-    overflow:hidden;              /* kein Scroll im Wrapper */
+    overflow:hidden;
     background:#d9dde3;
   }
 
@@ -139,7 +141,7 @@
     z-index:0;
   }
 
-  /* ===== 2-Container-Layout ===== */
+  /* ===== 2-Container-Layout (nur Flex, kein calc => kein Gap) ===== */
   .foot-layout{
     position:relative;
     z-index:1;
@@ -149,15 +151,19 @@
     overflow:hidden;
   }
 
-  /* Content bekommt IMMER die Resthöhe über der Footbar */
+  /* Content nimmt exakt den Rest über der Footbar ein */
   .foot-content{
-    height: calc(100% - var(--footbar-height));
+    flex: 1 1 auto;
     min-height: 0;
+
     display:flex;
     align-items:center;
     justify-content:center;
-    padding: var(--stage-pad) 24px;
-    overflow:hidden;              /* Desktop: kein Scroll in content */
+
+    /* WICHTIG: unten 0 -> kein “Restbalken” */
+    padding: var(--stage-pad) 24px 0;
+
+    overflow:hidden; /* Desktop: kein Scroll */
   }
 
   .contact-panel{
@@ -169,7 +175,7 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
-    /* damit es sicher in die verfügbare Höhe passt */
+    /* Sicher in verfügbare Höhe zwingen */
     max-height: 100%;
     overflow: hidden;
 
@@ -177,6 +183,9 @@
     display:flex;
     flex-direction:column;
     min-height:0;
+
+    /* optischer Abstand zur Footbar (statt padding-bottom im Container) */
+    margin-bottom: 14px;
   }
 
   .contact-title{
@@ -219,13 +228,12 @@
     font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  /* Textarea-Höhe wird per JS so gewählt, dass Desktop ohne Scroll passt */
   textarea{
     height: var(--textarea-h);
     min-height: var(--textarea-h);
     max-height: var(--textarea-h);
     resize: none;
-    overflow:hidden;              /* keine eigene Scrollbar */
+    overflow:hidden; /* Desktop: keine eigene Scrollbar */
     line-height: 1.35;
   }
 
@@ -317,8 +325,9 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* ===== Footbar Optik wie Titel ===== */
+  /* ===== Footbar ===== */
   .titlebar{
+    flex: 0 0 var(--footbar-height);
     height: var(--footbar-height);
     background:#fff;
     display:flex;
@@ -326,7 +335,6 @@
     justify-content:space-between;
     padding: 0 var(--title-pad-x);
     border-top: 1px solid rgba(0,0,0,.08);
-    flex: 0 0 var(--footbar-height);
   }
   .titlebar__left{ display:flex; align-items:center; padding-left: var(--logo-pad-left); min-width:0; }
   .titlebar__nav{ display:flex; align-items:center; gap: 34px; padding-right: var(--nav-pad-right); white-space:nowrap; }
@@ -347,7 +355,7 @@
   .titlebar__link:hover{ color:#1f2933; }
   .titlebar__left--empty{ padding-left:0; width:1px; }
 
-  /* Mobile: Content darf scrollen, wenn nötig (und Layout wird kompakter) */
+  /* Mobile: wenn nötig scrollen erlauben */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
@@ -357,22 +365,23 @@
     }
 
     .foot-content{
-      height: calc(100% - var(--footbar-height));
-      padding: var(--stage-pad);
       align-items:flex-start;
-      overflow:auto;                 /* Mobile: wenn nötig scrollen */
+      overflow:auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
+      padding: var(--stage-pad) 14px 0;
     }
     .foot-content::-webkit-scrollbar{ width:0; height:0; }
 
     .row{ grid-template-columns: 1fr; }
+
     textarea{
       height: 150px;
       min-height: 150px;
       max-height: 150px;
-      overflow:auto;                 /* Mobile darf im Textfeld scrollen, sonst passt es nie */
+      overflow:auto;
     }
+
     .titlebar__nav{ gap: 14px; }
     .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
     .titlebar__link:active{ background: rgba(0,0,0,.05); }
@@ -421,44 +430,32 @@
     return window.matchMedia && window.matchMedia("(max-width:700px)").matches;
   }
 
-  // Desktop: Textarea so klein wie nötig, so groß wie möglich -> Panel passt ohne Scroll.
+  // Desktop: Textarea so klein wie nötig, damit Panel ohne Scroll in Content passt.
   function fitDesktopTextarea(){
     if (!wrap || !content || !panel || !ta) return;
     if (isMobile()) return;
 
-    // Desktop: wir wollen KEIN Scroll. Also content overflow hidden.
     content.style.overflow = "hidden";
 
-    // Startwerte
     const minH = 90;
     const maxH = 180;
 
-    // Hilfsfunktion: passt Panel in Content?
-    const fits = () => {
-      // panel scrollHeight > panel clientHeight => würde clippen/überlaufen
-      // aber wir haben overflow hidden -> wir messen besser Content:
-      const cH = content.clientHeight;
-      // Panel nimmt maximal cH - (Padding in content ist schon in clientHeight enthalten)
-      // Wenn panel scrollHeight <= cH => passt
-      return panel.scrollHeight <= cH;
-    };
+    const fits = () => panel.scrollHeight <= content.clientHeight + 1;
 
-    // Erst maximal setzen, dann runterregeln bis es passt
-    let h = Math.min(maxH, parseInt(getComputedStyle(document.documentElement).getPropertyValue("--textarea-h")) || maxH);
+    let h = maxH;
     document.documentElement.style.setProperty("--textarea-h", h + "px");
 
-    // Wenn es nicht passt, runter in Schritten
     if (!fits()){
-      for (let step = 0; step < 50; step++){
+      for (let i = 0; i < 80; i++){
         h -= 4;
-        if (h < minH) { h = minH; break; }
+        if (h <= minH){ h = minH; break; }
         document.documentElement.style.setProperty("--textarea-h", h + "px");
         if (fits()) break;
       }
     }
   }
 
-  // Wenn selbst mit minimaler Textarea das Panel nicht passt -> dann darf Content scrollen (Extremfälle)
+  // Extremfall: Wenn selbst mit minimaler Textarea nicht passt -> Content darf scrollen
   function enableScrollIfNeeded(){
     if (!wrap || !content || !panel || !ta) return;
     if (isMobile()) return;
@@ -466,12 +463,11 @@
     const minH = 90;
     document.documentElement.style.setProperty("--textarea-h", minH + "px");
 
-    const cH = content.clientHeight;
-    if (panel.scrollHeight > cH + 2){
+    if (panel.scrollHeight > content.clientHeight + 2){
       content.style.overflow = "auto";
       content.style.scrollbarWidth = "none";
       content.style.webkitOverflowScrolling = "touch";
-      content.addEventListener("scroll", ()=>{}, { passive:true });
+      content.style.msOverflowStyle = "none";
     }else{
       content.style.overflow = "hidden";
     }
@@ -480,12 +476,10 @@
   // initial
   setNavLinks(document);
 
-  // Hintergrund
   (async function(){
     try{ setRandomBackground(await fetchJson(BG_MANIFEST_URL)); }catch(e){}
   })();
 
-  // Items_Anfrage (JSON im JSON) - extern setzbar
   let itemsAnfrage = null;
   window.setItemsAnfrage = function(obj){ itemsAnfrage = (obj === undefined) ? null : obj; };
 
@@ -498,15 +492,13 @@
     return el ? el.value : "E-Mail";
   }
 
-  // Fitting nach Layout-Init
   const doFit = () => {
     fitDesktopTextarea();
     enableScrollIfNeeded();
   };
-
   requestAnimationFrame(doFit);
-  setTimeout(doFit, 50);
-  window.addEventListener("resize", () => setTimeout(doFit, 60), { passive:true });
+  setTimeout(doFit, 60);
+  window.addEventListener("resize", () => setTimeout(doFit, 80), { passive:true });
 
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
