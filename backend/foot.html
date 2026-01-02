@@ -1,8 +1,26 @@
-<!-- backend/foot.html  (Layout wie Debug: Content nutzt Resthöhe, Footbar feste Höhe; Footbar immun gegen globale CSS) -->
+<!-- backend/foot.html  (Layout wie Debug: Content nutzt Resthöhe, Footbar feste Höhe; + Overlay Loading/Success/Error) -->
 
 <div class="foot-wrap" id="footRoot">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
+
+  <!-- Overlay (Loading / Erfolg / Fehler) -->
+  <div class="overlay" id="sendOverlay" aria-hidden="true">
+    <div class="overlay__backdrop"></div>
+    <div class="overlay__card" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+      <div class="overlay__top">
+        <div class="spinner" id="overlaySpinner" aria-hidden="true"></div>
+        <div class="overlay__titles">
+          <div class="overlay__title" id="overlayTitle">Nachricht wird gesendet…</div>
+          <div class="overlay__sub" id="overlaySub">Bitte einen Moment.</div>
+        </div>
+      </div>
+
+      <div class="overlay__actions">
+        <button class="btn-ghost" id="overlayOk" type="button" style="display:none;">OK</button>
+      </div>
+    </div>
+  </div>
 
   <div class="foot-layout">
     <div class="foot-content" id="footContent">
@@ -12,7 +30,7 @@
           Nutzen Sie gerne unser Kontaktfeld – wir melden uns zeitnah auf dem von Ihnen bevorzugten Weg.
         </p>
 
-        <form id="contactForm" class="contact-form" autocomplete="on">
+        <form id="contactForm" class="contact-form" autocomplete="on" novalidate>
           <label class="field">
             <span>Name</span>
             <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
@@ -65,7 +83,9 @@
           </label>
 
           <div class="actions">
-            <button class="btn-primary" type="submit">Anfrage senden</button>
+            <button class="btn-primary" id="btnSend" type="submit">
+              <span class="btn-primary__label">Anfrage senden</span>
+            </button>
             <span id="status" class="status" aria-live="polite"></span>
           </div>
         </form>
@@ -99,6 +119,7 @@
 
     --primary: #1f4fa3;
     --primary-2:#2b66d8;
+    --primary-3:#173f84;
 
     --stage-pad: 18px;
     --textarea-h: 140px;
@@ -106,7 +127,6 @@
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
 
-  /* Füllt #foot Slot (Höhe kommt aus index.html) */
   .foot-wrap{
     position:relative;
     width:100%;
@@ -151,8 +171,8 @@
     align-items:center;
     justify-content:center;
 
-    padding: var(--stage-pad) 24px 0; /* unten 0 => kein „Reststreifen“ */
-    overflow:hidden; /* Desktop: kein Scroll */
+    padding: var(--stage-pad) 24px 0;
+    overflow:hidden;
   }
 
   .contact-panel{
@@ -172,7 +192,6 @@
     flex-direction:column;
     min-height:0;
 
-    /* Abstand zur Footbar ohne Container-Leerfläche */
     margin-bottom: 14px;
   }
 
@@ -221,7 +240,7 @@
     min-height: var(--textarea-h);
     max-height: var(--textarea-h);
     resize: none;
-    overflow:hidden; /* Desktop: kein eigenes Scrollen */
+    overflow:hidden;
     line-height: 1.35;
   }
 
@@ -243,7 +262,6 @@
   }
   .pref-options{ display:flex; gap:10px; flex-wrap:wrap; }
 
-  /* Buttons sichtbar aktiv */
   .pref-pill{
     position:relative;
     display:inline-flex;
@@ -274,7 +292,6 @@
     letter-spacing: -0.01em;
     font-size: 13.5px;
   }
-  /* Aktiver Zustand deutlich */
   .pref-pill:has(input:checked){
     background: rgba(31,79,163,0.12);
     border-color: rgba(31,79,163,0.55);
@@ -283,6 +300,13 @@
   .pref-pill:has(input:checked) span{
     color: var(--primary);
   }
+  /* Fallback-Klasse (falls :has irgendwo zickt) */
+  .pref-pill.is-active{
+    background: rgba(31,79,163,0.12);
+    border-color: rgba(31,79,163,0.55);
+    box-shadow: 0 10px 22px rgba(31,79,163,0.14);
+  }
+  .pref-pill.is-active span{ color: var(--primary); }
 
   .consent{
     display:flex;
@@ -299,18 +323,34 @@
 
   .actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-top:4px; }
 
+  /* Besserer Button */
   .btn-primary{
-    border:0;
+    border: 1px solid rgba(255,255,255,0.18);
     padding: 12px 16px;
     border-radius: 12px;
     background: linear-gradient(180deg, var(--primary-2) 0%, var(--primary) 100%);
     color:#fff;
     font-weight: 900;
     letter-spacing: .2px;
-    box-shadow: 0 12px 26px rgba(31,79,163,0.22);
+    box-shadow: 0 14px 28px rgba(31,79,163,0.22);
     cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+  }
+  .btn-primary:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(31,79,163,0.26);
+    filter: saturate(1.02);
+  }
+  .btn-primary:active{ transform: translateY(0px); }
+  .btn-primary:focus-visible{
+    outline:none;
+    box-shadow: 0 0 0 4px rgba(31,79,163,0.18), 0 18px 34px rgba(31,79,163,0.24);
   }
 
+  /* Deaktiviert via Validierung */
   .contact-form:has(#f_name:invalid) .btn-primary,
   .contact-form:has(#f_email:invalid) .btn-primary,
   .contact-form:has(#f_msg:invalid) .btn-primary,
@@ -320,11 +360,24 @@
     box-shadow:none;
     pointer-events:none;
     cursor: default;
+    border-color: transparent;
+    transform:none;
   }
 
-  .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
+  /* Fallback (wenn :has nicht greift) -> wird per JS gesetzt */
+  .btn-primary.is-disabled{
+    background: rgba(15,23,42,0.18);
+    color: rgba(15,23,42,0.55);
+    box-shadow:none;
+    pointer-events:none;
+    cursor: default;
+    border-color: transparent;
+    transform:none;
+  }
 
-  /* ===== Footbar (hart fixiert, damit sie nicht „aufbläht“) ===== */
+  .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; min-height: 18px; }
+
+  /* ===== Footbar (hart fixiert) ===== */
   .titlebar{
     flex: 0 0 var(--footbar-height) !important;
     height: var(--footbar-height) !important;
@@ -340,8 +393,6 @@
 
     border-top: 1px solid rgba(0,0,0,.08);
     line-height: 1 !important;
-
-    /* Absicherung gegen globale „min-height“/„padding“ auf nav/a */
     overflow: hidden;
   }
 
@@ -371,7 +422,6 @@
     background:transparent;
     border:0;
 
-    /* WICHTIG: kein vertikales Padding -> sonst wächst die Bar */
     padding: 0 !important;
     margin:0 !important;
 
@@ -388,6 +438,83 @@
   .titlebar__link:hover{ color:#1f2933; }
   .titlebar__left--empty{ padding-left:0 !important; width:1px; }
 
+  /* ===== Overlay ===== */
+  .overlay{
+    position:absolute;
+    inset:0;
+    z-index: 9999;
+    display:none;
+  }
+  .overlay.is-open{ display:block; }
+  .overlay__backdrop{
+    position:absolute; inset:0;
+    background: rgba(15,23,42,0.26);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .overlay__card{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%, -50%);
+    width: min(520px, calc(100% - 28px));
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(15,23,42,0.12);
+    border-radius: 16px;
+    box-shadow: 0 22px 60px rgba(0,0,0,0.22);
+    padding: 18px 18px 14px;
+  }
+  .overlay__top{
+    display:flex;
+    gap: 14px;
+    align-items:flex-start;
+  }
+  .overlay__titles{ min-width:0; }
+  .overlay__title{
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    font-size: 16px;
+    margin-top: 2px;
+  }
+  .overlay__sub{
+    margin-top: 6px;
+    color: rgba(15,23,42,0.72);
+    line-height: 1.45;
+    font-weight: 650;
+    font-size: 13.5px;
+  }
+  .overlay__actions{
+    display:flex;
+    justify-content:flex-end;
+    padding-top: 12px;
+  }
+  .btn-ghost{
+    border: 1px solid rgba(15,23,42,0.14);
+    background: rgba(255,255,255,0.74);
+    color: rgba(15,23,42,0.86);
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 850;
+    cursor:pointer;
+  }
+  .btn-ghost:hover{
+    background: rgba(255,255,255,0.90);
+    border-color: rgba(15,23,42,0.20);
+  }
+
+  .spinner{
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 3px solid rgba(15,23,42,0.16);
+    border-top-color: rgba(31,79,163,0.88);
+    animation: spin 0.9s linear infinite;
+    margin-top: 2px;
+    flex: 0 0 auto;
+  }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
   /* Mobile */
   @media (max-width:700px){
     :root{
@@ -399,7 +526,6 @@
 
     .row{ grid-template-columns: 1fr; }
 
-    /* Mobile darf scrollen (sonst passt es nicht zuverlässig) */
     .foot-content{
       align-items:flex-start;
       overflow:auto;
@@ -435,6 +561,35 @@
   const content = document.getElementById("footContent");
   const panel = wrap ? wrap.querySelector(".contact-panel") : null;
   const ta = document.getElementById("f_msg");
+
+  const overlay = document.getElementById("sendOverlay");
+  const overlayTitle = document.getElementById("overlayTitle");
+  const overlaySub = document.getElementById("overlaySub");
+  const overlaySpinner = document.getElementById("overlaySpinner");
+  const overlayOk = document.getElementById("overlayOk");
+
+  function showOverlay(state, title, sub){
+    overlay.classList.add("is-open");
+    overlay.setAttribute("aria-hidden", "false");
+
+    overlayTitle.textContent = title || "";
+    overlaySub.textContent = sub || "";
+
+    if (state === "loading"){
+      overlaySpinner.style.display = "";
+      overlayOk.style.display = "none";
+    } else {
+      overlaySpinner.style.display = "none";
+      overlayOk.style.display = "";
+    }
+  }
+
+  function hideOverlay(){
+    overlay.classList.remove("is-open");
+    overlay.setAttribute("aria-hidden", "true");
+  }
+
+  overlayOk.addEventListener("click", hideOverlay);
 
   function basePath(){
     const host = (location.hostname || "").toLowerCase();
@@ -504,13 +659,12 @@
       content.style.overflow = "auto";
       content.style.scrollbarWidth = "none";
       content.style.webkitOverflowScrolling = "touch";
-      content.style.msOverflowStyle = "none";
+              content.style.msOverflowStyle = "none";
     }else{
       content.style.overflow = "hidden";
     }
   }
 
-  // Klick-Feedback auch ohne :has-Unterstützung (Fallback)
   function syncPrefActive(){
     const pills = document.querySelectorAll(".pref-pill");
     pills.forEach(p => p.classList.remove("is-active"));
@@ -521,9 +675,21 @@
     }
   }
 
+  function setButtonDisabled(disabled){
+    const btn = document.getElementById("btnSend");
+    if (!btn) return;
+    btn.classList.toggle("is-disabled", !!disabled);
+    btn.disabled = !!disabled;
+  }
+
+  function validateFormUI(){
+    const form = document.getElementById("contactForm");
+    if (!form) return;
+    setButtonDisabled(!form.checkValidity());
+  }
+
   // initial
   setNavLinks(document);
-
   (async function(){
     try{ setRandomBackground(await fetchJson(BG_MANIFEST_URL)); }catch(e){}
   })();
@@ -541,11 +707,10 @@
     return el ? el.value : "E-Mail";
   }
 
-  // Preference events (Fallback)
+  // Preference events
   document.querySelectorAll('.pref-pill input[name="preferenz"]').forEach(r => {
     r.addEventListener("change", syncPrefActive);
   });
-  // Click on pill should toggle radio (for safety)
   document.querySelectorAll(".pref-pill").forEach(pill => {
     pill.addEventListener("click", () => {
       const r = pill.querySelector('input[type="radio"]');
@@ -561,10 +726,29 @@
   });
   syncPrefActive();
 
+  // Validierung: Buttonstatus live aktualisieren
+  ["input","change","keyup","blur"].forEach(evName => {
+    form.addEventListener(evName, validateFormUI, { passive:true });
+  });
+  validateFormUI();
+
+  // Layout Fit
   const doFit = () => { fitDesktopTextarea(); enableScrollIfNeeded(); };
   requestAnimationFrame(doFit);
   setTimeout(doFit, 60);
   window.addEventListener("resize", () => setTimeout(doFit, 80), { passive:true });
+
+  // Robust: JSON oder Text aus Response lesen
+  async function readResponse(r){
+    const ct = (r.headers.get("content-type") || "").toLowerCase();
+    if (ct.includes("application/json")){
+      try{ return await r.json(); }catch(e){ return null; }
+    }
+    const t = await r.text().catch(()=> "");
+    if (!t) return null;
+    // falls Text trotzdem JSON ist
+    try{ return JSON.parse(t); }catch(e){ return { message: t }; }
+  }
 
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
@@ -572,6 +756,7 @@
 
     if (!form.checkValidity()){
       form.reportValidity();
+      validateFormUI();
       return;
     }
 
@@ -588,29 +773,47 @@
     };
 
     try{
-      setStatus("Sende …");
+      // Overlay: erst jetzt, und bleibt bis Serverantwort da
+      showOverlay("loading", "Nachricht wird gesendet…", "Bitte einen Moment.");
+      setButtonDisabled(true);
+
       const r = await fetch(FLOW_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 
-      if(!r.ok){
-        const t = await r.text().catch(()=> "");
-        setStatus("Fehler beim Senden." + (t ? " " + t.slice(0,160) : ""));
+      const data = await readResponse(r);
+      const success = !!(data && (data.success === true || data.ok === true));
+      const message = (data && typeof data.message === "string" && data.message.trim())
+        ? data.message.trim()
+        : (r.ok ? "Ihre Nachricht wurde erfolgreich übermittelt." : "Beim Senden ist ein Fehler aufgetreten.");
+
+      if (!r.ok || (data && (data.success === false || data.ok === false))){
+        showOverlay("done", "Fehler beim Senden", message);
+        setStatus("Fehler.");
+        setButtonDisabled(false);
+        validateFormUI();
         return;
       }
 
+      // Erfolg
+      showOverlay("done", "Erfolgreich gesendet", message);
       setStatus("Gesendet.");
+
       form.reset();
       const emailRadio = form.querySelector('input[name="preferenz"][value="E-Mail"]');
       if (emailRadio) emailRadio.checked = true;
-      itemsAnfrage = null;
 
+      itemsAnfrage = null;
       syncPrefActive();
+      validateFormUI();
 
     }catch(err){
-      setStatus("Fehler beim Senden. Bitte später erneut versuchen.");
+      showOverlay("done", "Fehler beim Senden", "Bitte später erneut versuchen.");
+      setStatus("Fehler.");
+      setButtonDisabled(false);
+      validateFormUI();
     }
   });
 })();
