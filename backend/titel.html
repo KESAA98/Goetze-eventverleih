@@ -7,6 +7,10 @@
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
     --nav-pad-right: 32px;
+
+    /* Text-Link Look (wie vorher) */
+    --nav-text: #5b6472;
+    --nav-text-hover: #1f2933;
   }
 
   .titlebar{
@@ -24,7 +28,7 @@
     transition: box-shadow .2s ease, border-bottom-color .2s ease;
   }
 
-  /* nach Scroll */
+  /* nach Scroll (wird von index.html gesetzt) */
   #title.is-scrolled .titlebar{
     border-bottom-color: transparent;
     box-shadow: var(--title-shadow);
@@ -34,6 +38,7 @@
     display:flex;
     align-items:center;
     padding-left: var(--logo-pad-left);
+    min-width: 0;
   }
 
   .titlebar__logo{
@@ -50,33 +55,50 @@
     white-space: nowrap;
   }
 
-  /* Text-Buttons (korrektes Design) */
-  .titlebar__link{
+  /* V2-Logik Buttons, aber V1-Optik (Text, kein Pill) */
+  .titlebar__btn{
     appearance:none;
     -webkit-appearance:none;
+
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap: 8px;
+
     background: transparent;
     border: 0;
+
     padding: 10px 0;
     margin: 0;
 
     font-size: 14px;
     letter-spacing: .2px;
-    color:#5b6472;
+    color: var(--nav-text);
     text-decoration: none;
 
-    cursor: pointer;
-    user-select: none;
+    cursor:pointer;
+    user-select:none;
     -webkit-tap-highlight-color: transparent;
     outline: none;
+    line-height: 1;
   }
 
-  .titlebar__link:hover{
-    color:#1f2933;
+  .titlebar__btn:hover{
+    color: var(--nav-text-hover);
   }
 
-  .titlebar__link:focus,
-  .titlebar__link:focus-visible{
+  .titlebar__btn:focus,
+  .titlebar__btn:focus-visible{
     outline:none;
+    box-shadow:none;
+  }
+
+  /* Icons behalten, aber dezent */
+  .titlebar__icon{
+    width: 16px;
+    height: 16px;
+    display:inline-block;
+    flex: 0 0 auto;
   }
 
   /* Mobile */
@@ -87,23 +109,32 @@
       --nav-pad-right: 10px;
     }
 
-    .titlebar__logo{
-      height: 34px;
-    }
+    .titlebar__logo{ height: 34px; }
 
     .titlebar__nav{
       gap: 14px;
     }
 
-    .titlebar__link{
+    .titlebar__btn{
       font-size: 13px;
       padding: 10px 6px;
-      border-radius: 10px;
+      border-radius: 10px; /* nur für :active Feedback */
+      min-height: 44px;
     }
 
-    .titlebar__link:active{
+    .titlebar__btn:active{
       background: rgba(0,0,0,.05);
     }
+
+    .titlebar__icon{
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  /* Sehr kleine Geräte: Text weg, Icon bleibt */
+  @media (max-width:360px){
+    .titlebar__btn span{ display:none; }
   }
 </style>
 
@@ -117,39 +148,32 @@
   </div>
 
   <nav class="titlebar__nav" aria-label="Hauptnavigation">
-    <button class="titlebar__link" type="button" data-action="shop">
-      Shop
+    <button class="titlebar__btn" type="button" data-action="shop" aria-label="Zum Shop">
+      <svg class="titlebar__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 7h15l-2 10H7L6 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M6 7 5 4H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" fill="currentColor"/>
+      </svg>
+      <span>Shop</span>
     </button>
 
-    <a class="titlebar__link" data-page="kontakt" href="#">
-      Kontakt
-    </a>
+    <button class="titlebar__btn" type="button" data-action="kontakt" aria-label="Zum Kontakt">
+      <svg class="titlebar__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 6h16v12H4V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+        <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+      <span>Kontakt</span>
+    </button>
   </nav>
 </div>
 
 <script>
 (function(){
-  function basePath(){
-    const host = (location.hostname || "").toLowerCase();
-    if (host.endsWith("github.io")) {
-      const seg = (location.pathname || "/").split("/").filter(Boolean)[0];
-      return seg ? ("/" + seg) : "";
-    }
-    return "";
-  }
-
-  function setNavLinks(){
-    const base = basePath();
-    document.querySelectorAll("[data-page]").forEach(a => {
-      const page = a.getAttribute("data-page");
-      a.setAttribute("href", base + "/" + page + "/");
-    });
-  }
-
   function goShop(){
-    if (typeof window.goShop === "function") {
-      window.goShop();
-    }
+    if (typeof window.goShop === "function") window.goShop();
+  }
+  function goFoot(){
+    if (typeof window.goFoot === "function") window.goFoot();
   }
 
   document.addEventListener("click", function(e){
@@ -157,9 +181,15 @@
     if (shopBtn){
       e.preventDefault();
       goShop();
+      return;
     }
-  });
 
-  setNavLinks();
+    const contactBtn = e.target.closest('[data-action="kontakt"]');
+    if (contactBtn){
+      e.preventDefault();
+      goFoot();
+      return;
+    }
+  }, { passive:false });
 })();
 </script>
