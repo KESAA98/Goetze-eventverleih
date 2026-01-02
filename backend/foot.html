@@ -1,4 +1,4 @@
-<!-- backend/foot.html  (FIX: Impressum-Balken NUR wenn Footer sichtbar ist; kein globales overflow:hidden mehr) -->
+<!-- backend/foot.html  (FIX: Kein Scroll in der Foot, Footer immer unten; Desktop = 100vh fit, Mobile = Footer drangehängt) -->
 
 <div class="foot-wrap" id="footRoot">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
@@ -70,7 +70,6 @@
     </div>
   </div>
 
-  <!-- bleibt drin für Styling/Markup; zusätzlich optional als Portal (fixed) wenn Footer sichtbar ist -->
   <div class="titlebar titlebar--foot" id="footTitlebar" role="contentinfo" aria-label="Fußzeile">
     <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
     <nav class="titlebar__nav" aria-label="Fußnavigation">
@@ -81,8 +80,7 @@
 
 <style>
   :root{
-    --title-height: 70px;
-
+    --title-height: 70px;      /* Fußzeilenhöhe */
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
     --nav-pad-right: 32px;
@@ -99,14 +97,15 @@
     --primary-2:#2b66d8;
 
     --stage-pad: 18px;
-    --textarea-h: 140px;
+    --textarea-h: 140px;       /* Desktop-Zielhöhe (wird per clamp dynamisch angepasst) */
   }
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
 
+  /* ===== Desktop Konzept: 100vh, keine Scrollbarkeit, Footer unten ===== */
   .foot-wrap{
     position:relative;
-    height: calc(var(--vh, 1vh) * 100);
+    height: 100vh;
     width:100%;
     overflow:hidden;
     background:#d9dde3;
@@ -120,6 +119,7 @@
     filter: saturate(.98) contrast(.98);
     z-index:0;
   }
+
   .foot-veil{
     position:absolute; inset:0;
     background:
@@ -130,26 +130,34 @@
     z-index:0;
   }
 
+  /* Bühne = Bildschirmhöhe - Footerhöhe */
   .foot-stage{
     position:relative;
     z-index:1;
-    height: calc((var(--vh, 1vh) * 100) - var(--title-height));
+    height: calc(100vh - var(--title-height));
     padding: var(--stage-pad) 24px;
     display:flex;
     align-items:center;
     justify-content:center;
-    overflow:hidden;
+    overflow:hidden; /* wichtig: kein Scrollen in der Foot */
   }
 
+  /* Panel soll innerhalb der Bühne komplett passen */
   .contact-panel{
     width: min(820px, 100%);
+    max-height: 100%;
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius);
     box-shadow: var(--panel-shadow);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    padding: 22px 22px 18px;
+    padding: 18px 22px 16px;
+
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    overflow:hidden; /* kein inneres Scrollen */
   }
 
   .contact-title{
@@ -159,14 +167,21 @@
     letter-spacing:-0.02em;
     color: var(--text);
   }
+
   .contact-sub{
-    margin:0 0 16px 0;
+    margin:0 0 14px 0;
     color: var(--muted);
-    line-height:1.55;
+    line-height:1.45;
     font-size: 14.5px;
   }
 
-  .contact-form{ display:flex; flex-direction:column; gap: 12px; }
+  .contact-form{
+    display:flex;
+    flex-direction:column;
+    gap: 10px;
+    min-height:0;
+    flex: 1 1 auto;
+  }
 
   .field{ display:flex; flex-direction:column; gap:6px; }
   .field > span{
@@ -187,12 +202,13 @@
     font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
+  /* Wichtig: textarea NICHT scrollbar -> wir passen die Höhe automatisch an */
   textarea{
-    height: var(--textarea-h);
-    min-height: var(--textarea-h);
-    max-height: var(--textarea-h);
+    height: clamp(92px, 16vh, var(--textarea-h));
+    min-height: clamp(92px, 16vh, var(--textarea-h));
+    max-height: clamp(92px, 16vh, var(--textarea-h));
     resize: none;
-    overflow:auto;
+    overflow:hidden;
     line-height: 1.35;
   }
 
@@ -204,7 +220,7 @@
 
   .row{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
 
-  .pref{ margin-top:2px; padding-top:6px; }
+  .pref{ margin-top:0; padding-top:4px; }
   .pref-label{
     color: rgba(15,23,42,0.68);
     font-size: 12.5px;
@@ -218,7 +234,7 @@
     position:relative;
     display:inline-flex;
     align-items:center;
-    padding: 10px 14px;
+    padding: 9px 14px;
     border-radius: 999px;
     background: rgba(255,255,255,0.62);
     border: 1px solid rgba(15,23,42,0.12);
@@ -251,13 +267,19 @@
     padding-top: 2px;
     color: rgba(15,23,42,0.72);
     font-size: 12.5px;
-    line-height: 1.45;
+    line-height: 1.35;
   }
   .consent input{ margin-top:3px; accent-color: var(--primary); }
   .consent a{ color: var(--primary); text-decoration:none; font-weight:760; }
   .consent a:hover{ text-decoration: underline; }
 
-  .actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-top:4px; }
+  .actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    padding-top: 2px;
+  }
 
   .btn-primary{
     border:0;
@@ -284,7 +306,7 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* ===== Footerbar Optik wie Titel ===== */
+  /* ===== Footerbar ===== */
   .titlebar{
     height: var(--title-height);
     background:#fff;
@@ -313,26 +335,53 @@
   .titlebar__link:hover{ color:#1f2933; }
   .titlebar__left--empty{ padding-left:0; width:1px; }
 
-  /* Standard: am Ende im Footer selbst */
+  /* Desktop: Footer IMMER unten im Foot-Viewport */
   .titlebar--foot{
     position:absolute;
     left:0; right:0; bottom:0;
     z-index: 50;
   }
 
-  /* Mobile */
+  /* ===== Mobile Konzept: Footer drangehängt (nicht überlagern) ===== */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
-      --textarea-h: 160px;
+      --textarea-h: 130px;
+      --stage-pad: 14px;
     }
+
+    /* Mobile: Inhalt + Footer untereinander */
+    .foot-wrap{
+      height: auto;
+      min-height: 100vh;
+      overflow: hidden; /* weiterhin keine Scroll/Overflows innerhalb der Foot */
+    }
+
+    .foot-stage{
+      height: auto;
+      padding: var(--stage-pad);
+      align-items:flex-start;
+    }
+
     .row{ grid-template-columns: 1fr; }
-    .foot-stage{ padding: 14px; align-items:flex-start; }
+
+    .titlebar--foot{
+      position: relative; /* hängt unten dran */
+      left:auto; right:auto; bottom:auto;
+    }
+
     .titlebar__nav{ gap: 14px; }
     .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
     .titlebar__link:active{ background: rgba(0,0,0,.05); }
+
+    /* auf kleinen Screens noch etwas kompakter */
+    textarea{
+      height: clamp(96px, 14vh, 150px);
+      min-height: clamp(96px, 14vh, 150px);
+      max-height: clamp(96px, 14vh, 150px);
+    }
   }
 </style>
 
@@ -341,11 +390,8 @@
   const FLOW_URL = "https://default91b0e232846941aab7d1176f14ecb7.8c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d6aba3378db4ea1bd72aeddae7b9c3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC1H-XcsNqqsISufNQcfHdXRdkwmgELEKJ8ZDB0lvYg";
   const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
 
-  const wrap = document.getElementById("footRoot");
   const bgEl = document.getElementById("footBg");
-  const titlebar = document.getElementById("footTitlebar");
 
-  // ===== Links / Routing =====
   function basePath(){
     const host = (location.hostname || "").toLowerCase();
     if (host.endsWith("github.io")) {
@@ -362,56 +408,6 @@
     });
   }
 
-  // ===== Portal (fixed) nur wenn Footer sichtbar ist =====
-  let portal = null;
-
-  function ensurePortal(){
-    if (!titlebar || portal) return;
-
-    portal = titlebar.cloneNode(true);
-    portal.id = "footTitlebarPortal";
-    portal.style.position = "fixed";
-    portal.style.left = "0";
-    portal.style.right = "0";
-    portal.style.bottom = "0";
-    portal.style.zIndex = "999999";
-    portal.style.width = "100%";
-    portal.style.display = "none"; // startet unsichtbar
-
-    document.body.appendChild(portal);
-    setNavLinks(portal);
-  }
-
-  function showPortal(on){
-    ensurePortal();
-    if (!portal) return;
-    portal.style.display = on ? "flex" : "none";
-  }
-
-  function watchFooterVisibility(){
-    // Wichtig: wenn foot.html gerade nicht aktiv sichtbar ist (Index zeigt z.B. head/shop),
-    // bleibt das Portal AUS -> der Balken taucht nicht global auf.
-    if (!wrap || !("IntersectionObserver" in window)){
-      // Fallback: wenn Observer fehlt, Portal nie global erzwingen
-      showPortal(false);
-      return;
-    }
-
-    const io = new IntersectionObserver((entries) => {
-      const e = entries && entries[0];
-      const on = !!e && e.isIntersecting && e.intersectionRatio >= 0.6;
-      showPortal(on);
-    }, { threshold: [0, 0.6, 1] });
-
-    io.observe(wrap);
-
-    window.addEventListener("beforeunload", () => {
-      try { io.disconnect(); } catch(_){}
-      if (portal && portal.parentNode) portal.parentNode.removeChild(portal);
-      portal = null;
-    });
-  }
-
   async function fetchJson(url){
     const r = await fetch(url, { cache: "no-store" });
     if(!r.ok) throw new Error("Fetch failed: " + url);
@@ -425,7 +421,6 @@
 
   // initial
   setNavLinks(document);
-  watchFooterVisibility();
 
   // Hintergrund
   (async function(){
