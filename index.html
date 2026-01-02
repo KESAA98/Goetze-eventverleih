@@ -41,6 +41,11 @@
 
     *, *::before, *::after{ box-sizing: border-box; }
 
+    /* Safety: niemals horizontal scrollen (verhindert Chrome-Scrollbar-Gutter) */
+    body{ overflow-x:hidden; }
+    #stage, #panels, #head, #shop, #foot{ overflow-x:hidden; }
+
+
     .slot{
       width:100%;
       border:0;
@@ -89,11 +94,12 @@
       will-change: transform;
     }
 
-    /* Head / Shop / Foot: nur intern scrollen (scrollbar versteckt, aber aktiv) */
+    /* Head / Shop / Foot: nur intern scrollen (NUR vertikal; verhindert 10–15px Scroll-Gutter unten) */
     #head, #shop, #foot{
       height: calc((var(--vh) * 100) - var(--title-height));
-      overflow:auto;
-      overscroll-behavior: contain;
+      overflow-y: auto;      /* nur vertikal */
+      overflow-x: hidden;    /* verhindert horizontale Scroll-Reserve */
+      overscroll-behavior-y: contain;
       -webkit-overflow-scrolling: touch;
     }
     #head, #shop, #foot{ scrollbar-width: none; }
