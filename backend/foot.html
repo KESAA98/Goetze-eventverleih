@@ -1,86 +1,94 @@
-<!-- backend/foot.html  (FIX: Kein Scroll in der Foot, Footer immer unten; Desktop = 100vh fit, Mobile = Footer drangehängt) -->
+<!-- backend/foot.html  (Desktop: Kontaktbereich = Foot-Höhe - Footbar-Höhe; Footbar NUR im Foot unten; kein Portal/fixed) -->
 
 <div class="foot-wrap" id="footRoot">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
 
-  <div class="foot-stage">
-    <div class="contact-panel" role="region" aria-label="Kontaktformular">
-      <h2 class="contact-title">Sie haben Fragen?</h2>
-      <p class="contact-sub">
-        Nutzen Sie gerne unser Kontaktfeld – wir melden uns zeitnah auf dem von Ihnen bevorzugten Weg.
-      </p>
+  <!-- ===== 2-Container-Layout: Content + Footbar ===== -->
+  <div class="foot-layout" id="footLayout">
+    <!-- CONTENT (nimmt Resthöhe über der Footbar) -->
+    <div class="foot-content" id="footContent">
+      <div class="contact-panel" role="region" aria-label="Kontaktformular">
+        <h2 class="contact-title">Sie haben Fragen?</h2>
+        <p class="contact-sub">
+          Nutzen Sie gerne unser Kontaktfeld – wir melden uns zeitnah auf dem von Ihnen bevorzugten Weg.
+        </p>
 
-      <form id="contactForm" class="contact-form" autocomplete="on">
-        <label class="field">
-          <span>Name</span>
-          <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
-        </label>
-
-        <div class="row">
+        <form id="contactForm" class="contact-form" autocomplete="on">
           <label class="field">
-            <span>E-Mail</span>
-            <input id="f_email" name="email" type="email" placeholder="name@mail.de" required />
+            <span>Name</span>
+            <input id="f_name" name="name" type="text" placeholder="Dein Name" required />
           </label>
 
-          <label class="field">
-            <span>Telefon</span>
-            <input id="f_phone" name="phone" type="tel" placeholder="+49 …" />
-          </label>
-        </div>
-
-        <label class="field">
-          <span>Nachricht</span>
-          <textarea id="f_msg" name="message" placeholder="Wie können wir Ihnen weiterhelfen?" required></textarea>
-        </label>
-
-        <div class="pref" role="group" aria-label="Bevorzugter Kontaktweg">
-          <div class="pref-label">Ich möchte per … kontaktiert werden</div>
-          <div class="pref-options">
-            <label class="pref-pill">
-              <input type="radio" name="preferenz" value="Telefon" />
-              <span>Telefon</span>
-            </label>
-
-            <label class="pref-pill">
-              <input type="radio" name="preferenz" value="E-Mail" checked />
+          <div class="row">
+            <label class="field">
               <span>E-Mail</span>
+              <input id="f_email" name="email" type="email" placeholder="name@mail.de" required />
             </label>
 
-            <label class="pref-pill">
-              <input type="radio" name="preferenz" value="WhatsApp" />
-              <span>WhatsApp</span>
+            <label class="field">
+              <span>Telefon</span>
+              <input id="f_phone" name="phone" type="tel" placeholder="+49 …" />
             </label>
           </div>
-        </div>
 
-        <label class="consent">
-          <input id="f_consent" type="checkbox" required />
-          <span>
-            Ich habe die <a data-page="datenschutz" href="#">Datenschutzerklärung</a> gelesen und akzeptiere die
-            <a data-page="agb" href="#">AGB</a>.
-          </span>
-        </label>
+          <label class="field">
+            <span>Nachricht</span>
+            <textarea id="f_msg" name="message" placeholder="Wie können wir Ihnen weiterhelfen?" required></textarea>
+          </label>
 
-        <div class="actions">
-          <button class="btn-primary" type="submit">Anfrage senden</button>
-          <span id="status" class="status" aria-live="polite"></span>
-        </div>
-      </form>
+          <div class="pref" role="group" aria-label="Bevorzugter Kontaktweg">
+            <div class="pref-label">Ich möchte per … kontaktiert werden</div>
+            <div class="pref-options">
+              <label class="pref-pill">
+                <input type="radio" name="preferenz" value="Telefon" />
+                <span>Telefon</span>
+              </label>
+
+              <label class="pref-pill">
+                <input type="radio" name="preferenz" value="E-Mail" checked />
+                <span>E-Mail</span>
+              </label>
+
+              <label class="pref-pill">
+                <input type="radio" name="preferenz" value="WhatsApp" />
+                <span>WhatsApp</span>
+              </label>
+            </div>
+          </div>
+
+          <label class="consent">
+            <input id="f_consent" type="checkbox" required />
+            <span>
+              Ich habe die <a data-page="datenschutz" href="#">Datenschutzerklärung</a> gelesen und akzeptiere die
+              <a data-page="agb" href="#">AGB</a>.
+            </span>
+          </label>
+
+          <div class="actions">
+            <button class="btn-primary" type="submit">Anfrage senden</button>
+            <span id="status" class="status" aria-live="polite"></span>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <div class="titlebar titlebar--foot" id="footTitlebar" role="contentinfo" aria-label="Fußzeile">
-    <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
-    <nav class="titlebar__nav" aria-label="Fußnavigation">
-      <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
-    </nav>
+    <!-- FOOTBAR (immer unten im Foot, Teil vom Foot; niemals global) -->
+    <div class="titlebar titlebar--foot" id="footTitlebar" role="contentinfo" aria-label="Fußzeile">
+      <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
+      <nav class="titlebar__nav" aria-label="Fußnavigation">
+        <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
+      </nav>
+    </div>
   </div>
 </div>
 
 <style>
   :root{
-    --title-height: 70px;      /* Fußzeilenhöhe */
+    /* Footbar-Höhe (weißes Band) */
+    --footbar-height: 70px;
+
+    /* Typografie/Abstände */
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
     --nav-pad-right: 32px;
@@ -97,17 +105,19 @@
     --primary-2:#2b66d8;
 
     --stage-pad: 18px;
-    --textarea-h: 140px;       /* Desktop-Zielhöhe (wird per clamp dynamisch angepasst) */
+
+    /* Wird per JS dynamisch angepasst, damit Desktop ohne Scroll passt */
+    --textarea-h: 140px;
   }
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
 
-  /* ===== Desktop Konzept: 100vh, keine Scrollbarkeit, Footer unten ===== */
+  /* foot.html füllt den #foot Slot (dessen Höhe kommt aus index.html) */
   .foot-wrap{
     position:relative;
-    height: 100vh;
+    height: 100%;
     width:100%;
-    overflow:hidden;
+    overflow:hidden;              /* kein Scroll im Wrapper */
     background:#d9dde3;
   }
 
@@ -119,7 +129,6 @@
     filter: saturate(.98) contrast(.98);
     z-index:0;
   }
-
   .foot-veil{
     position:absolute; inset:0;
     background:
@@ -130,34 +139,44 @@
     z-index:0;
   }
 
-  /* Bühne = Bildschirmhöhe - Footerhöhe */
-  .foot-stage{
+  /* ===== 2-Container-Layout ===== */
+  .foot-layout{
     position:relative;
     z-index:1;
-    height: calc(100vh - var(--title-height));
-    padding: var(--stage-pad) 24px;
+    height: 100%;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  /* Content bekommt IMMER die Resthöhe über der Footbar */
+  .foot-content{
+    height: calc(100% - var(--footbar-height));
+    min-height: 0;
     display:flex;
     align-items:center;
     justify-content:center;
-    overflow:hidden; /* wichtig: kein Scrollen in der Foot */
+    padding: var(--stage-pad) 24px;
+    overflow:hidden;              /* Desktop: kein Scroll in content */
   }
 
-  /* Panel soll innerhalb der Bühne komplett passen */
   .contact-panel{
     width: min(820px, 100%);
-    max-height: 100%;
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius);
     box-shadow: var(--panel-shadow);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    padding: 18px 22px 16px;
 
+    /* damit es sicher in die verfügbare Höhe passt */
+    max-height: 100%;
+    overflow: hidden;
+
+    padding: 22px 22px 18px;
     display:flex;
     flex-direction:column;
     min-height:0;
-    overflow:hidden; /* kein inneres Scrollen */
   }
 
   .contact-title{
@@ -167,20 +186,18 @@
     letter-spacing:-0.02em;
     color: var(--text);
   }
-
   .contact-sub{
-    margin:0 0 14px 0;
+    margin:0 0 16px 0;
     color: var(--muted);
-    line-height:1.45;
+    line-height:1.55;
     font-size: 14.5px;
   }
 
   .contact-form{
     display:flex;
     flex-direction:column;
-    gap: 10px;
+    gap: 12px;
     min-height:0;
-    flex: 1 1 auto;
   }
 
   .field{ display:flex; flex-direction:column; gap:6px; }
@@ -202,13 +219,13 @@
     font: 600 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
 
-  /* Wichtig: textarea NICHT scrollbar -> wir passen die Höhe automatisch an */
+  /* Textarea-Höhe wird per JS so gewählt, dass Desktop ohne Scroll passt */
   textarea{
-    height: clamp(92px, 16vh, var(--textarea-h));
-    min-height: clamp(92px, 16vh, var(--textarea-h));
-    max-height: clamp(92px, 16vh, var(--textarea-h));
+    height: var(--textarea-h);
+    min-height: var(--textarea-h);
+    max-height: var(--textarea-h);
     resize: none;
-    overflow:hidden;
+    overflow:hidden;              /* keine eigene Scrollbar */
     line-height: 1.35;
   }
 
@@ -220,7 +237,7 @@
 
   .row{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
 
-  .pref{ margin-top:0; padding-top:4px; }
+  .pref{ margin-top:2px; padding-top:6px; }
   .pref-label{
     color: rgba(15,23,42,0.68);
     font-size: 12.5px;
@@ -234,7 +251,7 @@
     position:relative;
     display:inline-flex;
     align-items:center;
-    padding: 9px 14px;
+    padding: 10px 14px;
     border-radius: 999px;
     background: rgba(255,255,255,0.62);
     border: 1px solid rgba(15,23,42,0.12);
@@ -267,19 +284,13 @@
     padding-top: 2px;
     color: rgba(15,23,42,0.72);
     font-size: 12.5px;
-    line-height: 1.35;
+    line-height: 1.45;
   }
   .consent input{ margin-top:3px; accent-color: var(--primary); }
   .consent a{ color: var(--primary); text-decoration:none; font-weight:760; }
   .consent a:hover{ text-decoration: underline; }
 
-  .actions{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    flex-wrap:wrap;
-    padding-top: 2px;
-  }
+  .actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding-top:4px; }
 
   .btn-primary{
     border:0;
@@ -306,15 +317,16 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* ===== Footerbar ===== */
+  /* ===== Footbar Optik wie Titel ===== */
   .titlebar{
-    height: var(--title-height);
+    height: var(--footbar-height);
     background:#fff;
     display:flex;
     align-items:center;
     justify-content:space-between;
     padding: 0 var(--title-pad-x);
     border-top: 1px solid rgba(0,0,0,.08);
+    flex: 0 0 var(--footbar-height);
   }
   .titlebar__left{ display:flex; align-items:center; padding-left: var(--logo-pad-left); min-width:0; }
   .titlebar__nav{ display:flex; align-items:center; gap: 34px; padding-right: var(--nav-pad-right); white-space:nowrap; }
@@ -335,53 +347,35 @@
   .titlebar__link:hover{ color:#1f2933; }
   .titlebar__left--empty{ padding-left:0; width:1px; }
 
-  /* Desktop: Footer IMMER unten im Foot-Viewport */
-  .titlebar--foot{
-    position:absolute;
-    left:0; right:0; bottom:0;
-    z-index: 50;
-  }
-
-  /* ===== Mobile Konzept: Footer drangehängt (nicht überlagern) ===== */
+  /* Mobile: Content darf scrollen, wenn nötig (und Layout wird kompakter) */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
       --logo-pad-left: 10px;
       --nav-pad-right: 10px;
-      --textarea-h: 130px;
       --stage-pad: 14px;
     }
 
-    /* Mobile: Inhalt + Footer untereinander */
-    .foot-wrap{
-      height: auto;
-      min-height: 100vh;
-      overflow: hidden; /* weiterhin keine Scroll/Overflows innerhalb der Foot */
-    }
-
-    .foot-stage{
-      height: auto;
+    .foot-content{
+      height: calc(100% - var(--footbar-height));
       padding: var(--stage-pad);
       align-items:flex-start;
+      overflow:auto;                 /* Mobile: wenn nötig scrollen */
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
+    .foot-content::-webkit-scrollbar{ width:0; height:0; }
 
     .row{ grid-template-columns: 1fr; }
-
-    .titlebar--foot{
-      position: relative; /* hängt unten dran */
-      left:auto; right:auto; bottom:auto;
+    textarea{
+      height: 150px;
+      min-height: 150px;
+      max-height: 150px;
+      overflow:auto;                 /* Mobile darf im Textfeld scrollen, sonst passt es nie */
     }
-
     .titlebar__nav{ gap: 14px; }
     .titlebar__link{ font-size: 13px; padding: 10px 6px; border-radius: 10px; }
     .titlebar__link:active{ background: rgba(0,0,0,.05); }
-
-    /* auf kleinen Screens noch etwas kompakter */
-    textarea{
-      height: clamp(96px, 14vh, 150px);
-      min-height: clamp(96px, 14vh, 150px);
-      max-height: clamp(96px, 14vh, 150px);
-    }
   }
 </style>
 
@@ -390,7 +384,11 @@
   const FLOW_URL = "https://default91b0e232846941aab7d1176f14ecb7.8c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/6d6aba3378db4ea1bd72aeddae7b9c3b/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=UC1H-XcsNqqsISufNQcfHdXRdkwmgELEKJ8ZDB0lvYg";
   const BG_MANIFEST_URL = "image/hintergrund/manifest.json";
 
+  const wrap = document.getElementById("footRoot");
   const bgEl = document.getElementById("footBg");
+  const content = document.getElementById("footContent");
+  const panel = wrap ? wrap.querySelector(".contact-panel") : null;
+  const ta = document.getElementById("f_msg");
 
   function basePath(){
     const host = (location.hostname || "").toLowerCase();
@@ -419,6 +417,66 @@
     bgEl.style.backgroundImage = "url('image/hintergrund/" + String(pick).replace(/'/g, "%27") + "')";
   }
 
+  function isMobile(){
+    return window.matchMedia && window.matchMedia("(max-width:700px)").matches;
+  }
+
+  // Desktop: Textarea so klein wie nötig, so groß wie möglich -> Panel passt ohne Scroll.
+  function fitDesktopTextarea(){
+    if (!wrap || !content || !panel || !ta) return;
+    if (isMobile()) return;
+
+    // Desktop: wir wollen KEIN Scroll. Also content overflow hidden.
+    content.style.overflow = "hidden";
+
+    // Startwerte
+    const minH = 90;
+    const maxH = 180;
+
+    // Hilfsfunktion: passt Panel in Content?
+    const fits = () => {
+      // panel scrollHeight > panel clientHeight => würde clippen/überlaufen
+      // aber wir haben overflow hidden -> wir messen besser Content:
+      const cH = content.clientHeight;
+      // Panel nimmt maximal cH - (Padding in content ist schon in clientHeight enthalten)
+      // Wenn panel scrollHeight <= cH => passt
+      return panel.scrollHeight <= cH;
+    };
+
+    // Erst maximal setzen, dann runterregeln bis es passt
+    let h = Math.min(maxH, parseInt(getComputedStyle(document.documentElement).getPropertyValue("--textarea-h")) || maxH);
+    document.documentElement.style.setProperty("--textarea-h", h + "px");
+
+    // Wenn es nicht passt, runter in Schritten
+    if (!fits()){
+      for (let step = 0; step < 50; step++){
+        h -= 4;
+        if (h < minH) { h = minH; break; }
+        document.documentElement.style.setProperty("--textarea-h", h + "px");
+        if (fits()) break;
+      }
+    }
+  }
+
+  // Wenn selbst mit minimaler Textarea das Panel nicht passt -> dann darf Content scrollen (Extremfälle)
+  function enableScrollIfNeeded(){
+    if (!wrap || !content || !panel || !ta) return;
+    if (isMobile()) return;
+
+    const minH = 90;
+    document.documentElement.style.setProperty("--textarea-h", minH + "px");
+
+    const cH = content.clientHeight;
+    if (panel.scrollHeight > cH + 2){
+      content.style.overflow = "auto";
+      content.style.scrollbarWidth = "none";
+      content.style.webkitOverflowScrolling = "touch";
+      content.addEventListener("scroll", ()=>{}, { passive:true });
+    }else{
+      content.style.overflow = "hidden";
+    }
+  }
+
   // initial
   setNavLinks(document);
 
@@ -439,6 +497,16 @@
     const el = form.querySelector('input[name="preferenz"]:checked');
     return el ? el.value : "E-Mail";
   }
+
+  // Fitting nach Layout-Init
+  const doFit = () => {
+    fitDesktopTextarea();
+    enableScrollIfNeeded();
+  };
+
+  requestAnimationFrame(doFit);
+  setTimeout(doFit, 50);
+  window.addEventListener("resize", () => setTimeout(doFit, 60), { passive:true });
 
   form.addEventListener("submit", async (ev) => {
     ev.preventDefault();
