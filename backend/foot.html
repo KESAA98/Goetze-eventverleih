@@ -1,13 +1,12 @@
-<!-- backend/foot.html  (Desktop: Content + Footbar nutzen exakt die verfügbare Foot-Höhe; kein Portal/fixed; kein Gap unten) -->
+<!-- backend/foot.html  (Fix: 0px Restfläche unten; Footbar NUR im Foot; Desktop ohne Scroll, Extremfälle optional; Mobile scroll ok) -->
 
 <div class="foot-wrap" id="footRoot">
   <div class="foot-bg" id="footBg" aria-hidden="true"></div>
   <div class="foot-veil" aria-hidden="true"></div>
 
-  <!-- ===== 2-Container-Layout: Content + Footbar ===== -->
+  <!-- Layout: Content absolut bis über Footbar, Footbar absolut unten -->
   <div class="foot-layout" id="footLayout">
 
-    <!-- CONTENT (nimmt Resthöhe über der Footbar) -->
     <div class="foot-content" id="footContent">
       <div class="contact-panel" role="region" aria-label="Kontaktformular">
         <h2 class="contact-title">Sie haben Fragen?</h2>
@@ -74,8 +73,7 @@
       </div>
     </div>
 
-    <!-- FOOTBAR (immer unten im Foot, Teil vom Foot) -->
-    <div class="titlebar titlebar--foot" id="footTitlebar" role="contentinfo" aria-label="Fußzeile">
+    <div class="titlebar" id="footTitlebar" role="contentinfo" aria-label="Fußzeile">
       <div class="titlebar__left titlebar__left--empty" aria-hidden="true"></div>
       <nav class="titlebar__nav" aria-label="Fußnavigation">
         <a class="titlebar__link" data-page="impressum" href="#">Impressum</a>
@@ -87,10 +85,8 @@
 
 <style>
   :root{
-    /* Footbar-Höhe (weißes Band) */
     --footbar-height: 70px;
 
-    /* Layout */
     --title-pad-x: 72px;
     --logo-pad-left: 32px;
     --nav-pad-right: 32px;
@@ -114,10 +110,10 @@
 
   .foot-wrap, .foot-wrap *{ box-sizing:border-box; }
 
-  /* Füllt den #foot Slot (Höhe kommt aus index.html) */
+  /* Füllt #foot Slot (Höhe kommt aus index.html) */
   .foot-wrap{
     position:relative;
-    height: 100%;
+    height:100%;
     width:100%;
     overflow:hidden;
     background:#d9dde3;
@@ -131,6 +127,7 @@
     filter: saturate(.98) contrast(.98);
     z-index:0;
   }
+
   .foot-veil{
     position:absolute; inset:0;
     background:
@@ -141,33 +138,32 @@
     z-index:0;
   }
 
-  /* ===== 2-Container-Layout (nur Flex, kein calc => kein Gap) ===== */
+  /* ===== absoluter Layout-Fix: 0px Restfläche ===== */
   .foot-layout{
     position:relative;
     z-index:1;
-    height: 100%;
-    display:flex;
-    flex-direction:column;
+    height:100%;
+    width:100%;
     overflow:hidden;
   }
 
-  /* Content nimmt exakt den Rest über der Footbar ein */
+  /* Content endet EXAKT über der Footbar */
   .foot-content{
-    flex: 1 1 auto;
-    min-height: 0;
-
+    position:absolute;
+    left:0; right:0;
+    top:0;
+    bottom: var(--footbar-height);
+    overflow:hidden; /* Desktop: kein Scroll */
     display:flex;
     align-items:center;
     justify-content:center;
 
-    /* WICHTIG: unten 0 -> kein “Restbalken” */
+    /* WICHTIG: unten 0, sonst „Restbalken“ */
     padding: var(--stage-pad) 24px 0;
-
-    overflow:hidden; /* Desktop: kein Scroll */
   }
 
   .contact-panel{
-    width: min(820px, 100%);
+    width:min(820px, 100%);
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius);
@@ -175,16 +171,15 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
-    /* Sicher in verfügbare Höhe zwingen */
-    max-height: 100%;
-    overflow: hidden;
+    max-height:100%;
+    overflow:hidden;
 
     padding: 22px 22px 18px;
     display:flex;
     flex-direction:column;
     min-height:0;
 
-    /* optischer Abstand zur Footbar (statt padding-bottom im Container) */
+    /* Optischer Abstand zur Footbar, ohne unten „Leere“ zu erzeugen */
     margin-bottom: 14px;
   }
 
@@ -195,6 +190,7 @@
     letter-spacing:-0.02em;
     color: var(--text);
   }
+
   .contact-sub{
     margin:0 0 16px 0;
     color: var(--muted);
@@ -233,7 +229,7 @@
     min-height: var(--textarea-h);
     max-height: var(--textarea-h);
     resize: none;
-    overflow:hidden; /* Desktop: keine eigene Scrollbar */
+    overflow:hidden;
     line-height: 1.35;
   }
 
@@ -325,9 +321,11 @@
 
   .status{ font-size:13px; color: rgba(15,23,42,0.70); font-weight:650; }
 
-  /* ===== Footbar ===== */
+  /* Footbar ist EXAKT unten, kein zusätzlicher Raum möglich */
   .titlebar{
-    flex: 0 0 var(--footbar-height);
+    position:absolute;
+    left:0; right:0; bottom:0;
+
     height: var(--footbar-height);
     background:#fff;
     display:flex;
@@ -336,6 +334,7 @@
     padding: 0 var(--title-pad-x);
     border-top: 1px solid rgba(0,0,0,.08);
   }
+
   .titlebar__left{ display:flex; align-items:center; padding-left: var(--logo-pad-left); min-width:0; }
   .titlebar__nav{ display:flex; align-items:center; gap: 34px; padding-right: var(--nav-pad-right); white-space:nowrap; }
   .titlebar__link{
@@ -355,7 +354,7 @@
   .titlebar__link:hover{ color:#1f2933; }
   .titlebar__left--empty{ padding-left:0; width:1px; }
 
-  /* Mobile: wenn nötig scrollen erlauben */
+  /* Mobile: Content darf scrollen (sonst passt es nie), Textarea darf scrollen */
   @media (max-width:700px){
     :root{
       --title-pad-x: 12px;
@@ -430,7 +429,7 @@
     return window.matchMedia && window.matchMedia("(max-width:700px)").matches;
   }
 
-  // Desktop: Textarea so klein wie nötig, damit Panel ohne Scroll in Content passt.
+  // Desktop: Textarea so klein wie nötig, damit Panel ohne Scroll passt.
   function fitDesktopTextarea(){
     if (!wrap || !content || !panel || !ta) return;
     if (isMobile()) return;
@@ -473,7 +472,6 @@
     }
   }
 
-  // initial
   setNavLinks(document);
 
   (async function(){
