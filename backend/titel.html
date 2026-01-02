@@ -24,7 +24,7 @@
     transition: box-shadow .2s ease, border-bottom-color .2s ease;
   }
 
-  /* nach Scroll (wird von index.html gesetzt) */
+  /* nach Scroll */
   #title.is-scrolled .titlebar{
     border-bottom-color: transparent;
     box-shadow: var(--title-shadow);
@@ -34,7 +34,6 @@
     display:flex;
     align-items:center;
     padding-left: var(--logo-pad-left);
-    min-width: 0;
   }
 
   .titlebar__logo{
@@ -51,11 +50,10 @@
     white-space: nowrap;
   }
 
-  /* TEXT-BUTTONS (korrektes altes Design) */
+  /* Text-Buttons (korrektes Design) */
   .titlebar__link{
     appearance:none;
     -webkit-appearance:none;
-
     background: transparent;
     border: 0;
     padding: 10px 0;
@@ -79,7 +77,6 @@
   .titlebar__link:focus,
   .titlebar__link:focus-visible{
     outline:none;
-    text-decoration:none;
   }
 
   /* Mobile */
@@ -126,10 +123,6 @@
 
     <a class="titlebar__link" data-page="kontakt" href="#">
       Kontakt
-    </a>
-
-    <a class="titlebar__link" data-page="impressum" href="#">
-      Impressum
     </a>
   </nav>
 </div>
