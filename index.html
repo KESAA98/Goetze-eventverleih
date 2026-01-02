@@ -95,12 +95,19 @@
     }
 
     /* Head / Shop / Foot: nur intern scrollen (NUR vertikal; verhindert 10–15px Scroll-Gutter unten) */
-    #head, #shop, #foot{
+    #head, #shop{
       height: calc((var(--vh) * 100) - var(--title-height));
       overflow-y: auto;      /* nur vertikal */
       overflow-x: hidden;    /* verhindert horizontale Scroll-Reserve */
       overscroll-behavior-y: contain;
       -webkit-overflow-scrolling: touch;
+    }
+
+    /* Foot: NIE selber scrollen (sonst entsteht unten häufig ein 10–15px Scroll-Gutter).
+       Scroll (falls nötig) passiert NUR innen in backend/foot.html. */
+    #foot{
+      height: calc((var(--vh) * 100) - var(--title-height));
+      overflow: hidden !important;
     }
     #head, #shop, #foot{ scrollbar-width: none; }
     #head::-webkit-scrollbar,
