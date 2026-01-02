@@ -707,9 +707,46 @@
     return el ? el.value : "E-Mail";
   }
 
+  const phoneInput = document.getElementById("f_phone");
+
+  function phoneRequiredFor(preferenz){
+    return preferenz === "Telefon" || preferenz === "WhatsApp";
+  }
+
+  function updatePhoneRequirement(){
+    if (!phoneInput) return;
+    const pref = getPreferenz();
+    const req = phoneRequiredFor(pref);
+
+    phoneInput.required = req;
+    phoneInput.setAttribute("aria-required", req ? "true" : "false");
+
+    // Optisch klarer: Placeholder je nach Auswahl
+    phoneInput.placeholder = req ? "+49 … (erforderlich)" : "+49 … (optional)";
+
+    // Falls gerade deaktiviert/optional: alte Validierungsfehler löschen
+    if (!req) phoneInput.setCustomValidity("");
+  }
+
+  function ensurePhoneIfRequired(){
+    if (!phoneInput) return true;
+    const pref = getPreferenz();
+    if (!phoneRequiredFor(pref)) return true;
+
+    const val = (phoneInput.value || "").trim();
+    if (val.length >= 3) return true;
+
+    phoneInput.focus();
+    phoneInput.setCustomValidity("Bitte geben Sie eine Telefonnummer an.");
+    phoneInput.reportValidity();
+    // nach Anzeige wieder zurücksetzen, damit Browser-UI korrekt bleibt
+    setTimeout(() => phoneInput.setCustomValidity(""), 0);
+    return false;
+  }
+
   // Preference events
   document.querySelectorAll('.pref-pill input[name="preferenz"]').forEach(r => {
-    r.addEventListener("change", syncPrefActive);
+    r.addEventListener("change", () => { syncPrefActive(); updatePhoneRequirement(); validateFormUI(); });
   });
   document.querySelectorAll(".pref-pill").forEach(pill => {
     pill.addEventListener("click", () => {
@@ -725,6 +762,7 @@
     });
   });
   syncPrefActive();
+  updatePhoneRequirement();
 
   // Validierung: Buttonstatus live aktualisieren
   ["input","change","keyup","blur"].forEach(evName => {
@@ -760,10 +798,16 @@
       return;
     }
 
+    updatePhoneRequirement();
+    if (!ensurePhoneIfRequired()){
+      validateFormUI();
+      return;
+    }
+
     const payload = {
       Name: document.getElementById("f_name").value.trim(),
       Email: document.getElementById("f_email").value.trim(),
-      Telefon: document.getElementById("f_phone").value.trim() || "",
+      Telefon: (phoneRequiredFor(getPreferenz()) ? (phoneInput.value.trim()) : (phoneInput.value.trim() || null)),
       Nachricht: document.getElementById("f_msg").value.trim(),
       Preferenz: getPreferenz(),
       Zustimmung: true,
@@ -807,6 +851,7 @@
 
       itemsAnfrage = null;
       syncPrefActive();
+      updatePhoneRequirement();
       validateFormUI();
 
     }catch(err){
